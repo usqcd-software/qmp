@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.3  2003/02/13 16:22:24  chen
+ *   qmp version 1.2
+ *
  *   Revision 1.2  2003/02/11 03:39:24  flemingg
  *   GTF: Update of automake and autoconf files to use qmp-config in lieu
  *        of qmp_build_env.sh
@@ -89,10 +92,12 @@ QMP_error_string (QMP_status_t code)
   if (code < QMP_MAX_STATUS && code >= QMP_ERROR)
     return QMP_error_strings[code - QMP_ERROR + 1];
 
+#if ! defined(_AIX)
   if (code <= MPI_ERR_WIN && code >= MPI_ERR_BUFFER) {
     MPI_Error_string (code, errstr, &errlen);
     return (const char *)&errstr;
   }
+#endif
   
   snprintf (errstr, sizeof (errstr) - 1, "unknown error code %d", code);
   return (const char *)&errstr;
