@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.1  2004/10/08 04:49:34  osborn
+ *   Split src directory into include and lib.
+ *
  *   Revision 1.5  2004/06/14 20:36:30  osborn
  *   Updated to API version 2 and added single node target
  *
@@ -78,11 +81,9 @@ enum MH_type
 };
 
 /* Message Memory structure */
-/* here we use a C99 flexible array member so we can allocate the
-   structure and memory together */
 struct QMP_mem_struct_t {
   void *aligned_ptr;
-  char mem[];
+  void *allocated_ptr;
 };
 
 /* Message Memory structure */

@@ -16,6 +16,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.3  2004/06/14 20:36:30  osborn
+ *   Updated to API version 2 and added single node target
+ *
  *   Revision 1.2  2003/06/14 03:31:10  edwards
  *   Added another example of a broadcast. This also shows the MPICH memory problem.
  *
@@ -75,7 +78,7 @@ stupid_broadcast(void *send_buf, int count)
 int main (int argc, char** argv)
 {
   int verbose;
-  QMP_status_t status, err;
+  QMP_status_t status;
   QMP_thread_level_t req, prv;
 
   verbose = 0;

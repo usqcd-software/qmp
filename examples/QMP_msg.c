@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.4  2004/06/14 20:36:30  osborn
+ *   Updated to API version 2 and added single node target
+ *
  *   Revision 1.3  2003/02/13 16:23:04  chen
  *   qmp version 1.2
  *
@@ -100,9 +103,9 @@ int main (int argc, char** argv)
     else
       bcast_value = 2321333.0;
     
-    QMP_broadcast (&bcast_value, 8);
+    QMP_broadcast (&bcast_value, sizeof(double));
     
-    QMP_printf ("bcast value is %lf\n", bcast_value);
+    QMP_printf ("bcast value is %f\n", bcast_value);
   }
 
   /* global sum test.
@@ -112,7 +115,7 @@ int main (int argc, char** argv)
 
     value = 4;
     QMP_sum_int (&value);
-    
+
     QMP_printf ("sum is %d\n", value);
   }
 
@@ -132,7 +135,7 @@ int main (int argc, char** argv)
 
     if (QMP_sum_double_array (dvalue, length) == QMP_SUCCESS) {
       for (i = 0; i < length; i++) 
-	QMP_printf ("dvalue[%d] is %lf\n", i, dvalue[i]);
+	QMP_printf ("dvalue[%d] is %f\n", i, dvalue[i]);
     }
     else
       QMP_printf ("Error in global array sum\n");
@@ -154,7 +157,7 @@ int main (int argc, char** argv)
 
     if (QMP_sum_float_array (fvalue, length) == QMP_SUCCESS) {
       for (i = 0; i < length; i++) 
-	QMP_printf ("fvalue[%d] is %lf\n", i, fvalue[i]);
+	QMP_printf ("fvalue[%d] is %f\n", i, fvalue[i]);
     }
     else
       QMP_printf ("Error in global array sum\n");
@@ -182,7 +185,7 @@ int main (int argc, char** argv)
     QMP_printf ("final mask is 0x%lx\n", mask);
   }
 
-  
+
   /* global binary reduction test */
   {
     float value[10];

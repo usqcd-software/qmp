@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.4  2004/06/14 20:36:30  osborn
+ *   Updated to API version 2 and added single node target
+ *
  *   Revision 1.3  2003/02/13 16:23:04  chen
  *   qmp version 1.2
  *
@@ -141,10 +144,8 @@ void init_wnxtsu3dslash(void)
 
 int main (int argc, char** argv)
 {
-  int i, j, k, value, loops, verbose;
-  QMP_bool_t sender;
+  int i, j, k, loops;
   QMP_status_t status, err;
-  int  rank;
   double it, ft, dt, bwval;
   QMP_thread_level_t req, prv;
 

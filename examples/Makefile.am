@@ -5,6 +5,7 @@ check_PROGRAMS = QMP_test          \
                  QMP_grid_test     \
                  QMP_loopback      \
                  QMP_qcd_test      \
+                 QMP_stride_test   \
                  QMP_perf          \
                  QMP_broadcast     \
                  QMP_gcomm_perf    \

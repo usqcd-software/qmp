@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.1  2004/10/08 04:49:34  osborn
+ *   Split src directory into include and lib.
+ *
  *   Revision 1.7  2004/06/25 18:08:05  bjoo
  *   DONT USE C++ COMMENTS IN C CODElsls!
  *
@@ -395,7 +398,7 @@ QMP_wait(QMP_msghandle_t msgh)
 QMP_status_t
 QMP_wait_all(QMP_msghandle_t msgh[], int num)
 {
-  QMP_status_t err;
+  QMP_status_t err=QMP_ERROR;
   int i;
 
 #ifdef _QMP_DEBUG
@@ -574,8 +577,7 @@ QMP_binary_reduction (void *lbuffer, size_t count, QMP_binary_func bfunc)
   if (qmp_user_bfunc_) 
     QMP_FATAL ("Another binary reduction is in progress.");
 
-  /* rbuffer = QMP_memalign (count, QMP_MEM_ALIGNMENT); */
-  rbuffer = QMP_allocate_memory (count);
+  rbuffer = malloc(count);
   if (!rbuffer)
     return QMP_NOMEM_ERR;
 
@@ -594,7 +596,7 @@ QMP_binary_reduction (void *lbuffer, size_t count, QMP_binary_func bfunc)
 
   if (status == QMP_SUCCESS) 
     memcpy (lbuffer, rbuffer, count);
-  QMP_free_memory (rbuffer);
+  free(rbuffer);
 
   /* free binary operator */
   /* MPI_Op_free (&bop); */

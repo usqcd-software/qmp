@@ -8,6 +8,11 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.3  2004/10/31 23:21:35  osborn
+ *   Restored proper behavior of msghandle operations in single node version.
+ *   Added CFLAGS to qmp-config script.
+ *   Changed QMP_status_code_t to QMP_status_t in qmp.h.
+ *
  *   Revision 1.2  2004/10/18 18:17:22  edwards
  *   Added support for calling msghandle functions.
  *
@@ -31,11 +36,9 @@
 #define QMP_MSGMEM_ALLOCATED ((QMP_msgmem_t)12345)
 
 /* Message Memory structure */
-/* here we use a C99 flexible array member so we can allocate the
-   structure and memory together */
 struct QMP_mem_struct_t {
   void *aligned_ptr;
-  char mem[];
+  void *allocated_ptr;
 };
 
 #endif /* _QMP_P_COMMON_H */

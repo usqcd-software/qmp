@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.1  2004/10/08 04:49:34  osborn
+ *   Split src directory into include and lib.
+ *
  *   Revision 1.9  2004/06/25 18:08:05  bjoo
  *   DONT USE C++ COMMENTS IN C CODElsls!
  *
@@ -67,8 +70,16 @@ QMP_mem_t *
 QMP_allocate_memory (size_t nbytes)
 {
   QMP_mem_t *mem;
-  mem = malloc(sizeof(QMP_mem_t)+nbytes);
-  if(mem) mem->aligned_ptr = mem->mem;
+  mem = (QMP_mem_t *) malloc(sizeof(QMP_mem_t));
+  if(mem) {
+    mem->allocated_ptr = malloc(nbytes);
+    if(mem->allocated_ptr) {
+      mem->aligned_ptr = mem->allocated_ptr;
+    } else {
+      free(mem);
+      mem = NULL;
+    }
+  }
   return mem;
 }
 
@@ -79,14 +90,20 @@ QMP_mem_t *
 QMP_allocate_aligned_memory (size_t nbytes, size_t alignment, int flags)
 {
   QMP_mem_t *mem;
-  if(alignment<0) alignment = 0;  /* shouldn't happen but doesn't hurt to check */
-  mem = malloc(sizeof(QMP_mem_t)+nbytes+alignment);
+  if(alignment<0) alignment = 0; /*shouldn't happen but doesn't hurt to check*/
+  mem = (QMP_mem_t *) malloc(sizeof(QMP_mem_t));
   if(mem) {
-    if(alignment) {
-      mem->aligned_ptr = (void *)
-	( ( ( (size_t)(mem->mem+alignment-1) )/alignment )*alignment );
+    mem->allocated_ptr = malloc(nbytes+alignment);
+    if(mem->allocated_ptr) {
+      if(alignment) {
+	mem->aligned_ptr = (void *)
+	  (((((size_t)(mem->allocated_ptr))+alignment-1)/alignment)*alignment);
+      } else {
+	mem->aligned_ptr = mem->allocated_ptr;
+      }
     } else {
-      mem->aligned_ptr = mem->mem;
+      free(mem);
+      mem = NULL;
     }
   }
   return mem;
@@ -107,7 +124,10 @@ QMP_get_memory_pointer (QMP_mem_t* mem)
 void
 QMP_free_memory (QMP_mem_t* mem)
 {
-  free (mem);
+  if(mem) {
+    free(mem->allocated_ptr);
+    free(mem);
+  }
 }
 
 /* Alloc message handler */
@@ -141,28 +161,23 @@ QMP_declare_strided_msgmem (void* base,
 			    int nblocks,
 			    ptrdiff_t stride)
 {
-
   Message_Memory_t mem = (Message_Memory_t)MP_allocMsgMem();
 
   if (mem) {
-    int mpi_stride = stride+blksize;
     int err_code;
-
 
     mem->mem = (void *)base;
 
-
-    if( stride == 0 ) { 
+    if( stride == blksize ) { 
       /* Not really strided */
       mem->type = MM_user_buf;
       mem->nbytes = blksize*nblocks;
       mem->mpi_type = MPI_BYTE;
       return(QMP_msgmem_t)mem;
-    }
-    else {
+    } else {
       mem->type = MM_strided_buf;
       /* Really strided */
-      err_code = MPI_Type_vector(nblocks, blksize, mpi_stride, MPI_BYTE,
+      err_code = MPI_Type_vector(nblocks, blksize, stride, MPI_BYTE,
 				 &(mem->mpi_type));
 
       /* if MPI_Type_vector fails */
@@ -181,8 +196,8 @@ QMP_declare_strided_msgmem (void* base,
       /* It succeeded */
       return (QMP_msgmem_t)mem;
     }
-  }
-  else {
+
+  } else {
     QMP_SET_STATUS_CODE (QMP_NOMEM_ERR);
     return(QMP_msgmem_t)0;
   }
@@ -207,9 +222,9 @@ QMP_declare_strided_array_msgmem (void* base[],
     MPI_Datatype tdt[2], dt[narray];
 
 #define check_error if(err_code!=MPI_SUCCESS) { \
-      QMP_free_msgmem(mem); \
-      QMP_SET_STATUS_CODE (QMP_ERROR); \
-      return(QMP_msgmem_t)0; \
+      QMP_free_msgmem(mem);			\
+      QMP_SET_STATUS_CODE (QMP_ERROR);		\
+      return(QMP_msgmem_t)0;			\
     }
 
     mem->type = MM_strided_array_buf;

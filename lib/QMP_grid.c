@@ -24,6 +24,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.1  2004/10/08 04:49:34  osborn
+ *   Split src directory into include and lib.
+ *
  *   Revision 1.7  2004/09/04 03:33:29  edwards
  *   Changed QMP_layout_grid to take a const qualifier on args.
  *
@@ -83,12 +86,14 @@ static QMP_subgrid_t subgrid;
 static int prime[] = {2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53};
 #define MAXPRIMES (sizeof(prime)/sizeof(int))
 
+#if 0
 /* Check if a is a factor of b */
 static unsigned 
 is_factor(unsigned a, unsigned b)
 {
   return ((b % a) == 0 ? 1 : 0);
 }
+#endif
 
 /*
  * QMP_layout_grid

@@ -8,6 +8,11 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.3  2004/10/31 23:21:36  osborn
+ *   Restored proper behavior of msghandle operations in single node version.
+ *   Added CFLAGS to qmp-config script.
+ *   Changed QMP_status_code_t to QMP_status_t in qmp.h.
+ *
  *   Revision 1.2  2004/10/18 18:17:22  edwards
  *   Added support for calling msghandle functions.
  *
@@ -36,8 +41,16 @@ QMP_mem_t *
 QMP_allocate_memory (size_t nbytes)
 {
   QMP_mem_t *mem;
-  mem = malloc(sizeof(QMP_mem_t)+nbytes);
-  if(mem) mem->aligned_ptr = mem->mem;
+  mem = (QMP_mem_t *) malloc(sizeof(QMP_mem_t));
+  if(mem) {
+    mem->allocated_ptr = malloc(nbytes);
+    if(mem->allocated_ptr) {
+      mem->aligned_ptr = mem->allocated_ptr;
+    } else {
+      free(mem);
+      mem = NULL;
+    }
+  }
   return mem;
 }
 
@@ -48,14 +61,20 @@ QMP_mem_t *
 QMP_allocate_aligned_memory (size_t nbytes, size_t alignment, int flags)
 {
   QMP_mem_t *mem;
-  if(alignment<0) alignment = 0;  // shouldn't happen but doesn't hurt to check
-  mem = malloc(sizeof(QMP_mem_t)+nbytes+alignment);
+  if(alignment<0) alignment = 0; /*shouldn't happen but doesn't hurt to check*/
+  mem = (QMP_mem_t *) malloc(sizeof(QMP_mem_t));
   if(mem) {
-    if(alignment) {
-      mem->aligned_ptr = (void *)
-	( ( ( (size_t)(mem->mem+alignment-1) )/alignment )*alignment );
+    mem->allocated_ptr = malloc(nbytes+alignment);
+    if(mem->allocated_ptr) {
+      if(alignment) {
+	mem->aligned_ptr = (void *)
+	  (((((size_t)(mem->allocated_ptr))+alignment-1)/alignment)*alignment);
+      } else {
+	mem->aligned_ptr = mem->allocated_ptr;
+      }
     } else {
-      mem->aligned_ptr = mem->mem;
+      free(mem);
+      mem = NULL;
     }
   }
   return mem;
@@ -76,9 +95,11 @@ QMP_get_memory_pointer (QMP_mem_t* mem)
 void
 QMP_free_memory (QMP_mem_t* mem)
 {
-  free (mem);
+  if(mem) {
+    free(mem->allocated_ptr);
+    free(mem);
+  }
 }
-
 
 /* Basic buffer constructor */
 QMP_msgmem_t

@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.1  2004/10/08 04:49:34  osborn
+ *   Split src directory into include and lib.
+ *
  *   Revision 1.8  2004/06/14 20:36:31  osborn
  *   Updated to API version 2 and added single node target
  *
@@ -58,9 +61,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <ctype.h>
 #include <stdarg.h>
+#define __USE_UNIX98 /* needed to get gethostname from GNU unistd.h */
+#include <unistd.h>
 
 #include "qmp.h"
 #include "QMP_P_COMMON.h"
@@ -103,15 +107,20 @@ QMP_status_t
 QMP_init_msg_passing (int* argc, char*** argv, QMP_thread_level_t required,
 		      QMP_thread_level_t *provided)
 {
-  /* Basic variables containing number of nodes and which node this process is */
-  int mpi_req, mpi_prv;
+ /* Basic variables containing number of nodes and which node this process is */
   int PAR_num_nodes;
   int PAR_node_rank;
 
+#if 0 /* MPI_Init_thread seems to be broken on the Cray X1 so we will
+         use MPI_Init for now until we need real thread support */
+  int mpi_req, mpi_prv;
   mpi_req = MPI_THREAD_SINGLE;  /* just single for now */
-  *provided = QMP_THREAD_SINGLE;  /* just single for now */
-
   if (MPI_Init_thread(argc, argv, mpi_req, &mpi_prv) != MPI_SUCCESS) 
+    QMP_abort_string (-1, "MPI_Init failed");
+#endif
+
+  *provided = QMP_THREAD_SINGLE;  /* just single for now */
+  if (MPI_Init(argc, argv) != MPI_SUCCESS) 
     QMP_abort_string (-1, "MPI_Init failed");
   if (MPI_Comm_dup(MPI_COMM_WORLD, &QMP_COMM_WORLD) != MPI_SUCCESS)
     QMP_abort_string (-1, "MPI_Comm_dup failed");
