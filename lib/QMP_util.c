@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.1  2004/10/08 04:49:34  osborn
+ *   Split src directory into include and lib.
+ *
  *   Revision 1.2  2004/09/01 21:16:47  osborn
  *   Added QMP_is_initialized().
  *
@@ -87,6 +90,17 @@ QMP_profcontrol (int level)
   int old = QMP_global_m->proflevel;
   QMP_global_m->proflevel = level;
   return old;
+}
+/**
+ *Dummy functions for QMP_profiling
+ */
+void  
+QMP_reset_total_qmp_time(void){
+   
+}
+double 
+QMP_get_total_qmp_time(void){
+   return 0;
 }
 
 /**
