@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.8  2004/04/08 09:00:20  bjoo
+ *   Added experimental support for strided msgmem
+ *
  *   Revision 1.7  2003/12/19 04:51:29  edwards
  *   Added prototype for QMP_route.
  *
@@ -54,79 +57,34 @@
  */
 
 #include <stdio.h>
+#include <stddef.h>  /* needed for ptrdiff_t */
+
+/**
+ * Current version information in string form.
+ * Provided by autoconf.
+ */
+#define QMP_VERSION_STR PACKAGE_VERSION
 
 /**
  * Version Information about QCD Message Passing API.
  */
-#define QMP_MAJOR_VERSION 1
-#define QMP_MINOR_VERSION 2
-#define QMP_REVIS_VERSION 0
+#define QMP_MAJOR_VERSION ((QMP_VERSION_STR)[0])
+#define QMP_MINOR_VERSION ((QMP_VERSION_STR)[2])
+#define QMP_REVIS_VERSION ((QMP_VERSION_STR)[4])
 
 /**
  * Current version of QCD Message Passing API.
  */
-#define QMP_VERSION_CODE (((QMP_MAJOR_VERSION) << 8) + ((QMP_MINOR_VERSION) << 4) + (QMP_REVIS_VERSION))
+#define QMP_VERSION_CODE QMP_VERSION(QMP_MAJOR_VERSION, QMP_MINOR_VERSION, QMP_REVIS_VERSION)
 
 /**
  * Calculate version code from major, minor, revs numbers.
  */
 #define QMP_VERSION (a, b, c) (((a) << 8) + ((b) << 4) + (c))
 
-/**
- * Current version information in string form.
- */
-#define QMP_VERSION_STR "1.2.0"
-
-/**
- * 64 bit os environment.
- */
-#if defined (__sparcv9) || defined (__alpha)
-#define QMP_64BIT_LONG
-#endif 
-
-/**
- * Define QCD Message passing own types for better portablity.
- */
-typedef unsigned char      QMP_u8_t;
-typedef unsigned short     QMP_u16_t;
-typedef unsigned int       QMP_u32_t;
-typedef char               QMP_s8_t;
-typedef short              QMP_s16_t;
-typedef int                QMP_s32_t;
 typedef int                QMP_bool_t;
-
 #define QMP_TRUE           (QMP_bool_t)1
 #define QMP_FALSE          (QMP_bool_t)0
-
-#ifdef QMP_64BIT_LONG
-typedef unsigned long      QMP_u64_t;
-typedef long               QMP_s64_t;
-#else
-typedef unsigned long long QMP_u64_t;
-typedef long long          QMP_s64_t;
-#endif
-
-typedef float              QMP_float_t;
-typedef double             QMP_double_t;
-
-/**
- * General data type for QMP
- */
-typedef enum QMP_datatype
-{
-  QMP_UNSIGNED_CHAR = 0,
-  QMP_CHAR,
-  QMP_BYTE,
-  QMP_UNSIGNED_SHORT,
-  QMP_SHORT,
-  QMP_UNSIGNED_INT,
-  QMP_INT,
-  QMP_UNSIGNED_64BIT_INT,
-  QMP_64BIT_INT,
-  QMP_FLOAT,
-  QMP_DOUBLE,
-  QMP_NUM_S_TYPES
-}QMP_datatype_t;
 
 /**
  * Function status code.
@@ -174,19 +132,33 @@ typedef enum QMP_ictype
 }QMP_ictype_t;
 
 /**
- * Use single address or multiple address for a smp box.
+ * Thread Safety Level.
  */
-typedef enum QMP_smpaddr_type
+typedef enum QMP_thread_level
 {
-  QMP_SMP_ONE_ADDRESS,
-  QMP_SMP_MULTIPLE_ADDRESS
-}QMP_smpaddr_type_t;
+  QMP_THREAD_SINGLE,
+  QMP_THREAD_FUNNELED,
+  QMP_THREAD_SERIALIZED,
+  QMP_THREAD_MULTIPLE
+}QMP_thread_level_t;
 
+#define QMP_ALIGN_ANY     0
+#define QMP_ALIGN_DEFAULT QMP_ALIGN_ANY
+
+#define QMP_MEM_NONCACHE  0x01
+#define QMP_MEM_COMMS     0x02
+#define QMP_MEM_FAST      0x04
+#define QMP_MEM_DEFAULT   (QMP_MEM_COMMS|QMP_MEM_FAST)
 
 /**
  * QMP status 
  */
 typedef int QMP_status_t;
+
+/**
+ * Memory type 
+ */
+typedef struct QMP_mem_struct_t QMP_mem_t;
 
 /**
  * Message Memory type 
@@ -204,7 +176,7 @@ typedef void* QMP_msghandle_t;
  * operation is defined as inout = inout op in;
  * this is the same definition as the MPI
  */
-typedef void  (*QMP_binary_func) (void* inout, void* in);
+typedef void (*QMP_binary_func) (void* inout, void* in);
 
 
 #ifdef __cplusplus
@@ -216,6 +188,11 @@ extern "C"
  * QMP Functions C APIs
  */
 
+
+/*************************************
+ *  Initialization and finalization  *
+ *************************************/
+
 /**
  * Initialization message passing. This must be called before 
  * real message passing begins.
@@ -226,7 +203,8 @@ extern "C"
  * @return QMP_SUCCESS if the QMP system is initialized correctly.
  */
 extern QMP_status_t       QMP_init_msg_passing (int* argc, char*** argv,
-						QMP_smpaddr_type_t option);
+						QMP_thread_level_t required,
+						QMP_thread_level_t *provided);
 
 /**
  * Shutdown QMP message passing system. Release system resource and memory.
@@ -238,19 +216,18 @@ extern void               QMP_finalize_msg_passing (void);
  * Shutdown QMP message passing system and abort program. The error_code may
  * be used for the return code of the program. 
  */
-extern void               QMP_abort (QMP_s32_t error_code);
+extern void               QMP_abort (int error_code);
 
 /**
- * Verbose mode of execution.
- * @param verbose true turn on verbose mode.
+ * Shutdown QMP message passing system and abort program and print string.
+ * The error_code may be used for the return code of the program. 
  */
-extern void               QMP_verbose  (QMP_bool_t verbose);
+extern void               QMP_abort_string (int error_code, char *message);
 
-/**
- * Get SMP Count for this node.
- * @return number of CPUs in this node.
- */
-extern QMP_u32_t          QMP_get_SMP_count (void);
+
+/********************************
+ *  Allocated machine routines  *
+ ********************************/
 
 /**
  * Get network inter_connection type
@@ -263,7 +240,19 @@ extern QMP_ictype_t       QMP_get_msg_passing_type (void);
  *
  * @return number of allocated nodes for this job.
  */
-extern QMP_u32_t          QMP_get_number_of_nodes (void);
+extern int                QMP_get_number_of_nodes (void);
+
+/**
+ * Get node number of this machine
+ *
+ * @return node number of this machine
+ */
+extern int                QMP_get_node_number (void);
+
+/**
+ * Check whether a node is the physical root node or not.
+ */
+extern QMP_bool_t         QMP_is_primary_node (void);
 
 /**
  * Get number of allocated dimensions.
@@ -271,7 +260,7 @@ extern QMP_u32_t          QMP_get_number_of_nodes (void);
  * @return number of dimensions in a grid type of machines, 0 for
  * switched configuration.
  */
-extern QMP_u32_t          QMP_get_allocated_number_of_dimensions (void);
+extern int                QMP_get_allocated_number_of_dimensions (void);
 
 /**
  * Return allocated size of grid machines.
@@ -280,7 +269,7 @@ extern QMP_u32_t          QMP_get_allocated_number_of_dimensions (void);
  * @return null if underlying machines are switched machines.
  * 
  */
-extern const QMP_u32_t*   QMP_get_allocated_dimensions (void);
+extern const int*         QMP_get_allocated_dimensions (void);
 
 /**
  * Get coordinate information about allocated machines.
@@ -289,8 +278,12 @@ extern const QMP_u32_t*   QMP_get_allocated_dimensions (void);
  * @return 0 if the configuration is a network switched configuration.
  *
  */
-extern const QMP_u32_t*   QMP_get_allocated_coordinates (void);
+extern const int*         QMP_get_allocated_coordinates (void);
 
+
+/******************************
+ *  Logical topology routines *
+ ******************************/
 
 /**
  * Forces the logical topology to be a simple grid of given dimensions.
@@ -299,8 +292,8 @@ extern const QMP_u32_t*   QMP_get_allocated_coordinates (void);
  * @param ndim number of logical dimensions.
  * @return QMP_TRUE: if success, otherwise return QMP_FALSE
  */
-extern QMP_bool_t         QMP_declare_logical_topology (const QMP_u32_t* dims,
-							QMP_u32_t ndim);
+extern QMP_status_t       QMP_declare_logical_topology (const int dims[],
+							int ndim);
 
 /**
  * Check whether a logical topology is declared or not.
@@ -315,7 +308,7 @@ extern QMP_bool_t         QMP_logical_topology_is_declared (void);
  * @return dimensionality of the logical topology. If there is no
  * logical topology, return physical topology information.
  */
-extern QMP_u32_t          QMP_get_logical_number_of_dimensions (void);
+extern int                QMP_get_logical_number_of_dimensions (void);
 
 /**
  * Get dimension size information for a logical topology.
@@ -323,15 +316,7 @@ extern QMP_u32_t          QMP_get_logical_number_of_dimensions (void);
  * @return dimension size of the logical topology. If there is no logical 
  * topology, return information from physical geometry.
  */
-extern const QMP_u32_t*   QMP_get_logical_dimensions (void);
-
-/**
- * Get node number of this machine
- *
- * @return node number of this machine
- */
-extern QMP_u32_t          QMP_get_node_number (void);
-
+extern const int*         QMP_get_logical_dimensions (void);
 
 /**
  * Get coordinate of this node within the logical topology.
@@ -340,7 +325,7 @@ extern QMP_u32_t          QMP_get_node_number (void);
  * @return coordinate of this node. If no logical topology declared, 
  * return information from physical geometry.
  */
-extern const QMP_u32_t*   QMP_get_logical_coordinates (void);
+extern const int*         QMP_get_logical_coordinates (void);
 
 /**
  * Get a logical coordinate from a node number.
@@ -350,28 +335,75 @@ extern const QMP_u32_t*   QMP_get_logical_coordinates (void);
  * return information from physical geometry. Callers should free
  * memory of the returned pointer.
  */
-extern QMP_u32_t*   QMP_get_logical_coordinates_from (QMP_u32_t node);
+extern int*               QMP_get_logical_coordinates_from (int node);
 
 /**
  * Get the node number from its logical coordinates.
  * @return node number.
  */
-extern QMP_u32_t          QMP_get_node_number_from (const QMP_u32_t* coordinates);
+extern int                QMP_get_node_number_from (const int coordinates[]);
+
+
+/**********************************************
+ *  Problem Specification (physical lattice)  *
+ **********************************************/
 
 /**
- * Allocate optimally 16 byte aligned memory of length nbytes.
+ * General geometry constructor. Automatically determines the 
+ * optimal layout -> decides the optimal ordering of axes.
+ */
+extern QMP_status_t       QMP_layout_grid (int dimensions[], int ndims);
+
+/**
+ * Return logical (lattice) subgrid sizes.
+ */
+extern const int*         QMP_get_subgrid_dimensions (void);
+
+/**
+ * Return logical (lattice) subgrid number of sites.
+ */
+extern int                QMP_get_number_of_subgrid_sites (void);
+
+
+/***********************************
+ *  Communication memory routines  *
+ ***********************************/
+
+/*
+ *  Declare and Free Memory Addresses for Messages (and other uses)
+ */
+
+/**
+ * Allocate memory of length nbytes with default alignment and type.
  * @param nbytes number of bytes of memory to allocate.
- * @return pointer to a newly allocated memory, 0 if no memory.
+ * @return pointer to a newly allocated memory structure, 0 if no memory.
  */
-extern void*              QMP_allocate_aligned_memory (QMP_u32_t nbytes);
-
+extern QMP_mem_t*         QMP_allocate_memory (size_t nbytes);
 
 /**
- * Free memory allocated by QMP_allocated_aligned_memory routine.
- *
- * @param mem pointer to an allocated memory.
+ * Allocate memory of a specified alignment and type.
+ * @param nbytes number of bytes of memory to allocate.
+ * @param alignment required alignment for memory.
+ * @param flags memory type flags.
+ * @return pointer to a newly allocated memory structure, 0 if no memory.
  */
-extern void               QMP_free_aligned_memory (void* mem);
+extern QMP_mem_t*         QMP_allocate_aligned_memory (size_t nbytes,
+						       size_t alignment,
+						       int flags);
+
+/**
+ * Get pointer to memory from a memory structure.
+ * @param pointer to memory structure.
+ * @return pointer to memory.
+ */
+extern void*              QMP_get_memory_pointer (QMP_mem_t* mem);
+
+/**
+ * Free allocated memory structure.
+ *
+ * @param mem pointer to an allocated memory structure.
+ */
+extern void               QMP_free_memory (QMP_mem_t* mem);
 
 /**
  * Create a message memory using memory created by user.
@@ -381,8 +413,24 @@ extern void               QMP_free_aligned_memory (void* mem);
  *
  * @return QMP_msgmem_t.
  */
-extern QMP_msgmem_t       QMP_declare_msgmem (const void* mem, 
-					      QMP_u32_t nbytes);
+extern QMP_msgmem_t       QMP_declare_msgmem (const void* mem, size_t nbytes);
+
+/**
+ * Declare a strided memory.
+ */
+extern QMP_msgmem_t       QMP_declare_strided_msgmem (void* base, 
+						      size_t blksize,
+						      int nblocks,
+						      ptrdiff_t stride);
+
+/**
+ * Declare a strided array memory.
+ */
+extern QMP_msgmem_t   QMP_declare_strided_array_msgmem (void* base[],
+							size_t blksize[],
+							int nblocks[],
+							ptrdiff_t stride[],
+							int num);
 
 /**
  * Free memory pointed by QMP_msgmem_t pointer
@@ -393,21 +441,10 @@ extern QMP_msgmem_t       QMP_declare_msgmem (const void* mem,
  */
 extern void               QMP_free_msgmem (QMP_msgmem_t m);
 
-/**
- * Declare a strided memory. Not yet implemented.
- */
-extern QMP_msgmem_t       QMP_declare_strided_msgmem (void* base, 
-						       QMP_u32_t blksize,
-						       QMP_u32_t nblocks,
-						       QMP_u32_t stride);
 
-/**
- * Declare a strided array memory. Not yet implemented.
- */
-extern QMP_msgmem_t QMP_declare_strided_array_msgmem (void** base, 
-						      QMP_u32_t* blksize,
-						      QMP_u32_t* nblocks,
-						      QMP_u32_t* stride);
+/********************************
+ *  Communication Declarations  *
+ ********************************/
 
 /**
  * Declares an endpoint for a message channel of receiveing operations
@@ -424,9 +461,9 @@ extern QMP_msgmem_t QMP_declare_strided_array_msgmem (void** base,
  * @return QMP_msghandle_t caller should check whether it is null.
  */
 extern QMP_msghandle_t    QMP_declare_receive_relative (QMP_msgmem_t m, 
-							QMP_s32_t axis,
-							QMP_s32_t dir,
-							QMP_s32_t priority);
+							int axis,
+							int dir,
+							int priority);
 
 /**
  * Declares an endpoint for a message channel of sending operations
@@ -443,9 +480,9 @@ extern QMP_msghandle_t    QMP_declare_receive_relative (QMP_msgmem_t m,
  * @return QMP_msghandle_t caller should check whether it is null.
  */
 extern QMP_msghandle_t    QMP_declare_send_relative    (QMP_msgmem_t m,
-							QMP_s32_t axis,
-							QMP_s32_t dir,
-							QMP_s32_t priority);
+							int axis,
+							int dir,
+							int priority);
 
 /**
  * Declare an endpoint for message send channel operation using remote
@@ -458,8 +495,8 @@ extern QMP_msghandle_t    QMP_declare_send_relative    (QMP_msgmem_t m,
  * @return QMP_msghandle_t caller should check whether it is null.
  */
 extern QMP_msghandle_t    QMP_declare_send_to     (QMP_msgmem_t m, 
-						   QMP_u32_t rem_node_rank,
-						   QMP_s32_t priority);
+						   int rem_node_rank,
+						   int priority);
 
 /**
  * Declare an endpoint for message channel receiving operation using remote
@@ -472,21 +509,8 @@ extern QMP_msghandle_t    QMP_declare_send_to     (QMP_msgmem_t m,
  * @return QMP_msghandle_t caller should check whether it is null.
  */
 extern QMP_msghandle_t    QMP_declare_receive_from(QMP_msgmem_t m, 
-						   QMP_u32_t rem_node_rank,
-						   QMP_s32_t priority);
-
-/**
- * Route a buffer from a source node to a dest node
- *
- * @param buffer a message buffer.
- * @param count  the number of bytes in buffer
- * @param src    source node
- * @param dest   destination node
- *
- * @return QMP_SUCCESS if a communication is successful.
- */
-extern QMP_status_t QMP_route (void* buffer, QMP_u32_t count,
-			       QMP_u32_t src, QMP_u32_t dest);
+						   int rem_node_rank,
+						   int priority);
 
 /**
  * Free a message handle.
@@ -499,19 +523,170 @@ extern QMP_status_t QMP_route (void* buffer, QMP_u32_t count,
 extern void               QMP_free_msghandle (QMP_msghandle_t h);
 
 /**
- * Print out message handle information for debug or information.
- */
-extern void               QMP_print_msg_handle (QMP_msghandle_t h);
-
-/**
  * Collapse multiple message handles into a single one.
  *
  * @param msgh pointer to an array of message handles.
  * @param num  size of the array.
  * @return a complex message handle.
  */
-extern QMP_msghandle_t    QMP_declare_multiple (QMP_msghandle_t* msgh, 
-						QMP_u32_t num);
+extern QMP_msghandle_t    QMP_declare_multiple (QMP_msghandle_t msgh[], 
+						int num);
+
+/**
+ * Start a communication for a message handle.
+ *
+ * If the message handle is a collection of multiple message handles,
+ * multiple real communication may take place.
+ * 
+ * @param h a message handle.
+ * @return QMP_SUCCESS if a communication is stared.
+ */
+extern QMP_status_t       QMP_start (QMP_msghandle_t h);
+
+/**
+ * Wait for a set of operations to complete for an array message handles.
+ * This code will block until all communications are finished.
+ *
+ * @param h a message handle.
+ *
+ * @return QMP_SUCCESS if a communication is done.
+ */
+extern QMP_status_t       QMP_wait (QMP_msghandle_t h);
+
+/**
+ * Wait for an operation to complete for a particular message handle.
+ * This code will block until a previous communication is finished.
+ *
+ * @param h an array of message handles.
+ * @param num the length of the array.
+ *
+ * @return QMP_SUCCESS if a communication is done.
+ */
+extern QMP_status_t       QMP_wait_all (QMP_msghandle_t h[], int num);
+
+/**
+ * Test whether a communication started by QMP_start with a message handle
+ * has been completed.
+ * This code is non-blocking.
+ * 
+ * @param h a message handle.
+ *
+ * @return QMP_TRUE if a communication is done.
+ */
+extern QMP_bool_t         QMP_is_complete (QMP_msghandle_t h);
+
+
+/***********************
+ *  Global Operations  *
+ ***********************/
+
+/**
+ * Synchronization barrier call.
+ */
+extern QMP_status_t       QMP_barrier (void);
+
+/**
+ * Broadcast bytes from a node. This routine is a blocking routine.
+ *
+ * @param buffer a pointer to a memory buffer.
+ * @param nbytes size of the buffer.
+ *
+ * @return QMP_SUCCESS for a successful broadcasting.
+ */
+extern QMP_status_t       QMP_broadcast (void* buffer, size_t nbytes);
+
+/**
+ * Global in place sum of an integer 
+ * @param value a pointer to a integer.
+ *
+ * @return QMP_SUCCESS when a global sum is success. 
+ */
+extern QMP_status_t       QMP_sum_int (int *value);
+
+/**
+ * Global in place sum of a float.
+ * @param value a pointer to a float.
+ *
+ * @return QMP_SUCCESS when a global sum is success. 
+ */
+extern QMP_status_t       QMP_sum_float (float *value);
+
+/**
+ * Global in place sum of a double.
+ * @param value a pointer to a double.
+ *
+ * @return QMP_SUCCESS when a global sum is success. 
+ */
+extern QMP_status_t       QMP_sum_double (double *value);
+
+/**
+ * Global in place sum of a double. Intermediate values kept in extended
+ * precision if possible.
+ * @param value a pointer to a double.
+ *
+ * @return QMP_SUCCESS when a global sum is success. 
+ */
+extern QMP_status_t       QMP_sum_double_extended (double *value);
+
+/**
+ * Global in place sum of a float array.
+ * @param value a pointer to a float array.
+ * @param length size of the array.
+ *
+ * @return QMP_SUCCESS when the global sum is a success.
+ */
+extern QMP_status_t       QMP_sum_float_array (float value[], int length);
+
+/**
+ * Global in place sum of a double array.
+ * @param value a pointer to a double array.
+ * @param length size of the array.
+ *
+ * @return QMP_SUCCESS when the global sum is a success.
+ */
+extern QMP_status_t       QMP_sum_double_array (double value[], int length);
+
+/**
+ * Get maximum value of all floats.
+ */
+extern QMP_status_t       QMP_max_float (float* value);
+
+/**
+ * Get maximum value of all doubles.
+ */
+extern QMP_status_t       QMP_max_double (double* value);
+
+/**
+ * Get maximum value of all floats.
+ */
+extern QMP_status_t       QMP_min_float (float* value);
+
+/**
+ * Get maximum value of all doubles.
+ */
+extern QMP_status_t       QMP_min_double (double* value);
+
+/**
+ * Get the exclusive ored value of an unsigned long integer
+ */
+extern QMP_status_t       QMP_xor_ulong (unsigned long* value);
+
+/**
+ * Global binary reduction using a user provided function.
+ *
+ * @param lbuffer a pointer to a memory buffer.
+ * @param buflen  size of the buffer.
+ * @param bfunc   user provided binary function.
+ *
+ * @return QMP_SUCCESS if a binary reduction is a success.
+ */
+extern QMP_status_t       QMP_binary_reduction (void* lbuffer, size_t buflen,
+						QMP_binary_func bfunc);
+
+
+/*******************************
+ *  Error reporting functions  *
+ *******************************/
 
 /**
  * Return an error string from a error code.
@@ -520,7 +695,6 @@ extern QMP_msghandle_t    QMP_declare_multiple (QMP_msghandle_t* msgh,
  * 
  *    SUCCESS always returns 0
  *    QMP SPECIFIC ERROR starts from 0x1001
- *    GM  SPECIFIC ERROR starte from 0x1
  */
 extern const char*        QMP_error_string (QMP_status_t code);
 
@@ -542,196 +716,40 @@ extern QMP_status_t       QMP_get_error_number (QMP_msghandle_t mh);
  */
 extern const char*        QMP_get_error_string (QMP_msghandle_t mh);
 
-/**
- * Start a communication for a message handle.
- *
- * If the message handle is a collection of multiple message handles,
- * multiple real communication may take place.
- * 
- * @param h a message handle.
- * @return QMP_SUCCESS if a communication is stared.
- */
-extern QMP_status_t       QMP_start (QMP_msghandle_t h);
+
+/****************
+ *  I/O helpers *
+ ****************/
 
 /**
- * Wait for an operation to complete for a particular message handle.
- * This code will block until a previous communication is finished.
- *
- * @param h a message handle.
- *
- * @return QMP_SUCCESS if a communication is done.
+ * Verbose mode of execution.
+ * @param level sets the level of output messages.
+ * @return old verbosity level.
  */
-extern QMP_status_t       QMP_wait (QMP_msghandle_t h);
+extern int                QMP_verbose (int level);
 
 /**
- * Test whether a communication started by QMP_start with a message handle
- * has been completed.
- * This code is non-blocking.
- * 
- * @param h a message handle.
- *
- * @return QMP_TRUE if a communication is done.
+ * Control profiling mode.
+ * @param level sets the level of profiling.
+ * @return old profiling level.
  */
-extern QMP_bool_t         QMP_is_complete (QMP_msghandle_t h);
-
-
-/**
- * Broadcast bytes from a node. This routine is a blocking routine.
- *
- * @param buffer a pointer to a memory buffer.
- * @param nbytes size of the buffer.
- *
- * @return QMP_SUCCESS for a successful broadcasting.
- */
-extern QMP_status_t QMP_broadcast (void* buffer, QMP_u32_t nbytes);
-
-/**
- * Global in place sum of an integer 
- * @param value a pointer to a integer.
- *
- * @return QMP_SUCCESS when a global sum is success. 
- */
-extern QMP_status_t QMP_sum_int    (QMP_s32_t *value);
-
-/**
- * Global in place sum of a float.
- * @param value a pointer to a float.
- *
- * @return QMP_SUCCESS when a global sum is success. 
- */
-extern QMP_status_t QMP_sum_float  (QMP_float_t *value);
-
-/**
- * Global in place sum of a double.
- * @param value a pointer to a double.
- *
- * @return QMP_SUCCESS when a global sum is success. 
- */
-extern QMP_status_t QMP_sum_double (QMP_double_t *value);
-
-/**
- * Global in place sum of a double. Intermediate values kept in extended
- * precision if possible.
- * @param value a pointer to a double.
- *
- * @return QMP_SUCCESS when a global sum is success. 
- */
-extern QMP_status_t QMP_sum_double_extended (QMP_double_t *value);
-
-/**
- * Global in place sum of a float array.
- * @param value a pointer to a float array.
- * @param length size of the array.
- *
- * @return QMP_SUCCESS when the global sum is a success.
- */
-extern QMP_status_t QMP_sum_float_array (QMP_float_t* value, 
-					 QMP_u32_t length);
-
-
-/**
- * Global in place sum of a double array.
- * @param value a pointer to a double array.
- * @param length size of the array.
- *
- * @return QMP_SUCCESS when the global sum is a success.
- */
-extern QMP_status_t QMP_sum_double_array (QMP_double_t* value, 
-					  QMP_u32_t length);
-
-/**
- * Get maximum value of all floats.
- */
-extern QMP_status_t QMP_max_float (QMP_float_t* value);
-
-/**
- * Get maximum value of all doubles.
- */
-extern QMP_status_t QMP_max_double (QMP_double_t* value);
-
-/**
- * Get maximum value of all floats.
- */
-extern QMP_status_t QMP_min_float (QMP_float_t* value);
-
-/**
- * Get maximum value of all doubles.
- */
-extern QMP_status_t QMP_min_double (QMP_double_t* value);
-
-/**
- * Get the exclusive ored value of all long integers
- */
-extern QMP_status_t QMP_global_xor (long* value);
-
-
-/**
- * Global binary reduction using a user provided function.
- *
- * @param lbuffer a pointer to a memory buffer.
- * @param buflen  size of the buffer.
- * @param bfunc   user provided binary function.
- *
- * @return QMP_SUCCESS if a binary reduction is a success.
- */
-extern QMP_status_t QMP_binary_reduction (void* lbuffer, QMP_u32_t buflen,
-					  QMP_binary_func bfunc);
-
-/**
- * Synchronization barrier call.
- */
-extern QMP_status_t QMP_wait_for_barrier (QMP_s32_t millieseconds);
-
-/**
- * Check whether a node is the physical root node or not.
- */
-extern QMP_bool_t   QMP_is_primary_node(void);
+extern int                QMP_profcontrol (int level);
 
 /**
  * QMP specific printf function with rank and host information.
  */
 extern int   QMP_printf             (const char *format, ...);
 
-
 /**
  * QMP specific fprintf function with rank and host information.
  */
-extern int   QMP_fprintf             (FILE* stream, const char *format, ...);
+extern int   QMP_fprintf            (FILE* stream, const char *format, ...);
 
 /** 
  * Information or error printing for QMP.
  */
-extern int   QMP_info                (const char *format, ...);
-extern int   QMP_error               (const char *format, ...);
-
-/**
- * Report QMP error and exit
- */
-extern void QMP_error_exit (const char* format, ...);
-
-/**
- * Report QMP error using a given node id number and exit
- */
-extern void QMP_fatal (QMP_u32_t rank, const char* format, ...);
-
-
-/**
- * General geometry constructor. Automatically determine sthe 
- * optimal layout -> decides the optimal ordering of axes.
- */
-extern QMP_bool_t QMP_layout_grid (QMP_u32_t* dimensions,
-				   QMP_u32_t  rank);
-
-/**
- * Return logical (lattice) subgrid sizes.
- */
-extern const QMP_u32_t* QMP_get_subgrid_dimensions (void);
-
-
-/**
- *  * Return logical (lattice) subgrid number of sites.
- *   */
-extern QMP_u32_t        QMP_get_number_of_subgrid_sites (void);
+extern int   QMP_info               (const char *format, ...);
+extern int   QMP_error              (const char *format, ...);
 
 
 #ifdef __cplusplus
@@ -742,4 +760,3 @@ extern QMP_u32_t        QMP_get_number_of_subgrid_sites (void);
 #endif
 
 #endif
-

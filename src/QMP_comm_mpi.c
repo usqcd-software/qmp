@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.5  2004/04/08 09:00:20  bjoo
+ *   Added experimental support for strided msgmem
+ *
  *   Revision 1.4  2003/02/19 20:37:44  chen
  *   Make QMP_is_complete a polling function
  *
@@ -51,6 +54,7 @@
 #include <assert.h>
 
 #include "qmp.h"
+#include "QMP_P_COMMON.h"
 #include "QMP_P_MPI.h"
 
 /* Start send (non-blocking) from possibly ganged message handles */
@@ -95,7 +99,7 @@ QMP_start (QMP_msghandle_t msgh)
       case MM_user_buf:
 	MPI_Isend(mm->mem, mm->nbytes, 
 		  MPI_BYTE, mh->dest_node, mh->tag,
-		  MPI_COMM_WORLD, &mh->request);
+		  QMP_COMM_WORLD, &mh->request);
 	mh->activeP = 1;
 	break;
       case MM_strided_buf:
@@ -103,12 +107,21 @@ QMP_start (QMP_msghandle_t msgh)
 		  mm->mpi_type,
 		  mh->dest_node,
 		  mh->tag,
-		  MPI_COMM_WORLD, 
+		  QMP_COMM_WORLD, 
+		  &mh->request);
+	mh->activeP = 1;
+	break;
+      case MM_strided_array_buf:
+	MPI_Isend(MPI_BOTTOM, 1,
+		  mm->mpi_type,
+		  mh->dest_node,
+		  mh->tag,
+		  QMP_COMM_WORLD,
 		  &mh->request);
 	mh->activeP = 1;
 	break;
       default:
-	QMP_error_exit("Can only deal with user bufs and strided bufs for now\n");
+	QMP_FATAL("internal error: unknown memory type");
 	break;
       }
       
@@ -125,18 +138,25 @@ QMP_start (QMP_msghandle_t msgh)
       case MM_user_buf:
 	MPI_Irecv(mm->mem, mm->nbytes,
 		  MPI_BYTE, mh->srce_node, mh->tag,
-		  MPI_COMM_WORLD, &mh->request);
+		  QMP_COMM_WORLD, &mh->request);
 	mh->activeP = 1;
 	break;
       case MM_strided_buf:
 	MPI_Irecv(mm->mem, 1,
 		  mm->mpi_type,
 		  mh->srce_node, mh->tag,
-		  MPI_COMM_WORLD, &mh->request);
+		  QMP_COMM_WORLD, &mh->request);
+	mh->activeP = 1;
+	break;
+      case MM_strided_array_buf:
+	MPI_Irecv(MPI_BOTTOM, 1,
+		  mm->mpi_type,
+		  mh->srce_node, mh->tag,
+		  QMP_COMM_WORLD, &mh->request);
 	mh->activeP = 1;
 	break;
       default:
-	QMP_error_exit("Can only deal with user bufs and strided bufs for now\n");
+	QMP_FATAL("internal error: unknown memory type");
 	break;
       }
       break;
@@ -147,7 +167,7 @@ QMP_start (QMP_msghandle_t msgh)
       QMP_SET_STATUS_CODE (QMP_INVALID_OP);
       break;
     default:
-      QMP_fatal(1,"QMP_start: internal error - unknown message type");
+      QMP_FATAL("internal error: unknown message type");
       break;
     }
 
@@ -162,6 +182,7 @@ QMP_start (QMP_msghandle_t msgh)
 }
 
 
+#define MAXBUFFER  64
 /* Internal routine for checking on waiting send & receive messages */
 static QMP_status_t
 QMP_wait_send_receive(QMP_msghandle_t msgh)
@@ -176,27 +197,44 @@ QMP_wait_send_receive(QMP_msghandle_t msgh)
   QMP_info ("Calling QMP_wait, id=%d\n",QMP_get_node_number());
 #endif
 
-  /* Collect together all the outstanding send/recv requests */
-  while (mh)
-  {
-    if (mh->type == MH_send || mh->type == MH_recv)
-    {
+  /* Collect together all the outstanding send/recv requests and process */
+  while(1) {
+
+    if( (!mh) || (num == MAXBUFFER) ) {  /* Wait on all the messages */
+      if(num>0) {
+#ifdef _QMP_DEBUG
+	fprintf(stderr,"QMP_wait: waiting on %d sends\n",num);
+#endif
+	if ((flag = MPI_Waitall(num, request, status)) != MPI_SUCCESS) {
+	  QMP_fprintf (stderr, "Wait all Flag is %d\n", flag);
+	  QMP_FATAL("test unexpectedly failed");
+	}
+#ifdef _QMP_DEBUG
+	fprintf(stderr,"QMP_wait: finished %d sends\n",num);
+#endif
+	num = 0;
+      } else {
+#ifdef _QMP_DEBUG
+	fprintf(stderr,"QMP_wait: no send/recvs outstanding, id=%d\n",QMP_get_node_number());
+#endif
+      }
+    }
+
+    if(!mh) break;
+
+    if( (mh->type == MH_send) || (mh->type == MH_recv) ) {
 #if 1
       /* (Slow) Paranoid test for activity. Check against both the activity
        * and the request field */
       if (mh->activeP && (mh->request == MPI_REQUEST_NULL))
-	QMP_fatal(1,"QMP_wait: internal error: found null request but active message");
-      
+	QMP_FATAL("internal error: found null request but active message");
+
       if (! mh->activeP && (mh->request != MPI_REQUEST_NULL))
-	QMP_fatal(1,"QMP_wait: internal error: found active request but inactive message");
+	QMP_FATAL("internal error: found active request but inactive message");
 #endif
 
       /* Quick test for activity. Be careful this flag matches reality! */
-      if (mh->activeP)
-      {
-	if (num == MAXBUFFER)
-	  QMP_fatal(1,"QMP_wait: internal error: too many active requests");
-
+      if (mh->activeP) {
 	request[num++] = mh->request;
       }
     }
@@ -204,36 +242,13 @@ QMP_wait_send_receive(QMP_msghandle_t msgh)
     mh = mh->next;
   }
 
-  if (num == 0)
-  {
-#ifdef _QMP_DEBUG
-    fprintf(stderr,"QMP_wait: no send/recvs outstanding, id=%d\n",QMP_get_node_number());
-#endif    
-    return flag;
-  }
-
-#ifdef _QMP_DEBUG
-  fprintf(stderr,"QMP_wait: waiting on %d sends\n",num);
-#endif    
-
-  /* Wait on all the messages */
-  if ((flag = MPI_Waitall(num, request, status)) != MPI_SUCCESS) {
-    QMP_fprintf (stderr, "Wait all Falg is %d\n", flag);
-    QMP_fatal(1,"QMP_wait: test unexpectedly failed");
-  }
-
-#ifdef _QMP_DEBUG
-  fprintf(stderr,"QMP_wait: finished %d sends\n",num);
-#endif    
-
   /* Mark all sends as inactive */
   /* To be safe, update all the send request handles. Probably not needed in
    * general, but is used in tests above */
   /* NOTE: not handling errors at all */
   mh = (Message_Handle_t)msgh;
 
-  while (mh)
-  {
+  while (mh) {
     mh->request = MPI_REQUEST_NULL;
 
     mh->activeP = 0;
@@ -273,10 +288,10 @@ QMP_test_send_receive (QMP_msghandle_t msgh)
       /* (Slow) Paranoid test for activity. Check against both the activity
        * and the request field */
       if (mh->activeP && (mh->request == MPI_REQUEST_NULL))
-	QMP_fatal(1,"QMP_wait: internal error: found null request but active message");
+	QMP_FATAL("internal error: found null request but active message");
       
       if (! mh->activeP && (mh->request != MPI_REQUEST_NULL))
-	QMP_fatal(1,"QMP_wait: internal error: found active request but inactive message");
+	QMP_FATAL("internal error: found active request but inactive message");
 #endif
 
       /* Quick test for activity. Be careful this flag matches reality! */
@@ -284,7 +299,7 @@ QMP_test_send_receive (QMP_msghandle_t msgh)
 	request = mh->request;
 
 	if ((callst = MPI_Test (&request, &flag, &status)) != MPI_SUCCESS) {
-	  QMP_fatal (1, "QMP_test_send_receive: test unexpected failed.");
+	  QMP_FATAL("test unexpected failed.");
 	}
 	else {
 	  if (flag) {
@@ -360,7 +375,36 @@ QMP_wait(QMP_msghandle_t msgh)
 
   if (!QMP_is_complete(msgh))
     if (QMP_wait_send_receive(msgh))
-      QMP_fatal(1,"QMP_wait: some error in QMP_wait_send_receive");
+      QMP_FATAL("some error in QMP_wait_send_receive");
+
+#ifdef _QMP_DEBUG
+  QMP_info ("Finished QMP_wait, id=%d\n",QMP_get_node_number());
+#endif
+
+  return err;
+}
+
+/* Wait on array of communications (blocks) */
+/* NOTE: this routine allows mixtures of sends and receives */
+QMP_status_t
+QMP_wait_all(QMP_msghandle_t msgh[], int num)
+{
+  QMP_status_t err;
+  int i;
+
+#ifdef _QMP_DEBUG
+  QMP_info ("Starting QMP_wait_all, id=%d\n",QMP_get_node_number());
+#endif
+
+  for(i=0; i<num; i++) {
+    if(!QMP_is_complete(msgh[i])) {
+      err = QMP_wait_send_receive(msgh[i]);
+      if(err!=QMP_SUCCESS) {
+	QMP_FATAL("some error in QMP_wait_send_receive");
+	break;
+      }
+    }
+  }
 
 #ifdef _QMP_DEBUG
   QMP_info ("Finished QMP_wait, id=%d\n",QMP_get_node_number());
@@ -373,28 +417,27 @@ QMP_wait(QMP_msghandle_t msgh)
 
 /* Global barrier */
 QMP_status_t
-QMP_wait_for_barrier(QMP_s32_t millisec)
+QMP_barrier(void)
 {
-  /* In this implementation, ignore time for barrier */
-  return MPI_Barrier(MPI_COMM_WORLD);
+  return MPI_Barrier(QMP_COMM_WORLD);
 }
 
 /* Broadcast via interface specific routines */
 QMP_status_t
-QMP_broadcast(void *send_buf, QMP_u32_t count)
+QMP_broadcast(void *send_buf, size_t count)
 {
-  return MPI_Bcast(send_buf, count, MPI_BYTE, 0, MPI_COMM_WORLD);
+  return MPI_Bcast(send_buf, count, MPI_BYTE, 0, QMP_COMM_WORLD);
 }
 
 /* Global sums */
 QMP_status_t
-QMP_sum_int (QMP_s32_t *value)
+QMP_sum_int (int *value)
 {
   QMP_status_t status;
-  QMP_s32_t dest;
+  int dest;
 
   status = MPI_Allreduce((void *)value, (void *)&dest, 1,
-			 MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+			 MPI_INT, MPI_SUM, QMP_COMM_WORLD);
   if (status == MPI_SUCCESS)
     *value = dest;
 
@@ -402,13 +445,13 @@ QMP_sum_int (QMP_s32_t *value)
 }
 
 QMP_status_t
-QMP_sum_float(QMP_float_t *value)
+QMP_sum_float(float *value)
 {
   QMP_status_t status;
-  QMP_float_t  dest;
+  float  dest;
 
   status = MPI_Allreduce((void *)value, (void *)&dest, 1,
-			 MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+			 MPI_FLOAT, MPI_SUM, QMP_COMM_WORLD);
 
   if (status == MPI_SUCCESS)
     *value = dest;
@@ -417,13 +460,13 @@ QMP_sum_float(QMP_float_t *value)
 }
 
 QMP_status_t
-QMP_sum_double (QMP_double_t *value)
+QMP_sum_double (double *value)
 {
   QMP_status_t status;
-  QMP_double_t dest;
+  double dest;
 
   status = MPI_Allreduce((void *)value, (void *)&dest, 1,
-			 MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+			 MPI_DOUBLE, MPI_SUM, QMP_COMM_WORLD);
 
   if (status == MPI_SUCCESS)
     *value = dest;
@@ -432,13 +475,13 @@ QMP_sum_double (QMP_double_t *value)
 }
 
 QMP_status_t
-QMP_sum_double_extended (QMP_double_t *value)
+QMP_sum_double_extended (double *value)
 {
   QMP_status_t status;
-  QMP_double_t dest;
+  double dest;
 
   status = MPI_Allreduce((void *)value, (void *)&dest, 1,
-			 MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+			 MPI_DOUBLE, MPI_SUM, QMP_COMM_WORLD);
 
   if (status == MPI_SUCCESS)
     *value = dest;
@@ -447,20 +490,20 @@ QMP_sum_double_extended (QMP_double_t *value)
 }
 
 QMP_status_t
-QMP_sum_float_array (QMP_float_t *value, QMP_u32_t count)
+QMP_sum_float_array (float value[], int count)
 {
   QMP_status_t status;
-  QMP_float_t* dest;
+  float* dest;
   int          i;
 
-  dest = (QMP_float_t *) malloc (count * sizeof (QMP_float_t));
+  dest = (float *) malloc (count * sizeof (float));
 
   if (!dest) {
     QMP_error ("cannot allocate receiving memory in QMP_sum_float_array.");
     return QMP_NOMEM_ERR;
   }
   status = MPI_Allreduce((void *)value, (void *)dest, count,
-			 MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+			 MPI_FLOAT, MPI_SUM, QMP_COMM_WORLD);
   if (status == MPI_SUCCESS) {
     for (i = 0; i < count; i++)
       value[i] = dest[i];
@@ -472,20 +515,20 @@ QMP_sum_float_array (QMP_float_t *value, QMP_u32_t count)
 
 
 QMP_status_t
-QMP_sum_double_array (QMP_double_t *value, QMP_u32_t count)
+QMP_sum_double_array (double value[], int count)
 {
   QMP_status_t status;
-  QMP_double_t* dest;
+  double* dest;
   int          i;
 
-  dest = (QMP_double_t *) malloc (count * sizeof (QMP_double_t));
+  dest = (double *) malloc (count * sizeof (double));
 
   if (!dest) {
     QMP_error ("cannot allocate receiving memory in QMP_sum_double_array.");
     return QMP_NOMEM_ERR;
   }
   status = MPI_Allreduce((void *)value, (void *)dest, count,
-			 MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+			 MPI_DOUBLE, MPI_SUM, QMP_COMM_WORLD);
   
   if (status == MPI_SUCCESS) {
     for (i = 0; i < count; i++)
@@ -502,11 +545,13 @@ QMP_sum_double_array (QMP_double_t *value, QMP_u32_t count)
  * multiple binary reduction can be carried out simultaneously.
  */
 static QMP_binary_func qmp_user_bfunc_ = 0;
+static MPI_Op bop;
+static int op_inited=0;
 
 /**
  * This is a internal function which will be passed to MPI all reduce
  */
-static int 
+static void
 qmp_MPI_bfunc_i (void* in, void* inout, int* len, MPI_Datatype* type)
 {
   if (qmp_user_bfunc_)
@@ -514,54 +559,55 @@ qmp_MPI_bfunc_i (void* in, void* inout, int* len, MPI_Datatype* type)
 }
 
 QMP_status_t
-QMP_binary_reduction (void *lbuffer, QMP_u32_t count, 
-		      QMP_binary_func bfunc)
+QMP_binary_reduction (void *lbuffer, size_t count, QMP_binary_func bfunc)
 {
-  MPI_Op       bop;
   void*        rbuffer;
   QMP_status_t status;
 
   /* first check whether there is a binary reduction is in session */
   if (qmp_user_bfunc_) 
-    QMP_error_exit ("Another binary reduction is in progress.\n");
+    QMP_FATAL ("Another binary reduction is in progress.");
 
-  rbuffer = QMP_memalign (count, QMP_MEM_ALIGNMENT);
+  //rbuffer = QMP_memalign (count, QMP_MEM_ALIGNMENT);
+  rbuffer = QMP_allocate_memory (count);
   if (!rbuffer)
     return QMP_NOMEM_ERR;
 
   /* set up user binary reduction pointer */
   qmp_user_bfunc_ = bfunc;
 
-  if ((status = MPI_Op_create (qmp_MPI_bfunc_i, 1, &bop)) != MPI_SUCCESS) {
-    QMP_error ("Cannot create MPI operator for binary reduction.\n");
-    return status;
+  if(!op_inited) {
+    if ((status = MPI_Op_create (qmp_MPI_bfunc_i, 1, &bop)) != MPI_SUCCESS) {
+      QMP_error ("Cannot create MPI operator for binary reduction.\n");
+      return status;
+    }
+    op_inited = 1;
   }
-  
-  status = MPI_Allreduce(lbuffer,rbuffer,count, MPI_BYTE, bop, MPI_COMM_WORLD);
+
+  status = MPI_Allreduce(lbuffer,rbuffer,count, MPI_BYTE, bop, QMP_COMM_WORLD);
 
   if (status == QMP_SUCCESS) 
     memcpy (lbuffer, rbuffer, count);
-  free (rbuffer);
-  
+  QMP_free_memory (rbuffer);
+
   /* free binary operator */
-  MPI_Op_free (&bop);
+  //MPI_Op_free (&bop);
 
   /* signal end of the binary reduction session */
   qmp_user_bfunc_ = 0;
 
-    
   return QMP_SUCCESS;
 }
 
 
 QMP_status_t
-QMP_max_float(QMP_float_t* value)
+QMP_max_float(float* value)
 {
-  QMP_float_t dest;
+  float dest;
   QMP_status_t status;
 
   status = MPI_Allreduce((void *)value, (void *)&dest, 1,
-			 MPI_FLOAT, MPI_MAX, MPI_COMM_WORLD);
+			 MPI_FLOAT, MPI_MAX, QMP_COMM_WORLD);
 
   if (status == MPI_SUCCESS)
     *value = dest;
@@ -570,13 +616,13 @@ QMP_max_float(QMP_float_t* value)
 }
 
 QMP_status_t
-QMP_min_float(QMP_float_t* value)
+QMP_min_float(float* value)
 {
-  QMP_float_t dest;
+  float dest;
   QMP_status_t status;
 
   status = MPI_Allreduce((void *)value, (void *)&dest, 1,
-			 MPI_FLOAT, MPI_MIN, MPI_COMM_WORLD);
+			 MPI_FLOAT, MPI_MIN, QMP_COMM_WORLD);
 
   if (status == MPI_SUCCESS)
     *value = dest;
@@ -585,13 +631,13 @@ QMP_min_float(QMP_float_t* value)
 }  
 
 QMP_status_t
-QMP_max_double(QMP_double_t* value)
+QMP_max_double(double* value)
 {
-  QMP_double_t dest;
+  double dest;
   QMP_status_t status;
 
   status = MPI_Allreduce((void *)value, (void *)&dest, 1,
-			 MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+			 MPI_DOUBLE, MPI_MAX, QMP_COMM_WORLD);
 
   if (status == MPI_SUCCESS)
     *value = dest;
@@ -600,13 +646,13 @@ QMP_max_double(QMP_double_t* value)
 }
 
 QMP_status_t
-QMP_min_double(QMP_double_t *value)
+QMP_min_double(double *value)
 {
-  QMP_double_t dest;
+  double dest;
   QMP_status_t status;
 
   status = MPI_Allreduce((void *)value, (void *)&dest, 1,
-			 MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+			 MPI_DOUBLE, MPI_MIN, QMP_COMM_WORLD);
 
   if (status == MPI_SUCCESS)
     *value = dest;
@@ -615,18 +661,16 @@ QMP_min_double(QMP_double_t *value)
 }
 
 QMP_status_t
-QMP_global_xor(long* value)
+QMP_xor_ulong(unsigned long* value)
 {
-  long dest;
+  unsigned long dest;
   QMP_status_t status;
 
   status = MPI_Allreduce((void *)value, (void *)&dest, 1,
-			 MPI_LONG, MPI_BXOR, MPI_COMM_WORLD);
+			 MPI_UNSIGNED_LONG, MPI_BXOR, QMP_COMM_WORLD);
 
   if (status == MPI_SUCCESS)
     *value = dest;
 
   return status;
 }
-
-

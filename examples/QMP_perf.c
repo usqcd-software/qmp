@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.3  2003/02/13 16:23:04  chen
+ *   qmp version 1.2
+ *
  *   Revision 1.2  2003/02/11 03:39:24  flemingg
  *   GTF: Update of automake and autoconf files to use qmp-config in lieu
  *        of qmp_build_env.sh
@@ -73,12 +76,12 @@
 
 struct perf_argv
 {
-  QMP_u32_t size;
-  QMP_u32_t loops;
-  QMP_u32_t verify;
-  QMP_u32_t option;
-  QMP_u32_t sender;
-  QMP_u32_t num_channels;
+  int size;
+  int loops;
+  int verify;
+  int option;
+  int sender;
+  int num_channels;
 };
 
 /**
@@ -167,8 +170,8 @@ parse_options (int argc, char** argv, struct perf_argv* pargv)
  * Test ping and verify received message.
  */
 static void
-test_pingpong_verify (QMP_s32_t** smem,
-		      QMP_s32_t** rmem,
+test_pingpong_verify (int** smem,
+		      int** rmem,
 		      QMP_msghandle_t* sendh,
 		      QMP_msghandle_t* recvh,
 		      struct perf_argv* pargv)
@@ -176,9 +179,9 @@ test_pingpong_verify (QMP_s32_t** smem,
   double it, ft, dt, bwval;
   int    i, j, k;
   QMP_status_t err;
-  QMP_u32_t nc;
-  QMP_u32_t nloops;
-  QMP_u32_t dsize;
+  int nc;
+  int nloops;
+  int dsize;
   QMP_bool_t sender;
 
   nc = pargv->num_channels;
@@ -268,8 +271,8 @@ test_pingpong_verify (QMP_s32_t** smem,
  * Test ping pong without verifying received message.
  */
 static void
-test_pingpong (QMP_s32_t** smem,
-	       QMP_s32_t** rmem,
+test_pingpong (int** smem,
+	       int** rmem,
 	       QMP_msghandle_t* sendh,
 	       QMP_msghandle_t* recvh,
 	       struct perf_argv* pargv)
@@ -278,9 +281,9 @@ test_pingpong (QMP_s32_t** smem,
   double it, ft, dt, bwval;
   int    i, j;
   QMP_status_t err;
-  QMP_u32_t nc;
-  QMP_u32_t nloops;
-  QMP_u32_t dsize;
+  int nc;
+  int nloops;
+  int dsize;
   QMP_bool_t sender;
 
   nc = pargv->num_channels;
@@ -355,8 +358,8 @@ test_pingpong (QMP_s32_t** smem,
  * Test oneway blast send
  */
 static void
-test_oneway (QMP_s32_t** smem,
-	     QMP_s32_t** rmem,
+test_oneway (int** smem,
+	     int** rmem,
 	     QMP_msghandle_t* sendh,
 	     QMP_msghandle_t* recvh,
 	     struct perf_argv* pargv)
@@ -364,9 +367,9 @@ test_oneway (QMP_s32_t** smem,
   double it, ft, dt, bwval;
   int    i, j;
   QMP_status_t err;
-  QMP_u32_t nc;
-  QMP_u32_t nloops;
-  QMP_u32_t dsize;
+  int nc;
+  int nloops;
+  int dsize;
   QMP_bool_t sender;
 
   nc = pargv->num_channels;
@@ -427,8 +430,8 @@ test_oneway (QMP_s32_t** smem,
 }
 
 static void
-test_simultaneous_send (QMP_s32_t** smem,
-			QMP_s32_t** rmem,
+test_simultaneous_send (int** smem,
+			int** rmem,
 			QMP_msghandle_t* sendh,
 			QMP_msghandle_t* recvh,
 			struct perf_argv* pargv)
@@ -436,9 +439,9 @@ test_simultaneous_send (QMP_s32_t** smem,
   double it, ft, dt, bwval;
   int    i, j;
   QMP_status_t err;
-  QMP_u32_t nc;
-  QMP_u32_t nloops;
-  QMP_u32_t dsize;
+  int nc;
+  int nloops;
+  int dsize;
   QMP_bool_t sender;
 
   nc = pargv->num_channels;
@@ -489,27 +492,29 @@ test_simultaneous_send (QMP_s32_t** smem,
 int main (int argc, char** argv)
 {
   int             i, j, nc;
-  QMP_bool_t      status;
-  QMP_u32_t       rank, dsize;
-  QMP_s32_t       **smem, **rmem;
+  QMP_status_t      status;
+  int       rank, dsize;
+  int       **smem, **rmem;
   QMP_msgmem_t    *recvmem;
   QMP_msghandle_t *recvh;
   QMP_msgmem_t    *sendmem;
   QMP_msghandle_t *sendh;
   struct perf_argv pargv;
+  QMP_thread_level_t req, prv;
 
   /** 
    * Simple point to point topology 
    */
-  QMP_u32_t dims[1] = {2};
-  QMP_u32_t ndims = 1;
+  int dims[1] = {2};
+  int ndims = 1;
   
   if (parse_options (argc, argv, &pargv) == -1) {
     usage (argv[0]);
     exit (1);
   }
 
-  status = QMP_init_msg_passing (&argc, &argv, QMP_SMP_ONE_ADDRESS);
+  req = QMP_THREAD_SINGLE;
+  status = QMP_init_msg_passing (&argc, &argv, req, &prv);
 
   if (status != QMP_SUCCESS) {
     fprintf (stderr, "QMP_init failed\n");
@@ -517,7 +522,7 @@ int main (int argc, char** argv)
   }
   status = QMP_declare_logical_topology (dims, ndims);
 
-  if (status == QMP_FALSE) {
+  if (status != QMP_SUCCESS) {
     fprintf (stderr, "Cannot declare logical grid\n");
     return -1;
   }
@@ -544,23 +549,23 @@ int main (int argc, char** argv)
    */
   nc = pargv.num_channels;
   dsize = pargv.size;
-  smem = (QMP_s32_t **)malloc(nc*sizeof (QMP_s32_t *));
-  rmem = (QMP_s32_t **)malloc(nc*sizeof (QMP_s32_t *));
+  smem = (int **)malloc(nc*sizeof (int *));
+  rmem = (int **)malloc(nc*sizeof (int *));
   sendmem = (QMP_msgmem_t *)malloc(nc*sizeof (QMP_msgmem_t *));
   recvmem = (QMP_msgmem_t *)malloc(nc*sizeof (QMP_msgmem_t *));
   sendh = (QMP_msghandle_t *)malloc(nc*sizeof (QMP_msghandle_t *));
   recvh = (QMP_msghandle_t *)malloc(nc*sizeof (QMP_msghandle_t *));
   
   for (i = 0; i < nc; i++) {
-    smem[i] = (QMP_s32_t *)malloc(dsize*sizeof (QMP_s32_t));
-    rmem[i] = (QMP_s32_t *)malloc(dsize*sizeof (QMP_s32_t));
+    smem[i] = (int *)malloc(dsize*sizeof (int));
+    rmem[i] = (int *)malloc(dsize*sizeof (int));
     for (j = 0; j < dsize; j++) {
       rmem[i][j] = 0;
       smem[i][j] = j;
     }
 
-    sendmem[i] = QMP_declare_msgmem (smem[i], dsize*sizeof (QMP_s32_t));
-    recvmem[i] = QMP_declare_msgmem (rmem[i], dsize*sizeof (QMP_s32_t));
+    sendmem[i] = QMP_declare_msgmem (smem[i], dsize*sizeof (int));
+    recvmem[i] = QMP_declare_msgmem (rmem[i], dsize*sizeof (int));
 
     recvh[i] = QMP_declare_receive_relative (recvmem[i], 0, 1, 0);
     if (!recvh[i]) {

@@ -1,3 +1,4 @@
+09/06/2004:	James Osborn -- Updated to API version 2 and added single node
 03/03/2003:	George Fleming -- changed 'qmp_build_env.sh' to 'qmp-config'
 12/12/2002:	George Fleming -- improved (?) automake and autoconf
 26/11/2002:	Balint Joo -- automakeified and autoconfiscated

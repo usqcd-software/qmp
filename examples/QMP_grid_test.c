@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.3  2003/02/13 16:23:04  chen
+ *   qmp version 1.2
+ *
  *   Revision 1.2  2003/02/11 03:39:24  flemingg
  *   GTF: Update of automake and autoconf files to use qmp-config in lieu
  *        of qmp_build_env.sh
@@ -44,8 +47,11 @@ int main(int argc, char **argv)
   int phys_size[ND] = {1, 1, 1, 1};
   int i,err;
   int num;
+  QMP_status_t status;
+  QMP_thread_level_t req, prv;
 
-  QMP_init_msg_passing(&argc, &argv, QMP_SMP_ONE_ADDRESS);
+  req = QMP_THREAD_SINGLE;
+  status = QMP_init_msg_passing (&argc, &argv, req, &prv);
 
   /* Let the geometry arrange itself */
   fprintf(stderr,"Dynamical machine size\n");
@@ -96,18 +102,18 @@ int main(int argc, char **argv)
       int strsize = STRSIZE;
       QMP_msgmem_t msg[2];
       QMP_msghandle_t mh_a[2], mh;
-      char *recv0 = (char *)QMP_allocate_aligned_memory(strsize);
-      char *recv1 = (char *)QMP_allocate_aligned_memory(strsize);
+      QMP_mem_t *recv0 = QMP_allocate_memory(strsize);
+      QMP_mem_t *recv1 = QMP_allocate_memory(strsize);
 
-      msg[0] = QMP_declare_msgmem(recv0,strsize);
-      msg[1] = QMP_declare_msgmem(recv1,strsize);
+      msg[0] = QMP_declare_msgmem(QMP_get_memory_pointer(recv0),strsize);
+      msg[1] = QMP_declare_msgmem(QMP_get_memory_pointer(recv1),strsize);
       mh_a[0] = QMP_declare_receive_relative(msg[0], dir, -isign, 0);
       mh_a[1] = QMP_declare_receive_relative(msg[1], dir, -isign, 0);
       mh = QMP_declare_multiple(mh_a, 2);
       QMP_start(mh);
       QMP_wait(mh);
-      fprintf(stderr,"Node %d: recv0 = XX%sXX\n", QMP_get_node_number(), (char *)recv0);
-      fprintf(stderr,"Node %d: recv1 = XX%sXX\n", QMP_get_node_number(), (char *)recv1);
+      fprintf(stderr,"Node %d: recv0 = XX%sXX\n", QMP_get_node_number(), (char *)QMP_get_memory_pointer(recv0));
+      fprintf(stderr,"Node %d: recv1 = XX%sXX\n", QMP_get_node_number(), (char *)QMP_get_memory_pointer(recv1));
     }
   }
   fprintf(stderr,"finished messages\n");

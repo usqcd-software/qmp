@@ -37,14 +37,12 @@ or equivalently
    --with-qmp-comms-cflags=QMP_COMMS_CFLAGS
    --with-qmp-comms-ldflags=QMP_COMMS_LDFLAGS
    --with-qmp-comms-libs=QMP_COMMS_LIBS
-   --enable-single-gm-port=yes[no]
-   --enable-quick-global-sun=yes[no]
 
-such that a simple MPI or GM program will compile and link.  Here's a hint:
-if you want a first guess at how to set these flags and you know where
-mpicc (LAM or MPICH) or mpcc (IBM) is installed, try 'mpicc -showme'
-(for LAM) or 'mpicc -show' (for MPICH) or something similar to see
-how mpicc/mpcc does it.
+such that a simple MPI or single node program will compile and
+link. Here's a hint: if you want a first guess at how to set these
+flags and you know where mpicc (LAM or MPICH) or mpcc (IBM) is
+installed, try 'mpicc -showme' (for LAM) or 'mpicc -show' (for MPICH)
+or something similar to see how mpicc/mpcc does it.
 
 2) Building
 -----------

@@ -1,29 +1,11 @@
-			QMP implementation over GM and MPICH
+		  QMP implementation over MPICH and single node
 
-				Feb 13, 2003
+				June 9, 2004
 
-QMP over GM and MPICH are implemented according to the documents of LQCD 
-Message Passing API version 1.2.0 (Feb 13,2003). The implementations supports
-most of APIs specified in the document. Those unsupported routines will be 
-implemented in future releases.
-
-QMP over GM:
-
-	There are two implementations that support channel oriented 
-	communication between two nodes:
-	
-	One implementation uses different ports to receive messages. 
-	The maximum number of receivers for communication channels on a 
-	node is determined by a GM_NUM_PORTS - 4. The value of GM_NUM_PORTS 
-	has default value of 8, but it can be increased to 32.
-	Changing value of  GM_NUM_PORTS will require recompiling both GM 
-	library  and  GM firmware.  
-
-	The other implementation uses a single port to transfer messages. The 
-	memory copy is inevitable. But default gm library can be used.
-
-	This release has been tested on Intel(P4) platforms running 
-	Redhat 7 with GM version 1.5 and 1.6.2
+QMP over MPICH and single node are implemented according to the
+documents of LQCD Message Passing API version 2.0 (Jun, 2004). The
+implementations supports most of APIs specified in the document. Those
+unsupported routines will be implemented in future releases.
 
 QMP over MPICH:
 
@@ -31,8 +13,15 @@ QMP over MPICH:
 	platforms where MPICH are available. Current QMP implementation has
 	been tested on MPICH-chp4, MPICH-shmem and MPICH-gm.
 
+QMP for single node:
+
+	This is a version which does not perform and communications and
+	can be compiled without MPI to run on a single node.
 
 1) Source distribution:
+
+	*** very old and outdated ***
+	*** maybe we should just remove this ***
 
 	Source code of QMP is released as QMP_src.tar.gz containing the 
 	following files:
@@ -93,40 +82,14 @@ QMP over MPICH:
 	Users can use appropriate mpirun script to launch QMP jobs when 
 	the applications using a QMP implementation over one of the mpich.
 
-	b) QMP over gm:
+	b) QMP for single node:
 
-	Use the QMP_run script to launch QMP jobs. The QMP system needs a 
-	configuration file that specifies all myrinet hosts. The QMP looks
-	for the configuration file in users' home directory with a name
-	.qmpgmrc. The configuration file can be also specified using one
-	of the options of QMP_run. The following illustrates an example 
-	configuration file.
-
-	# configuration for for QMP
-	# hostname 	[optional myrinet board number]
-	hpctest1
-	hpctest2
-	hpcdev01  	0
-	hpcdev01  	1
-	hpctest3
-	hpctest4
-
-	The QMP_run has the following options:
-
-	Usage: QMP_run [--qmp-v] [-np <n>] [--qmp-f <file>] [--qmp-h] prog 
-	       [options]
- 	--qmp-v           verbose - includes comments
-	 -np <n>           specifies the number of processes to run
- 	--qmp-np <n>      same as '-np' (use one or the other)
- 	--qmp-f <file>    specifies a configuration file
- 	--qmp-h           generates this message
- 	-h                generates this message
- 	--qmp-dryrun      don't actually execute the commands just print them
- 	--qmp-working-dir specifies in which directory the program will run
- 	prog [options]    specifies which program to run, with its options
+	Just run it.
 
 4) Bugs fix and changes:
 	
+	*** This belongs in Changelog ***
+
 	Nov. 10, 2002 on GM implementation
 	
 	Fix a bug reported from Carleton DeTar about setting up and tearing 
@@ -151,14 +114,11 @@ QMP over MPICH:
 
 5) To do list:
 
+	*** I think this is fixed ***
+
 	QMP_declare_recv and QMP_declare_send may not work before a topology
 	is declared. But global communication works before the topology.
 
 Please send bugs and comments to us (chen@jlab.org, watson@jlab.org,
  edwards@jlab.org), and check out accompanying html documents for detailed
 API descriptions.
-
-					
-
-
-

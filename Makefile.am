@@ -4,7 +4,7 @@
 #
 SUBDIRS = src examples
 EXTRA_DIST = doc/Makefile.am doc/Makefile.in doc/QMPdoxyfile.in doc/MessageAPI.htm \
-      doc/QMP_API.html doc/QMP-1-0.doc  src/QMP_run
+      doc/QMP_API.html doc/QMP-1-0.doc
 
 #
 # The end user's configuration script

@@ -16,6 +16,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.2  2003/06/14 03:31:10  edwards
+ *   Added another example of a broadcast. This also shows the MPICH memory problem.
+ *
  *   Revision 1.1  2003/06/13 18:50:41  edwards
  *   Test program for broadcasts. Under MPICH, I see the primary node consume
  *   a huge amount of memory.
@@ -32,7 +35,7 @@
 #include <qmp.h>
 
 void
-stupid_broadcast(void *send_buf, QMP_u32_t count)
+stupid_broadcast(void *send_buf, int count)
 {
   int node;
   int num_nodes = QMP_get_number_of_nodes();
@@ -47,7 +50,7 @@ stupid_broadcast(void *send_buf, QMP_u32_t count)
       request_mh = QMP_declare_receive_from(request_msg, 0, 0);
 
       if (QMP_start(request_mh) != QMP_SUCCESS)
-	QMP_error_exit("recvFromWait failed\n");
+	QMP_abort_string(1, "recvFromWait failed\n");
 
       QMP_wait(request_mh);
       QMP_free_msghandle(request_mh);
@@ -58,7 +61,7 @@ stupid_broadcast(void *send_buf, QMP_u32_t count)
       request_mh = QMP_declare_send_to(request_msg, node, 0);
 
       if (QMP_start(request_mh) != QMP_SUCCESS)
-	QMP_error_exit("sendToWait failed\n");
+	QMP_abort_string(1, "sendToWait failed\n");
 
       QMP_wait(request_mh);
       QMP_free_msghandle(request_mh);
@@ -71,15 +74,17 @@ stupid_broadcast(void *send_buf, QMP_u32_t count)
 
 int main (int argc, char** argv)
 {
-  QMP_bool_t status, verbose;
-  QMP_status_t err;
+  int verbose;
+  QMP_status_t status, err;
+  QMP_thread_level_t req, prv;
 
-  verbose = QMP_FALSE;  
+  verbose = 0;
   if (argc > 1 && strcmp (argv[1], "-v") == 0)
-    verbose = QMP_TRUE;
+    verbose = 1;
   
   QMP_verbose (verbose);
-  status = QMP_init_msg_passing (&argc, &argv, QMP_SMP_ONE_ADDRESS);
+  req = QMP_THREAD_SINGLE;
+  status = QMP_init_msg_passing (&argc, &argv, req, &prv);
 
   if (status != QMP_SUCCESS) {
     QMP_fprintf(stderr, "QMP_init failed\n");
@@ -101,7 +106,7 @@ int main (int argc, char** argv)
     for(i=0; i < 1000000;++i)
       QMP_broadcast(p, 288);
 #else
-    for(i=0; i < 1000000;++i)
+    for(i=0; i < 10; ++i)
       stupid_broadcast(p, 288);
 #endif
 

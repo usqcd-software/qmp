@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.3  2003/02/13 16:23:04  chen
+ *   qmp version 1.2
+ *
  *   Revision 1.2  2003/02/11 03:39:24  flemingg
  *   GTF: Update of automake and autoconf files to use qmp-config in lieu
  *        of qmp_build_env.sh
@@ -36,13 +39,15 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/time.h>
+#include <time.h>
 
 #include <qmp.h>
 
 struct perf_argv
 {
-  QMP_u32_t size;
-  QMP_u32_t loops;
+  int size;
+  int loops;
 };
 
 #define SEND 0
@@ -105,20 +110,22 @@ main (int argc, char** argv)
 {
   int i, j, k;
   QMP_status_t status;
-  QMP_u32_t num_nodes;
+  int num_nodes;
   struct perf_argv pargv;
-  char  *sendm, *recvm, *mem;
+  QMP_mem_t  *mem;
   int   *value;
   double it, ft, bw;
-  QMP_u32_t dims[4];
-  QMP_u32_t ndims = 4;
+  int dims[4];
+  int ndims = 4;
+  QMP_thread_level_t req, prv;
+  
+  req = QMP_THREAD_SINGLE;
+  status = QMP_init_msg_passing (&argc, &argv, req, &prv);
 
-
-  status = QMP_init_msg_passing (&argc, &argv, QMP_SMP_ONE_ADDRESS);
-
-  if (status != QMP_SUCCESS) 
-    QMP_error_exit ("QMP_init failed: %s\n", QMP_error_string(status));
-
+  if (status != QMP_SUCCESS) {
+    QMP_error ("QMP_init failed: %s\n", QMP_error_string(status));
+    QMP_abort(1);
+  }
 
   /* If this is the root node, get dimension information from key board */
   if (QMP_is_primary_node()) {
@@ -127,7 +134,7 @@ main (int argc, char** argv)
   }
   
   if (QMP_broadcast (&pargv, sizeof(struct perf_argv)) != QMP_SUCCESS) 
-    QMP_error_exit ("Cannot do broadcast, Quit\n");
+    QMP_abort_string (1, "Cannot do broadcast, Quit\n");
 
   QMP_fprintf (stderr, "Memory size : %d number of loops : %d \n", 
 	       pargv.size, pargv.loops);
@@ -142,13 +149,13 @@ main (int argc, char** argv)
   
   /* declare topology */
   status = QMP_declare_logical_topology (dims, ndims);
-  if (status == QMP_FALSE)
+  if (status != QMP_SUCCESS)
     QMP_printf ("Cannot declare logical grid\n");
 
   if (QMP_is_primary_node()) 
-    mem = sendm = (char *)QMP_allocate_aligned_memory (pargv.size);
+    mem = QMP_allocate_memory (pargv.size);
   else
-    mem = recvm = (char *)QMP_allocate_aligned_memory (pargv.size);
+    mem = QMP_allocate_memory (pargv.size);
 
   /**
    * Now send/recv memory for num of loops
@@ -156,11 +163,11 @@ main (int argc, char** argv)
   if (QMP_is_primary_node ()) {
     it = get_current_time ();
     for (i = 0; i < pargv.loops; i++) {
-      value = (int *)sendm;
+      value = (int *)QMP_get_memory_pointer(mem);
       for (k = 0; k < pargv.size/sizeof(int); k++)
 	value[k] = i;
       for (j = 1; j < num_nodes; j++)
-	send_field (sendm, pargv.size, j);
+	send_field ((char *)value, pargv.size, j);
     }
     ft = get_current_time ();
     bw = pargv.size/(double)1000.0 * pargv.loops* (num_nodes - 1)/(ft - it);
@@ -170,8 +177,8 @@ main (int argc, char** argv)
   else {
     it = get_current_time ();
     for (i = 0; i < pargv.loops; i++) {
-      get_field (recvm, pargv.size, 0);
-      value = (int *)recvm;
+      value = (int *)QMP_get_memory_pointer(mem);
+      get_field ((char *)value, pargv.size, 0);
       for (k = 0; k < pargv.size/sizeof(int); k++)
 	if (value[k] != i) 
 	  QMP_fprintf (stderr, "Receiving error on loop %d\n", i);
@@ -184,6 +191,6 @@ main (int argc, char** argv)
   
   QMP_finalize_msg_passing ();
 
-  QMP_free_aligned_memory (mem);
+  QMP_free_memory (mem);
   return 0;
 }

@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.3  2003/02/13 16:23:04  chen
+ *   qmp version 1.2
+ *
  *   Revision 1.2  2003/02/11 03:39:24  flemingg
  *   GTF: Update of automake and autoconf files to use qmp-config in lieu
  *        of qmp_build_env.sh
@@ -58,33 +61,35 @@ int main (int argc, char** argv)
 {
   int i, j;
   QMP_bool_t status, sender, verbose;
-  QMP_u32_t  rank;
+  int  rank;
   QMP_status_t err;
   /*
-  QMP_u32_t dims[4] = {2, 2, 4, 2};
-  QMP_u32_t ndims = 4;
+  int dims[4] = {2, 2, 4, 2};
+  int ndims = 4;
   */
-  QMP_u32_t dims[1] = {2};
-  QMP_u32_t ndims = 1;
+  int dims[1] = {2};
+  int ndims = 1;
 
-  void        *rmem[NUM_HANDLES], *smem[NUM_HANDLES];
+  QMP_mem_t *rmem[NUM_HANDLES], *smem[NUM_HANDLES];
   QMP_msgmem_t recvmem[NUM_HANDLES];
   QMP_msghandle_t recvh[NUM_HANDLES];
   QMP_msgmem_t sendmem[NUM_HANDLES];
   QMP_msghandle_t sendh[NUM_HANDLES];
+  QMP_thread_level_t req, prv;
 
   /**
    * Multiple message handles are combined
    */
   QMP_msghandle_t comp_sendh, comp_recvh;
 
-  
+
   verbose = QMP_FALSE;  
   if (argc > 1 && strcmp (argv[1], "-v") == 0)
     verbose = QMP_TRUE;
-  
+
   QMP_verbose (verbose);
-  status = QMP_init_msg_passing (&argc, &argv, QMP_SMP_ONE_ADDRESS);
+  req = QMP_THREAD_SINGLE;
+  status = QMP_init_msg_passing (&argc, &argv, req, &prv);
 
   if (status != QMP_SUCCESS) {
     QMP_fprintf(stderr, "QMP_init failed\n");
@@ -93,7 +98,7 @@ int main (int argc, char** argv)
 
   status = QMP_declare_logical_topology (dims, ndims);
 
-  if (status == QMP_FALSE)
+  if (status != QMP_SUCCESS)
     QMP_fprintf (stderr, "Cannot declare logical grid\n");
   else
     QMP_fprintf (stderr, "Declare logical grid ok\n");
@@ -105,12 +110,12 @@ int main (int argc, char** argv)
     sender = QMP_FALSE;
 
   for (i = 0; i < NUM_HANDLES; i++) {
-    rmem[i] = QMP_allocate_aligned_memory (10234);
+    rmem[i] = QMP_allocate_memory (10234);
     if (!rmem[i]) {
       QMP_fprintf (stderr, "cannot allocate receiving memory\n");
       exit (1);
     }
-    recvmem[i] = QMP_declare_msgmem (rmem[i], 10234);
+    recvmem[i] = QMP_declare_msgmem (QMP_get_memory_pointer(rmem[i]), 10234);
     if (!recvmem[i]) {
       QMP_fprintf (stderr, "recv memory error : %s\n", 
 		   QMP_get_error_string(0));
@@ -119,13 +124,13 @@ int main (int argc, char** argv)
   }
 
   for (i = 0; i < NUM_HANDLES; i++) {
-    smem[i] = QMP_allocate_aligned_memory (10234);
+    smem[i] = QMP_allocate_memory (10234);
     if (!smem[i]) {
       QMP_fprintf (stderr, "cannot allocate sending memory\n");
       exit (1);
     }
 
-    sendmem [i]= QMP_declare_msgmem (smem[i], 10234);
+    sendmem[i] = QMP_declare_msgmem (QMP_get_memory_pointer(smem[i]), 10234);
     if (!sendmem[i]) {
       QMP_fprintf (stderr, "send memory error : %s\n", 
 		   QMP_get_error_string(0));
@@ -170,7 +175,7 @@ int main (int argc, char** argv)
     else
       QMP_fprintf (stderr, "Sending success %d\n", i);
 
-    
+
     if (QMP_wait (comp_recvh) != QMP_SUCCESS)
       QMP_fprintf (stderr,"Error in receiving %d\n", i);
     else
@@ -185,19 +190,14 @@ int main (int argc, char** argv)
   QMP_free_msghandle (comp_sendh);
 
   for (j = 0; j < NUM_HANDLES; j++) {
-    QMP_free_msghandle (recvh[j]);
     QMP_free_msgmem (recvmem[j]);
-
-    QMP_free_msghandle (sendh[j]);
     QMP_free_msgmem (sendmem[j]);
     
-    QMP_free_aligned_memory (rmem[j]);
-    QMP_free_aligned_memory (smem[j]);
+    QMP_free_memory (rmem[j]);
+    QMP_free_memory (smem[j]);
   }
 
   QMP_finalize_msg_passing ();
 
   return 0;
 }
-
-

@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.4  2004/04/08 09:00:20  bjoo
+ *   Added experimental support for strided msgmem
+ *
  *   Revision 1.3  2003/02/19 20:37:44  chen
  *   Make QMP_is_complete a polling function
  *
@@ -43,108 +46,22 @@
 #define _QMP_P_MPI_H
 
 #include <mpi.h>
+#include "qmp.h"
 
 #ifdef DMALLOC
 #include <dmalloc.h>
 #endif
 
-
-/* number of dimensions                         */
-
-#define ND  4
-
-
-/*
- * Logical machine geometry
- */
-typedef struct QMP_physical_geometry
-{
-  /* Dimension of physical geometry */
-  unsigned dimension;
-
-  /* Total number of nodes */
-  unsigned num_nodes; 
-
-  /* My logical (rotated) lexicographic node id */
-  unsigned logical_nodeid;
-
-  /* Lexicographic node id */
-  unsigned physical_nodeid; 
-
-  /* Index mapping logical lattice axes to physical axes */
-  unsigned ordering[ND];
-
-  /* My logical (rotated) coordinates */
-  unsigned logical_coord[ND];
-
-  /* Processor coordinate within machine grid */
-  unsigned physical_coord[ND];
- 
-  /* Neighboring nodes of the form */
-  /* neigh(isign,direction)   */ 
-  /*  where  isign    = +1 : plus direction */
-  /*                  =  0 : negative direction */
-  /*  where  dir      = 0 .. ND-1 */
-  unsigned neigh[2][ND];
-
-  /* Logical size of the machine */
-  unsigned logical_size[ND];
-
-  /* Machine grid size */
-  unsigned physical_size[ND];
-
-} *QMP_physical_geometry_t;
-
-/* topology pointer */
-extern QMP_physical_geometry_t QMP_machine;
-
-
-/**
- * Simple information holder for this machine
- */
-typedef struct QMP_machine
-{
-  /* number of processors.                                   */
-  QMP_u16_t  num_cpus;
-
-  /* do we count those processors or user manage them.       */
-  /* if collapse_smp == 1. this machine is viewed as a       */
-  /* single cpu.                                             */
-  QMP_bool_t collapse_smp;
-
-  /* interconnection type for this machine.                  */
-  QMP_ictype_t ic_type;
-
-  /* host name of this machine.                              */
-  char        host[256];
-
-  /* whether this machine is initialized                     */
-  QMP_bool_t inited;
-
-  /* running in verbose mode                                 */
-  QMP_bool_t verbose;
-
-  /* last error code                                         */
-  QMP_status_t err_code;
-
-}QMP_machine_t;
-
-/**
- * Memory alignment size (SSE)
- */
-#define QMP_MEM_ALIGNMENT 16
-
 /* 
  * Message Passing routines 
  */
-#define MAXBUFFER  64
-
 #define TAG_CHANNEL  11
 
 enum MM_type
 {
   MM_lexico_buf,
   MM_strided_buf,
+  MM_strided_array_buf,
   MM_user_buf
 };
 
@@ -158,16 +75,23 @@ enum MH_type
 };
 
 /* Message Memory structure */
+/* here we use a C99 flexible array member so we can allocate the
+   structure and memory together */
+struct QMP_mem_struct_t {
+  void *aligned_ptr;
+  char mem[];
+};
+
+/* Message Memory structure */
 typedef struct Message_Memory
 {
   enum MM_type type;
   void *mem;
   int   nbytes;
-  MPI_Datatype mpi_type; 
+  MPI_Datatype mpi_type;
 } Message_Memory;
 
 typedef Message_Memory * Message_Memory_t;
-
 
 /* Message Handle structure */
 typedef struct Message_Handle
@@ -185,63 +109,8 @@ typedef struct Message_Handle
   QMP_status_t err_code;
 } Message_Handle;
 
-/**
- * Trace macro
- */
-#ifdef _QMP_TRACE
-#define QMP_TRACE(x) (printf("%s at line %d of file %s\n", x, __LINE__, __FILE__))
-#else
-#define QMP_TRACE(x)
-#endif
-
 typedef Message_Handle * Message_Handle_t;
 
-extern QMP_machine_t QMP_global_m;
+extern MPI_Comm QMP_COMM_WORLD;
 
-/**
- * Get and set error code macros.
- */
-#define QMP_SET_STATUS_CODE(code) (QMP_global_m.err_code = code)
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
-/**
- * Print out information.
- */
-
-extern QMP_bool_t QMP_declare_ordered_logical_topology (const QMP_u32_t *dims, 
-							QMP_u32_t ndim, 
-							QMP_u32_t ordering[]);
-
-/**
- * Convert a physical node number to a logical node number. 
- * For switched configuration, they are the same.
- *
- * @return logical node number.
- */
-extern QMP_u32_t          QMP_allocated_to_logical (QMP_u32_t node);
-
-/**
- * Convert a logical node number to a physical node number.
- *
- * @return a physical node number.
- */
-extern QMP_u32_t          QMP_logical_to_allocated (QMP_u32_t logic_rank);
-
-
-/**
- * Allocate aligned memory of size 'size'
- */
-extern void *QMP_memalign (QMP_u32_t size, 
-			   QMP_u32_t alignment);
-
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif
-
+#endif /* _QMP_P_MPI_H */

@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.3  2003/02/13 16:23:04  chen
+ *   qmp version 1.2
+ *
  *   Revision 1.2  2003/02/11 03:39:24  flemingg
  *   GTF: Update of automake and autoconf files to use qmp-config in lieu
  *        of qmp_build_env.sh
@@ -40,7 +43,7 @@
 
 typedef struct gcomm_arg_
 {
-  QMP_u32_t  loops;
+  int  loops;
   QMP_bool_t verify;
 }gcomm_arg_t;
 
@@ -63,17 +66,21 @@ main (int argc, char** argv)
 {
   int i;
   QMP_status_t status;
-  QMP_u32_t    rank, size;
+  int    rank, size;
   int          value, result;
   double       it, ft;
   gcomm_arg_t  my_arg;
   char         verify[32];
+  QMP_thread_level_t req, prv;
   
 
-  status = QMP_init_msg_passing (&argc, &argv, QMP_SMP_ONE_ADDRESS);
+  req = QMP_THREAD_SINGLE;
+  status = QMP_init_msg_passing (&argc, &argv, req, &prv);
 
-  if (status != QMP_SUCCESS) 
-    QMP_error_exit ("QMP_init failed: %s\n", QMP_error_string(status));
+  if (status != QMP_SUCCESS) {
+    QMP_error ("QMP_init failed: %s\n", QMP_error_string(status));
+    QMP_abort (1);
+  }
 
 #ifdef USE_CHANNEL_TABLE
   init_channel_table ();
@@ -93,7 +100,7 @@ main (int argc, char** argv)
   }
 
   if (QMP_broadcast (&my_arg, sizeof(gcomm_arg_t)) != QMP_SUCCESS) 
-    QMP_error_exit ("Cannot do broadcast for arguments, Quit\n");
+    QMP_abort_string (1, "Cannot do broadcast for arguments, Quit\n");
 
   if (my_arg.verify)
     QMP_info ("Running %d number of loops for global sum with verification on.\n", 

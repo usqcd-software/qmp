@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.3  2003/02/13 16:23:04  chen
+ *   qmp version 1.2
+ *
  *   Revision 1.2  2003/02/11 03:39:24  flemingg
  *   GTF: Update of automake and autoconf files to use qmp-config in lieu
  *        of qmp_build_env.sh
@@ -72,10 +75,12 @@ my_binary_func (void* inout, void* in)
 int main (int argc, char** argv)
 {
   int i;
-  QMP_bool_t status;
-  QMP_u32_t num_nodes;
+  QMP_status_t status;
+  int num_nodes;
+  QMP_thread_level_t req, prv;
 
-  status = QMP_init_msg_passing (&argc, &argv, QMP_SMP_MULTIPLE_ADDRESS);
+  req = QMP_THREAD_SINGLE;
+  status = QMP_init_msg_passing (&argc, &argv, req, &prv);
 
   if (status != QMP_SUCCESS) {
     QMP_printf ( "QMP_init failed\n");
@@ -116,8 +121,8 @@ int main (int argc, char** argv)
    */
   {
     double dvalue[10];
-    QMP_u32_t length = 10;
-    QMP_u32_t rank;
+    int length = 10;
+    int rank;
     int    i;
 
     rank = QMP_get_node_number ();
@@ -138,8 +143,8 @@ int main (int argc, char** argv)
    */
   {
     float fvalue[10];
-    QMP_u32_t length = 10;
-    QMP_u32_t rank;
+    int length = 10;
+    int rank;
     int    i;
 
     rank = QMP_get_node_number ();
@@ -158,28 +163,21 @@ int main (int argc, char** argv)
   /**
    * Sync barrier
    */
-  QMP_printf ("Wait for a barrier\n");
-  QMP_wait_for_barrier (1000.0);
-  QMP_printf ("Done Wait for a barrier\n");
+  QMP_printf("Barrier\n");
+  QMP_barrier();
+  QMP_printf("Done Barrier\n");
 
   /**
    * Global XOR Test
    */
   {
-    long mask;
-    QMP_u32_t rank;
+    unsigned long mask;
+    int rank;
 
     rank = QMP_get_node_number ();
-#ifdef QMP_64BIT_LONG
-    if (rank % 2 == 0)
-      mask = 0xffff0000ffff0000;
-    else
-      mask = 0x0000ffff0000ffff;
-#else
     mask = 1 << rank;
-#endif
 
-    QMP_global_xor (&mask);
+    QMP_xor_ulong (&mask);
 
     QMP_printf ("final mask is 0x%lx\n", mask);
   }
@@ -188,7 +186,7 @@ int main (int argc, char** argv)
   /* global binary reduction test */
   {
     float value[10];
-    QMP_u32_t rank;
+    int rank;
 
     rank = QMP_get_node_number ();
     for (i = 0; i < 10; i++)

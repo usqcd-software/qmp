@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.7  2004/04/08 09:00:20  bjoo
+ *   Added experimental support for strided msgmem
+ *
  *   Revision 1.6  2003/07/22 02:17:00  edwards
  *   Yet another change/hack of QMP_memalign. Use the obsolete valloc.
  *
@@ -48,64 +51,55 @@
 #include <assert.h>
 
 #include "qmp.h"
+#include "QMP_P_COMMON.h"
 #include "QMP_P_MPI.h"
 
 /**
- * Allocate memory according to alignment.
- * calling glibc memalign code.
+ * allocate memory with default alignment and flags.
  */
-
-/*
-#ifndef DMALLOC
-extern void* memalign (unsigned int aignment, unsigned int size);
-#endif
-*/
-
-/**
- * allocate memory with right alignment.
- */
-void *
-QMP_memalign (QMP_u32_t size, QMP_u32_t alignment)
+QMP_mem_t *
+QMP_allocate_memory (size_t nbytes)
 {
-  char *ptr;
-  
-  /* ptr =(char *) memalign(alignment, size);  */
-
-  ptr = valloc(size); 
-
-#if 0
-  ptr = malloc(size);
-
-  /* DO NOT CHECK ptr is 0 - let the user handle that */
-
-  /* 
-   * Check memory alignment. This is used in place of calling a real memalign
-   * which is not very portable. The posix_memalign is often missing on systems.
-   */
-  if (((int)ptr & (alignment-1)) != 0)
-  {
-    QMP_error("QMP_memalign(%d,%d) = %p: bad alignment\n", 
-	      size, alignment, ptr);
-    ptr = 0;   /* Bad alignment */
-  }
-#endif
-
-  return (void *)ptr;
+  QMP_mem_t *mem;
+  mem = malloc(sizeof(QMP_mem_t)+nbytes);
+  if(mem) mem->aligned_ptr = mem->mem;
+  return mem;
 }
 
 /**
- * allocate memory with right alignment (16 bytes).
+ * allocate memory with specified alignment and flags.
+ */
+QMP_mem_t *
+QMP_allocate_aligned_memory (size_t nbytes, size_t alignment, int flags)
+{
+  QMP_mem_t *mem;
+  if(alignment<0) alignment = 0;  // shouldn't happen but doesn't hurt to check
+  mem = malloc(sizeof(QMP_mem_t)+nbytes+alignment);
+  if(mem) {
+    if(alignment) {
+      mem->aligned_ptr = (void *)
+	( ( ( (size_t)(mem->mem+alignment-1) )/alignment )*alignment );
+    } else {
+      mem->aligned_ptr = mem->mem;
+    }
+  }
+  return mem;
+}
+
+/**
+ * Get pointer to memory from a memory structure.
  */
 void *
-QMP_allocate_aligned_memory (QMP_u32_t nbytes)
+QMP_get_memory_pointer (QMP_mem_t* mem)
 {
-  return QMP_memalign (nbytes, QMP_MEM_ALIGNMENT);
+  return mem->aligned_ptr;
 }
 
 /**
  * Free aligned memory
  */
-void QMP_free_aligned_memory (void* mem)
+void
+QMP_free_memory (QMP_mem_t* mem)
 {
   free (mem);
 }
@@ -118,7 +112,7 @@ static QMP_msgmem_t MP_allocMsgMem(void)
 
 /* Basic buffer constructor */
 QMP_msgmem_t
-QMP_declare_msgmem(const void *buf, QMP_u32_t nbytes)
+QMP_declare_msgmem(const void *buf, size_t nbytes)
 {
   Message_Memory_t mem = (Message_Memory_t)MP_allocMsgMem();
 
@@ -135,28 +129,11 @@ QMP_declare_msgmem(const void *buf, QMP_u32_t nbytes)
   return (QMP_msgmem_t)mem;
 }
 
-/* Basic buffer destructor */
-void QMP_free_msgmem(QMP_msgmem_t mm)
-{
-  struct Message_Memory* mem = (struct Message_Memory *)mm;
-
-  if (!mem)
-    return;
-  if (mem->type == MM_lexico_buf)
-    free (mem->mem);
-
-  if (mem->type == MM_strided_buf) {
-     MPI_Type_free(&(mem->mpi_type));
-  }
-
-  free(mem);
-}
-
 QMP_msgmem_t
 QMP_declare_strided_msgmem (void* base, 
-			    QMP_u32_t blksize,
-			    QMP_u32_t nblocks,
-			    QMP_u32_t stride)
+			    size_t blksize,
+			    int nblocks,
+			    ptrdiff_t stride)
 {
 
   Message_Memory_t mem = (Message_Memory_t)MP_allocMsgMem();
@@ -207,19 +184,78 @@ QMP_declare_strided_msgmem (void* base,
 
 /**
  * Declare a strided array memory.
- * Not yet implemented
  */
 QMP_msgmem_t
-QMP_declare_strided_array_msgmem (void** base, 
-				  QMP_u32_t* blksize,
-				  QMP_u32_t* nblocks,
-				  QMP_u32_t* stride)
+QMP_declare_strided_array_msgmem (void* base[], 
+				  size_t blksize[],
+				  int nblocks[],
+				  ptrdiff_t stride[],
+				  int narray)
 {
+  Message_Memory_t mem = (Message_Memory_t)MP_allocMsgMem();
 
+  if (mem) {
+    int err_code, i;
+    int tlen[2];
+    MPI_Aint tdisp[2], disp[narray];
+    MPI_Datatype tdt[2], dt[narray];
 
-  QMP_error_exit ("QMP declare_declare_strided_array_msgmem: not yet implemented.");
-  /* make compiler happy */
-  return (QMP_msgmem_t)0;
+#define check_error if(err_code!=MPI_SUCCESS) { \
+      QMP_free_msgmem(mem); \
+      QMP_SET_STATUS_CODE (QMP_ERROR); \
+      return(QMP_msgmem_t)0; \
+    }
+
+    mem->type = MM_strided_array_buf;
+
+    tlen[1] = 1;
+    tdisp[0] = 0;
+    tdt[0] = MPI_BYTE;
+    tdt[1] = MPI_UB;
+
+    for(i=0; i<narray; i++) {
+      err_code = MPI_Address(base[i], &disp[i]);
+      check_error;
+
+      tlen[0] = blksize[i];
+      tdisp[1] = stride[i];
+      err_code = MPI_Type_struct(2, tlen, tdisp, tdt, &dt[i]);
+      check_error;
+    }
+
+    err_code = MPI_Type_struct(narray, nblocks, disp, dt, &(mem->mpi_type));
+    check_error;
+    err_code = MPI_Type_commit(&(mem->mpi_type));
+    check_error;
+
+    for(i=0; i<narray; i++) {
+      err_code = MPI_Type_free(&dt[i]);
+      check_error;
+    }
+#undef check_error
+  }
+  else {
+    QMP_SET_STATUS_CODE (QMP_NOMEM_ERR);
+  }
+  return (QMP_msgmem_t)mem;
+}
+
+/* Basic buffer destructor */
+void QMP_free_msgmem(QMP_msgmem_t mm)
+{
+  struct Message_Memory* mem = (struct Message_Memory *)mm;
+
+  if (!mem)
+    return;
+  if (mem->type == MM_lexico_buf)
+    free (mem->mem);
+
+  if ( (mem->type == MM_strided_buf) ||
+       (mem->type == MM_strided_array_buf) ) {
+    MPI_Type_free(&(mem->mpi_type));
+  }
+
+  free(mem);
 }
 
 
@@ -272,7 +308,7 @@ void QMP_free_msghandle (QMP_msghandle_t msgh)
 	  free(current);
 
 	  /* Previous stays the same */
-	  current = current->next;
+	  current = previous->next;
 	}
 	else {
 	  /* Increment previous */
@@ -304,15 +340,14 @@ void QMP_free_msghandle (QMP_msghandle_t msgh)
       break;
 
     default:
-      QMP_fatal(1,"QMP_declare_receive_from: internal error - unknown message handle");
+      QMP_FATAL("internal error: unknown message handle");
       break;
     }
   }
 }
 
 QMP_msghandle_t
-QMP_declare_receive_from (QMP_msgmem_t mm, QMP_u32_t sourceNode,
-			  QMP_s32_t priority)
+QMP_declare_receive_from (QMP_msgmem_t mm, int sourceNode, int priority)
 {
   Message_Handle_t mh = (Message_Handle_t)MP_allocMsgHandler();
 
@@ -321,7 +356,7 @@ QMP_declare_receive_from (QMP_msgmem_t mm, QMP_u32_t sourceNode,
     mh->type = MH_recv;
     mh->num = 1;
     mh->mm = mm;
-    mh->dest_node = QMP_machine->logical_nodeid;
+    mh->dest_node = QMP_global_m->nodeid;
     mh->srce_node = sourceNode;
     mh->tag  = TAG_CHANNEL;
     mh->next = NULL;
@@ -332,8 +367,7 @@ QMP_declare_receive_from (QMP_msgmem_t mm, QMP_u32_t sourceNode,
 
 /* Remote memory write - a send */
 QMP_msghandle_t
-QMP_declare_send_to (QMP_msgmem_t mm, QMP_u32_t remoteHost,
-		     QMP_s32_t priority)
+QMP_declare_send_to (QMP_msgmem_t mm, int remoteHost, int priority)
 {
   Message_Handle_t mh = (Message_Handle_t)MP_allocMsgHandler();
 
@@ -343,11 +377,11 @@ QMP_declare_send_to (QMP_msgmem_t mm, QMP_u32_t remoteHost,
     mh->num = 1;
     mh->mm = mm;
     mh->dest_node = remoteHost;
-    mh->srce_node = QMP_machine->logical_nodeid;
+    mh->srce_node = QMP_global_m->nodeid;
     mh->tag  = TAG_CHANNEL;
     mh->next = NULL;
   }
-  
+
   return (QMP_msghandle_t)mh;
 }
 
@@ -360,27 +394,27 @@ QMP_declare_send_to (QMP_msgmem_t mm, QMP_u32_t remoteHost,
  */
 QMP_msghandle_t
 QMP_declare_receive_relative(QMP_msgmem_t mm, int dir, int isign,
-			     QMP_s32_t priority)
+			     int priority)
 {
   int ii = (isign > 0) ? 1 : 0;
 
-  return QMP_declare_receive_from (mm, QMP_machine->neigh[ii][dir], priority);
+  return QMP_declare_receive_from (mm, QMP_topo->neigh[ii][dir], priority);
 }
 
 QMP_msghandle_t
 QMP_declare_send_relative (QMP_msgmem_t mm, int dir, int isign,
-			   QMP_s32_t priority)
+			   int priority)
 {
   int ii = (isign > 0) ? 1 : 0;
 
-  return QMP_declare_send_to(mm, QMP_machine->neigh[ii][dir], priority);
+  return QMP_declare_send_to(mm, QMP_topo->neigh[ii][dir], priority);
 }
 
 /* Declare multiple messages */
 /* What this does is just link the first (non-null) messages
  * to subsequent messages */
 QMP_msghandle_t
-QMP_declare_multiple(QMP_msghandle_t msgh[], QMP_u32_t nhandle)
+QMP_declare_multiple(QMP_msghandle_t msgh[], int nhandle)
 {
   Message_Handle_t mmh = (Message_Handle_t)MP_allocMsgHandler();
   Message_Handle_t mmh0;
@@ -393,7 +427,7 @@ QMP_declare_multiple(QMP_msghandle_t msgh[], QMP_u32_t nhandle)
   /* The first handle is a indicator it is a placeholder */
   mmh->type = MH_multiple;
   mmh->mm = NULL;
-  mmh->num = nhandle;
+  //mmh->num = nhandle;  fill this in later
   mmh->dest_node = MPI_UNDEFINED;
   mmh->srce_node = MPI_UNDEFINED;
   mmh->tag  = MPI_UNDEFINED;
@@ -401,25 +435,26 @@ QMP_declare_multiple(QMP_msghandle_t msgh[], QMP_u32_t nhandle)
 
   /* Link the input messages to the first message */
   /* Count and make sure there are nhandle valid messages */
-  for(i=0; i < nhandle; ++i)
-  {
+  for(i=0; i < nhandle; ++i) {
     Message_Handle_t mh = (Message_Handle_t)msgh[i];
 
-    if (mh)
-    {
-      num++;
-      
-      mmh->next = mh;
-      mh->refcount++;
-      mmh = mmh->next;
-    }
-    else
-      QMP_error_exit ("QMP_declare_multiple: unexpectedly received a null message handle");
+    if (mh) {
+      if(mh->type==MH_multiple) {
+	mmh->next = mh->next;
+	free(mh);
+	while(mmh->next) {
+	  mmh = mmh->next;
+	  num++;
+	}
+      } else {
+	mmh->next = mh;
+	mmh = mmh->next;
+	num++;
+      }
+    } else
+      QMP_FATAL("unexpectedly received a null message handle");
   }
+  mmh0->num = num;
 
-  mmh = mmh0;
-  if (num != nhandle)
-    QMP_error_exit ("QMP_declare_multiple: invalid message handles");
-
-  return (QMP_msghandle_t)mmh;
+  return (QMP_msghandle_t)mmh0;
 }

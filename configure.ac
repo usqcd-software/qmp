@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(qmp, 1.3.0, chen@jlab.org)
+AC_INIT(qmp, 2.0.beta1, chen@jlab.org)
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_SRCDIR(src/QMP_grid.c)
 AC_CONFIG_SRCDIR(examples/QMP_test.c)
@@ -9,6 +9,7 @@ dnl automake manual, ch 6 says to use this when SUBDIRS is used
 AC_PROG_MAKE_SET
 
 dnl Define these as defaults 
+dnl Needed below to check if compiler works
 
 AC_PROG_CC(gcc cc)
 AC_ISC_POSIX
@@ -25,15 +26,15 @@ dnl this puts the onus on the user to set all the flags correctly.
 
 AC_ARG_WITH(qmp-comms-type,
   AC_HELP_STRING([--with-qmp-comms-type=TYPE],
-    [Build QMP on top of MPI or GM.  If MPI over GM is desired, choose MPI.
-      Default is MPI.]),
+    [Build QMP for a single node (SINGLE) or on top of MPI (MPI).
+     Default is SINGLE.]),
   [case "${with_qmp_comms_type}" in
+    single|SINGLE) QMP_COMMS_TYPE=SINGLE ;;
     mpi|MPI) QMP_COMMS_TYPE=MPI ;;
-    gm|GM)   QMP_COMMS_TYPE=GM  ;;
     *)       AC_MSG_ERROR([bad value "${with_qmp_comms_type}"
       for --with-qmp-comms-type]) ;;
     esac],
-  [QMP_COMMS_TYPE=MPI])
+  [QMP_COMMS_TYPE=SINGLE])
 
 AC_SUBST(QMP_COMMS_TYPE)
 
@@ -63,7 +64,11 @@ AC_SUBST(QMP_COMMS_LIBS)
 # If $QMP_COMMS_TYPE=MPI then perform the following link test
 
 case "${QMP_COMMS_TYPE}" in 
+SINGLE)
+  echo Building QMP for SINGLE node use
+  ;;
 MPI)
+  echo Building QMP for use with MPI
   PAC_MPI_LINK_CC_FUNC( ${QMP_COMMS_CFLAGS}, ${QMP_COMMS_LDFLAGS},
     ${QMP_COMMS_LIBS}, , , [mpi_link_ok=yes], [mpi_link_ok=no])
   AC_MSG_CHECKING([if we can compile/link of a simple MPI program])
@@ -72,18 +77,6 @@ MPI)
   else
     AC_MSG_RESULT(no)
     AC_MSG_ERROR([Cannot compile/link a basic MPI C program!
-      Check QMP_COMMS_CFLAGS, QMP_COMMS_LDFLAGS, QMP_COMMS_LIBS.])
-  fi
-  ;;
-GM)
-  PAC_GM_LINK_CC_FUNC( ${QMP_COMMS_CFLAGS}, ${QMP_COMMS_LDFLAGS},
-    ${QMP_COMMS_LIBS}, , , [gm_link_ok=yes], [gm_link_ok=no])
-  AC_MSG_CHECKING([if we can compile/link of a simple GM program])
-  if test "X${gm_link_ok}X" = "XyesX" ; then
-    AC_MSG_RESULT(yes)
-  else
-    AC_MSG_RESULT(no)
-    AC_MSG_ERROR([Cannot compile/link a basic GM C program!
       Check QMP_COMMS_CFLAGS, QMP_COMMS_LDFLAGS, QMP_COMMS_LIBS.])
   fi
   ;;
@@ -106,42 +99,13 @@ AC_ARG_ENABLE( extra-debugging,
     esac],
   [enable_extra_debugging=no])
 
-AC_ARG_ENABLE( single-gm-port,
-  AC_HELP_STRING([--enable-single-gm-port],
-    [Using a single gm port to transfer messages using memory copy.
-      Default is yes.]),
-  [case "${enable_single_gm_port}" in
-    no)
-      AC_DEFINE(_QMP_USE_MULTI_PORTS)
-      ;;
-    yes) ;;
-    *) AC_MSG_ERROR([bad value ${enable_single_gm_port}
-      for --enable-single-gm-port]) ;;
-    esac],
-  [enable_single_gm_port=yes])
-
-AC_ARG_ENABLE( quick-global-sum,
-  AC_HELP_STRING([--enable-quick-global-sum],
-    [Using a better algorithm to do global sum.  Default is yes.]),
-  [case "${enable_quick_global_sum}" in
-    yes)
-      AC_DEFINE(_QMP_QUICK_GCOMM)
-      ;;
-    no) ;;
-    *) AC_MSG_ERROR([bad value ${enable_quick_global_sum}
-      for --enable-quick-global-sum]) ;;
-    esac],
-  [AC_DEFINE(_QMP_QUICK_GCOMM)])
-
 # Currently, this implementation of QMP only supports switched or shared
 # memory interconnect (IC) types.  If support for other types is added,
 # something will have to change here.
 AC_DEFINE(_QMP_IC_SWITCH)
 
-# Needed by GM variant of QMP code
-if test "X${QMP_COMMS_TYPE}X" = "XGMX" ; then
-  AC_DEFINE(_QMP_USE_GM)
-fi
+AM_CONDITIONAL(QMP_SINGLE, [test "X${QMP_COMMS_TYPE}X" = "XSINGLEX"])
+AM_CONDITIONAL(QMP_MPI, [test "X${QMP_COMMS_TYPE}X" = "XMPIX"])
 
 ############################################################
 # Support for memory debugging with DMALLOC
@@ -150,14 +114,19 @@ fi
 AM_WITH_DMALLOC
 
 ############################################################
-# Now do some configuration
+# Check for build programs
 ############################################################
-#
-
-AM_CONDITIONAL(QMP_MPI, [test "X${QMP_COMMS_TYPE}X" = "XMPIX"])
-AM_CONDITIONAL(QMP_GM,  [test "X${QMP_COMMS_TYPE}X" = "XGMX" ])
 
 AC_CHECK_PROG(DOXYGEN, doxygen, doxygen)
+
+############################################################
+# Check for library functions
+############################################################
+
+
+############################################################
+# Define files to configure and do it
+############################################################
 
 AC_CONFIG_FILES(Makefile)
 dnl George T. Fleming, 03/03/2003
