@@ -24,6 +24,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.4  2003/07/21 02:19:19  edwards
+ *   Cleaned up some int* to unsigned int*.
+ *
  *   Revision 1.3  2003/02/13 16:22:23  chen
  *   qmp version 1.2
  *
@@ -412,6 +415,7 @@ QMP_layout_grid (QMP_u32_t *dims, QMP_u32_t num_dims)
 
     /* Sanity check */
     /* Reset all remaining unsed  */
+#if 0
     {
       for(m=0; m < ND; ++m)
 	printf("phys_size[%d] = %d\n",m,phys_size[m]);
@@ -425,6 +429,7 @@ QMP_layout_grid (QMP_u32_t *dims, QMP_u32_t num_dims)
       for(m=0; m < ND; ++m)
 	printf("used_size[%d] = %d\n",m,used_size[m]);
     }
+#endif
 
     for(m=0; m < num_dims; ++m)
     {
