@@ -8,6 +8,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.1  2004/10/08 04:49:34  osborn
+ *   Split src directory into include and lib.
+ *
  *   Revision 1.1  2004/06/14 20:36:31  osborn
  *   Updated to API version 2 and added single node target
  *
@@ -115,52 +118,44 @@ QMP_free_msgmem(QMP_msgmem_t mm)
   }
 }
 
-
+/* Message handle routines */
 QMP_msghandle_t
 QMP_declare_receive_from (QMP_msgmem_t mm, int sourceNode, int priority)
 {
-  QMP_error("QMP_declare_receive_from: invalid source node %i\n", sourceNode);
-  QMP_abort(1);
-  return (QMP_msghandle_t)0;
+  return QMP_MSGHANDLE_ALLOCATED;
 }
 
 QMP_msghandle_t
 QMP_declare_send_to (QMP_msgmem_t mm, int remoteHost, int priority)
 {
-  QMP_error("QMP_declare_send_to: invalid destination node %i\n", remoteHost);
-  QMP_abort(1);
-  return (QMP_msghandle_t)0;
+  return QMP_MSGHANDLE_ALLOCATED;
 }
 
 QMP_msghandle_t
 QMP_declare_receive_relative(QMP_msgmem_t mm, int dir, int isign,
 			     int priority)
 {
-  QMP_error("QMP_declare_receive_relative: invalid direction %i\n", dir);
-  QMP_abort(1);
-  return (QMP_msghandle_t)0;
+  return QMP_MSGHANDLE_ALLOCATED;
 }
 
 QMP_msghandle_t
 QMP_declare_send_relative (QMP_msgmem_t mm, int dir, int isign,
 			   int priority)
 {
-  QMP_error("QMP_declare_send_relative: invalid direction %i\n", dir);
-  QMP_abort(1);
-  return (QMP_msghandle_t)0;
+  return QMP_MSGHANDLE_ALLOCATED;
 }
 
 QMP_msghandle_t
 QMP_declare_multiple(QMP_msghandle_t msgh[], int nhandle)
 {
-  QMP_error("QMP_declare_multiple: invalid arguments\n");
-  QMP_abort(1);
-  return (QMP_msghandle_t)0;
+  return QMP_MSGHANDLE_ALLOCATED;
 }
 
 void
 QMP_free_msghandle (QMP_msghandle_t msgh)
 {
-  QMP_error("QMP_free_msghandle: passed QMP_msghandle_t not allocated\n");
-  QMP_abort(1);
+  if(msgh!=QMP_MSGHANDLE_ALLOCATED) {
+    QMP_FATAL("passed QMP_msghandle_t not allocated");
+  }
 }
+
