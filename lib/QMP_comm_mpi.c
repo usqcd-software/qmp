@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.2  2004/12/16 02:44:12  osborn
+ *   Changed QMP_mem_t structure, fixed strided memory and added test.
+ *
  *   Revision 1.1  2004/10/08 04:49:34  osborn
  *   Split src directory into include and lib.
  *
@@ -398,7 +401,7 @@ QMP_wait(QMP_msghandle_t msgh)
 QMP_status_t
 QMP_wait_all(QMP_msghandle_t msgh[], int num)
 {
-  QMP_status_t err=QMP_ERROR;
+  QMP_status_t err=QMP_SUCCESS;
   int i;
 
 #ifdef _QMP_DEBUG
