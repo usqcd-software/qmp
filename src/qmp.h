@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.11  2004/09/01 21:16:47  osborn
+ *   Added QMP_is_initialized().
+ *
  *   Revision 1.10  2004/08/26 21:32:21  detar
  *   Change QMP_master_io_node to function -CD
  *
@@ -386,7 +389,7 @@ extern int                QMP_get_node_number_from (const int coordinates[]);
  * General geometry constructor. Automatically determines the 
  * optimal layout -> decides the optimal ordering of axes.
  */
-extern QMP_status_t       QMP_layout_grid (int dimensions[], int ndims);
+extern QMP_status_t       QMP_layout_grid (const int dimensions[], int ndims);
 
 /**
  * Return logical (lattice) subgrid sizes.

@@ -24,6 +24,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.6  2004/06/14 20:36:31  osborn
+ *   Updated to API version 2 and added single node target
+ *
  *   Revision 1.5  2004/02/05 02:28:08  edwards
  *   Blanked out debugging section.
  *
@@ -91,7 +94,7 @@ is_factor(unsigned a, unsigned b)
  * optimal layout -> decides the optimal ordering of axes.
  */
 QMP_status_t
-QMP_layout_grid (int *dims, int ndim)
+QMP_layout_grid (const int *dims, int ndim)
 {
   int squaresize[ndim], nsquares[ndim];
   int i;
