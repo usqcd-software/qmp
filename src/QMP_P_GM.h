@@ -18,6 +18,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.3  2003/02/13 16:22:23  chen
+ *   qmp version 1.2
+ *
  *   Revision 1.2  2003/02/11 03:39:24  flemingg
  *   GTF: Update of automake and autoconf files to use qmp-config in lieu
  *        of qmp_build_env.sh
@@ -1023,8 +1026,8 @@ extern const QMP_rtenv_t QMP_get_machine_info (QMP_machine_t* glm,
 extern const QMP_rtenv_t QMP_get_machine_info_by_id (QMP_machine_t* glm,
 						     QMP_u32_t id);
 
-extern void *QMP_memalign (QMP_u32_t alignment, 
-			   QMP_u32_t size);
+extern void *QMP_memalign (QMP_u32_t size, 
+			   QMP_u32_t alignment);
 
 extern QMP_u32_t  QMP_find_gm_port (QMP_machine_t* glm);
 extern void       QMP_set_gm_port (QMP_machine_t* glm, QMP_u32_t port);

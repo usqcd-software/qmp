@@ -17,6 +17,10 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.2  2003/02/11 03:39:24  flemingg
+ *   GTF: Update of automake and autoconf files to use qmp-config in lieu
+ *        of qmp_build_env.sh
+ *
  *   Revision 1.1.1.1  2003/01/27 19:31:36  chen
  *   check into lattice group
  *
@@ -222,6 +226,14 @@ extern QMP_u32_t          QMP_allocated_to_logical (QMP_u32_t node);
  * @return a physical node number.
  */
 extern QMP_u32_t          QMP_logical_to_allocated (QMP_u32_t logic_rank);
+
+
+/**
+ * Allocate aligned memory of size 'size'
+ */
+extern void *QMP_memalign (QMP_u32_t size, 
+			   QMP_u32_t alignment);
+
 
 #ifdef __cplusplus
 }

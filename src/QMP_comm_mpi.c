@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.3  2003/02/18 18:16:18  chen
+ *   Fix a minor bug for is_complete
+ *
  *   Revision 1.2  2003/02/13 16:22:23  chen
  *   qmp version 1.2
  *
@@ -179,7 +182,7 @@ QMP_wait_send_receive(QMP_msghandle_t msgh)
 
   /* Wait on all the messages */
   if ((flag = MPI_Waitall(num, request, status)) != MPI_SUCCESS) {
-    printf ("Falg is %d\n", flag);
+    QMP_fprintf (stderr, "Wait all Falg is %d\n", flag);
     QMP_fatal(1,"QMP_wait: test unexpectedly failed");
   }
 
@@ -195,8 +198,7 @@ QMP_wait_send_receive(QMP_msghandle_t msgh)
 
   while (mh)
   {
-    if (mh->type == MH_send)
-      mh->request = MPI_REQUEST_NULL;
+    mh->request = MPI_REQUEST_NULL;
 
     mh->activeP = 0;
     mh = mh->next;
@@ -209,6 +211,63 @@ QMP_wait_send_receive(QMP_msghandle_t msgh)
   return flag;
 }
 
+
+/* Internal routine for testing on waiting send & receive messages */
+static QMP_bool_t
+QMP_test_send_receive (QMP_msghandle_t msgh)
+{
+  Message_Handle_t mh = (Message_Handle_t)msgh;
+  int flag, callst;
+  QMP_bool_t  done;
+  MPI_Request request;
+  MPI_Status  status;
+
+#ifdef _QMP_DEBUG
+  QMP_info ("Calling QMP_test_send_receive, id=%d\n",QMP_get_node_number());
+#endif
+
+  /* Check each request to find out whether it is finished */
+  done = QMP_TRUE;
+
+  while (mh) {
+    flag = 0;
+
+    if (mh->type == MH_send || mh->type == MH_recv) {
+#if 1
+      /* (Slow) Paranoid test for activity. Check against both the activity
+       * and the request field */
+      if (mh->activeP && (mh->request == MPI_REQUEST_NULL))
+	QMP_fatal(1,"QMP_wait: internal error: found null request but active message");
+      
+      if (! mh->activeP && (mh->request != MPI_REQUEST_NULL))
+	QMP_fatal(1,"QMP_wait: internal error: found active request but inactive message");
+#endif
+
+      /* Quick test for activity. Be careful this flag matches reality! */
+      if (mh->activeP) {
+	request = mh->request;
+
+	if ((callst = MPI_Test (&request, &flag, &status)) != MPI_SUCCESS) {
+	  QMP_fatal (1, "QMP_test_send_receive: test unexpected failed.");
+	}
+	else {
+	  if (flag) {
+	    /* This request is done */
+	    mh->request = MPI_REQUEST_NULL;
+	    mh->activeP = 0;
+	  }
+	  else
+	    done = QMP_FALSE;
+	}
+      }
+    }
+
+    /* Go to next */
+    mh = mh->next;
+  }
+
+  return done;
+}
 
 /* Check if all messages in msgh are received. 
  * NOTE: Does not attempt to receive any messages 
@@ -244,7 +303,11 @@ QMP_is_complete(QMP_msghandle_t msgh)
   fprintf(stderr,"Finished QMP_is_complete, id=%d\n",QMP_get_node_number());
 #endif
 
-  return !activeP;
+  /* Not finished we do a quick test */
+  if (activeP) 
+    return QMP_test_send_receive (msgh);
+  else 
+    return QMP_TRUE;
 }
 
 

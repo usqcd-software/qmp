@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.3  2003/02/13 16:22:23  chen
+ *   qmp version 1.2
+ *
  *   Revision 1.2  2003/02/11 03:39:24  flemingg
  *   GTF: Update of automake and autoconf files to use qmp-config in lieu
  *        of qmp_build_env.sh
@@ -112,11 +115,18 @@ static void qmp_process_genmsg_i (QMP_machine_t* glm,
 static QMP_u32_t
 get_current_time (void)
 {
+#if 1
   struct timeval tv;
 
   gettimeofday (&tv, 0);
 
   return (QMP_u32_t)tv.tv_sec;
+#endif
+
+#if 0
+  /* gm_ticks increase every 0.5usec */
+  return gm_ticks(QMP_global_m.port)/500000;
+#endif
 }
 
 
@@ -1971,6 +1981,12 @@ qmp_is_complete_i (QMP_machine_t* glm,
 {
   QMP_TRACE ("qmp_is_complete_i");
 
+  if (mh->state == QMP_MH_IDLE)
+    return QMP_TRUE;
+  
+  /* do a quick poll and check again */
+  qmp_wait_for_i (mh->glm, mh, 0);
+  
   return (mh->state == QMP_MH_IDLE);
 }
 
