@@ -17,6 +17,10 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.2  2003/02/11 03:39:24  flemingg
+ *   GTF: Update of automake and autoconf files to use qmp-config in lieu
+ *        of qmp_build_env.sh
+ *
  *   Revision 1.1.1.1  2003/01/27 19:31:37  chen
  *   check into lattice group
  *
@@ -33,11 +37,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include <QMP.h>
+#include <qmp.h>
 
-/*
-#define USE_CHANNEL_TABLE 0
-*/
 struct perf_argv
 {
   QMP_u32_t size;
@@ -46,19 +47,6 @@ struct perf_argv
 
 #define SEND 0
 #define RECV 1
-
-struct channel
-{
-  QMP_msgmem_t    mm;
-  QMP_msghandle_t mh;
-  char *buf;
-  int   size;
-  int   node;
-  int   type;
-};
-
-static struct channel* channel_table[100];
-static int channel_table_size = 100;
 
 /**
  * Get current time in milli seconds.
@@ -75,99 +63,6 @@ get_current_time (void)
 
 
 /**
- * Initialize message handle table
- */
-static void
-init_channel_table (void)
-{
-  int i;
-
-  for (i = 0; i < channel_table_size; i++) {
-    channel_table[i] = (struct channel *)malloc (sizeof(struct channel));
-    channel_table[i]->mh = 0;
-    channel_table[i]->mm = 0;
-    channel_table[i]->buf = 0;
-    channel_table[i]->size = 0;
-    channel_table[i]->node = -1;
-    channel_table[i]->type = -1;
-  }
-}
-
-/**
- * Initialize message handle table
- */
-static void
-fina_channel_table (void)
-{
-  int i;
-
-  for (i = 0; i < channel_table_size; i++) {
-    if (channel_table[i]->mh) {
-      QMP_free_msghandle (channel_table[i]->mh);
-      QMP_free_msgmem (channel_table[i]->mm);
-    }
-  }
-}
-
-/**
- * Find a message handle from the table
- */
-static QMP_msghandle_t
-get_message_handle (char* buf, int size, int node, int type)
-{
-  int i;
-  struct channel* p;
-
-  for (i = 0; i < channel_table_size; i++) {
-    p = channel_table[i];
-    if (p->mh && p->buf == buf && p->size == size && p->node == node 
-	&& p->type == type)
-      return p->mh;
-  }
-  return 0;
-}
-
-/**
- * Create a new message handle and put into the table
- */
-static QMP_msghandle_t
-create_message_handle (char* buf, int size, int node, int type)
-{
-  int i;
-  struct channel* p;
-  QMP_msgmem_t mm;
-  QMP_msghandle_t mh;
-
-  mm = QMP_declare_msgmem(buf, size);
-  if (type == SEND) 
-    mh = QMP_declare_send_to(mm, node, 0);
-  else 
-    mh = QMP_declare_receive_from(mm, node, 0);
-
-  if (!mh) {
-    QMP_fprintf (stderr, "Cannot create message handle, QUIT\n");
-    exit (1);
-  }
-
-  for (i = 0; i < channel_table_size; i++) {
-    p = channel_table[i];
-    if (p->mh == 0) {
-      p->mh = mh;
-      p->mm = mm;
-      p->buf = buf;
-      p->size = size;
-      p->node = node;
-      p->type = type;
-      return p->mh;
-    }
-  }
-
-  return 0;
-}
-    
-
-
-/**
  *  send_field is to be called only by the node doing the sending
  */
 static void
@@ -176,22 +71,14 @@ send_field(char *buf, int size, int tonode)
   QMP_msgmem_t mm;
   QMP_msghandle_t mh;
 
-#ifdef USE_CHANNEL_TABLE
-  mh = get_message_handle (buf, size, tonode, SEND);
-  if (!mh)
-    mh = create_message_handle (buf, size, tonode, SEND);
-#else
   mm = QMP_declare_msgmem(buf, size);
   mh = QMP_declare_send_to(mm, tonode, 0);
-#endif
 
   QMP_start(mh);
   QMP_wait(mh);
 
-#ifndef USE_CHANNEL_TABLE
   QMP_free_msghandle(mh);
   QMP_free_msgmem(mm);
-#endif
 }
 
 /**
@@ -203,22 +90,14 @@ get_field(char *buf, int size, int fromnode)
   QMP_msgmem_t mm;
   QMP_msghandle_t mh;
 
-#ifdef USE_CHANNEL_TABLE
-  mh = get_message_handle (buf, size, fromnode, RECV);
-  if (!mh)
-    mh = create_message_handle (buf, size, fromnode, RECV);
-#else
   mm = QMP_declare_msgmem(buf, size);
   mh = QMP_declare_receive_from(mm, fromnode, 0);
-#endif
 
   QMP_start(mh);
   QMP_wait(mh);
 
-#ifndef USE_CHANNEL_TABLE
   QMP_free_msghandle(mh);
   QMP_free_msgmem(mm);
-#endif
 }
 
 int
@@ -240,9 +119,6 @@ main (int argc, char** argv)
   if (status != QMP_SUCCESS) 
     QMP_error_exit ("QMP_init failed: %s\n", QMP_error_string(status));
 
-#ifdef USE_CHANNEL_TABLE
-  init_channel_table ();
-#endif
 
   /* If this is the root node, get dimension information from key board */
   if (QMP_is_primary_node()) {
@@ -306,10 +182,6 @@ main (int argc, char** argv)
 		 pargv.size, bw);
   }
   
-#ifdef USE_CHANNEL_TABLE
-  fina_channel_table ();
-#endif
-
   QMP_finalize_msg_passing ();
 
   QMP_free_aligned_memory (mem);

@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.1.1.1  2003/01/27 19:31:36  chen
+ *   check into lattice group
+ *
  *   Revision 1.1  2002/04/22 20:28:42  chen
  *   Version 0.95 Release
  *
@@ -28,7 +31,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#include "QMP.h"
+#include "qmp.h"
 #include "QMP_P_MPI.h"
 
 /**

@@ -22,3 +22,5 @@ AM_CFLAGS  = -I@top_srcdir@/src
 AM_LDFLAGS = -L../src @QMP_COMMS_LDFLAGS@
 LDADD      = -lqmp @QMP_COMMS_LIBS@
 
+gm_loop_CFLAGS = $(AM_CFLAGS) @QMP_COMMS_CFLAGS@
+

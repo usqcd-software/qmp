@@ -18,6 +18,10 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.2  2003/02/11 03:39:24  flemingg
+ *   GTF: Update of automake and autoconf files to use qmp-config in lieu
+ *        of qmp_build_env.sh
+ *
  *   Revision 1.1.1.1  2003/01/27 19:31:36  chen
  *   check into lattice group
  *
@@ -871,9 +875,9 @@ typedef enum QMP_op
 
 /**
  * Function pointer for global operation.
- * dest = source op dest
+ * dest = inout op in
  */
-typedef void  (*QMP_opfunc) (void* dest, void* source1, void* source2,
+typedef void  (*QMP_opfunc) (void* inout, void* in,
 			     QMP_u32_t count, QMP_datatype_t type);
 
 /**

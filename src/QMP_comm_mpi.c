@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.1.1.1  2003/01/27 19:31:36  chen
+ *   check into lattice group
+ *
  *   Revision 1.4  2002/05/31 15:55:00  chen
  *   Fix a bug on sum_double
  *
@@ -38,7 +41,7 @@
 #include <sys/time.h>
 #include <assert.h>
 
-#include "QMP.h"
+#include "qmp.h"
 #include "QMP_P_MPI.h"
 
 /* Start send (non-blocking) from possibly ganged message handles */
@@ -393,17 +396,60 @@ QMP_sum_double_array (QMP_double_t *value, QMP_u32_t count)
   return status;
 }
 
+/**
+ * This is a pure hack since our user binary function is defined
+ * differently from MPI spec. In addition we are not expecting
+ * multiple binary reduction can be carried out simultaneously.
+ */
+static QMP_binary_func qmp_user_bfunc_ = 0;
+
+/**
+ * This is a internal function which will be passed to MPI all reduce
+ */
 static int 
-QMP_MPI_internal_func (void* a, void* b, int* len, MPI_Datatype* type)
+qmp_MPI_bfunc_i (void* in, void* inout, int* len, MPI_Datatype* type)
 {
-  return 0;
+  if (qmp_user_bfunc_)
+    (*qmp_user_bfunc_)(inout, in);
 }
 
 QMP_status_t
 QMP_binary_reduction (void *lbuffer, QMP_u32_t count, 
 		      QMP_binary_func bfunc)
 {
-  QMP_error_exit ("QMP_binary_reduction is not implemented\n");
+  MPI_Op       bop;
+  void*        rbuffer;
+  QMP_status_t status;
+
+  /* first check whether there is a binary reduction is in session */
+  if (qmp_user_bfunc_) 
+    QMP_error_exit ("Another binary reduction is in progress.\n");
+
+  rbuffer = QMP_memalign (count, QMP_MEM_ALIGNMENT);
+  if (!rbuffer)
+    return QMP_NOMEM_ERR;
+
+  /* set up user binary reduction pointer */
+  qmp_user_bfunc_ = bfunc;
+
+  if ((status = MPI_Op_create (qmp_MPI_bfunc_i, 1, &bop)) != MPI_SUCCESS) {
+    QMP_error ("Cannot create MPI operator for binary reduction.\n");
+    return status;
+  }
+  
+  status = MPI_Allreduce(lbuffer,rbuffer,count, MPI_BYTE, bop, MPI_COMM_WORLD);
+
+  if (status == QMP_SUCCESS) 
+    memcpy (lbuffer, rbuffer, count);
+  free (rbuffer);
+  
+  /* free binary operator */
+  MPI_Op_free (&bop);
+
+  /* signal end of the binary reduction session */
+  qmp_user_bfunc_ = 0;
+
+    
   return QMP_SUCCESS;
 }
 

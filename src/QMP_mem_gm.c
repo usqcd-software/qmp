@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.1.1.1  2003/01/27 19:31:36  chen
+ *   check into lattice group
+ *
  *   Revision 1.15  2003/01/08 20:37:48  chen
  *   Add new implementation to use one gm port
  *
@@ -69,7 +72,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#include "QMP.h"
+#include "qmp.h"
 #include "QMP_P_GM.h"
 
 

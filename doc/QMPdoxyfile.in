@@ -51,7 +51,7 @@ WARN_LOGFILE           =
 #---------------------------------------------------------------------------
 # configuration options related to the input files
 #---------------------------------------------------------------------------
-INPUT                  = @top_srcdir@/src/QMP.h
+INPUT                  = @top_srcdir@/src/qmp.h
 FILE_PATTERNS          = 
 RECURSIVE              = 
 EXCLUDE                = 

@@ -17,6 +17,10 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.2  2003/02/11 03:39:24  flemingg
+ *   GTF: Update of automake and autoconf files to use qmp-config in lieu
+ *        of qmp_build_env.sh
+ *
  *   Revision 1.1.1.1  2003/01/27 19:31:37  chen
  *   check into lattice group
  *
@@ -47,14 +51,23 @@
 #include <sys/time.h>
 #include <unistd.h>
 
-#include <QMP.h>
+#include <qmp.h>
 
-/* test purpose only */
-#define QMP_QUEUE              1100
-#define QMP_REDUCE             1150
-#define QMP_ANY                1200
+static void 
+my_binary_func (void* inout, void* in)
+{
+  float *res, *source;
+  int   len, i;
+  /* assume this is float array with size 10 */
+  
+  res = (float *)inout;
+  source = (float *)in;
+  len = 10;
 
-#define NUM_HANDLES 4
+  for (i = 0; i < 10; i++) 
+    res[i] = res[i] + 2 * source[i];
+
+}
 
 int main (int argc, char** argv)
 {
@@ -62,77 +75,12 @@ int main (int argc, char** argv)
   QMP_bool_t status;
   QMP_u32_t num_nodes;
 
-  void *rmem[NUM_HANDLES], *smem[NUM_HANDLES];
-  QMP_msgmem_t recvmem[NUM_HANDLES];
-  QMP_msghandle_t recvh[NUM_HANDLES];
-  QMP_msgmem_t sendmem[NUM_HANDLES];
-  QMP_msghandle_t sendh[NUM_HANDLES];
-
-  /*
-  QMP_u32_t dims[4] = {2, 2, 4, 2};
-  QMP_u32_t ndims = 4;
-  */
-  QMP_u32_t dims[1] = {2};
-  QMP_u32_t ndims = 1;
-
   status = QMP_init_msg_passing (&argc, &argv, QMP_SMP_MULTIPLE_ADDRESS);
 
   if (status != QMP_SUCCESS) {
     QMP_printf ( "QMP_init failed\n");
     return -1;
   }
-
-  /*
-  status = QMP_declare_logical_topology (dims, ndims);
-
-  if (status == QMP_FALSE)
-    QMP_printf ( "Cannot declare logical grid\n");
-  else
-    QMP_printf ("Declare logical grid ok\n");
-
-  for (i = 0; i < NUM_HANDLES; i++) {
-    rmem[i] = QMP_allocate_aligned_memory (1024);
-    if (!rmem[i]) {
-      QMP_printf ("cannot allocate receiving memory\n");
-      exit (1);
-    }
-    recvmem[i] = QMP_declare_msgmem (rmem[i], 1024);
-    if (!recvmem[i]) {
-      QMP_printf ("recv memory error : %s\n", QMP_get_error_string(0));
-      exit (1);
-    }
-  }
-
-  for (i = 0; i < NUM_HANDLES; i++) {
-    smem[i] = QMP_allocate_aligned_memory (1024);
-    if (!rmem[i]) {
-      QMP_printf ("cannot allocate sending memory\n");
-      exit (1);
-    }
-    sendmem [i]= QMP_declare_msgmem (smem[i], 1024);
-    if (!sendmem[i]) {
-      QMP_printf ("send memory error : %s\n", QMP_get_error_string(0));
-      exit (1);
-    }
-  }
-
-  
-  for (i = 0; i < NUM_HANDLES; i++) {
-    recvh[i] = QMP_declare_receive_relative (recvmem[i], 0, 1, 0);
-    if (!recvh[i]) {
-      QMP_printf ("Recv Handle Error: %s\n", QMP_get_error_string(0));      
-      exit (1);
-    }
-  }
-
-  for (i = 0; i < NUM_HANDLES; i++) {
-    sendh[i] = QMP_declare_send_relative (sendmem[i], 0, -1, 0);
-    if (!sendh[i]) {
-      QMP_printf ("Send Handle Error: %s\n", QMP_get_error_string(0));
-      exit (1);
-    }
-  }
-  */
 
   num_nodes = QMP_get_number_of_nodes ();
   QMP_printf ("There are %d nodes for this job\n", num_nodes);
@@ -237,19 +185,26 @@ int main (int argc, char** argv)
   }
 
   
+  /* global binary reduction test */
+  {
+    float value[10];
+    QMP_u32_t rank;
 
-  /*
-  for (i = 0; i < NUM_HANDLES; i++) {
-    QMP_free_msghandle (recvh[i]);
-    QMP_free_msgmem (recvmem[i]);
+    rank = QMP_get_node_number ();
+    for (i = 0; i < 10; i++)
+      value[i] = (float)i - (float)rank;
 
-    QMP_free_msghandle (sendh[i]);
-    QMP_free_msgmem (sendmem[i]);
+    if (QMP_binary_reduction (value, 10*sizeof(float), 
+			      my_binary_func) != QMP_SUCCESS)
+      QMP_error ("Binary reduction error.\n");
 
-    QMP_free_aligned_memory (rmem[i]);
-    QMP_free_aligned_memory (smem[i]);
+    QMP_fprintf (stderr, "Reduced float array looks like : ");
+    for (i = 0; i < 10; i++) 
+      fprintf (stderr, "%10.5f ", value[i]);
+    fprintf (stderr, "\n");
+
   }
-  */
+
 
   QMP_finalize_msg_passing ();
 

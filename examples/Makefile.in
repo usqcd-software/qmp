@@ -128,6 +128,8 @@ check_PROGRAMS = QMP_test          \
 AM_CFLAGS = -I@top_srcdir@/src
 AM_LDFLAGS = -L../src @QMP_COMMS_LDFLAGS@
 LDADD = -lqmp @QMP_COMMS_LIBS@
+
+gm_loop_CFLAGS = $(AM_CFLAGS) @QMP_COMMS_CFLAGS@
 subdir = examples
 mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
 CONFIG_CLEAN_FILES =
@@ -181,7 +183,7 @@ QMP_test_LDADD = $(LDADD)
 QMP_test_DEPENDENCIES =
 QMP_test_LDFLAGS =
 gm_loop_SOURCES = gm_loop.c
-gm_loop_OBJECTS = gm_loop.$(OBJEXT)
+gm_loop_OBJECTS = gm_loop-gm_loop.$(OBJEXT)
 gm_loop_LDADD = $(LDADD)
 gm_loop_DEPENDENCIES =
 gm_loop_LDFLAGS =
@@ -194,7 +196,8 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/QMP_grid_test.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/QMP_loopback.Po ./$(DEPDIR)/QMP_msg.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/QMP_perf.Po ./$(DEPDIR)/QMP_qcd_test.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/QMP_test.Po ./$(DEPDIR)/gm_loop.Po
+@AMDEP_TRUE@	./$(DEPDIR)/QMP_test.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/gm_loop-gm_loop.Po
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
@@ -259,7 +262,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/QMP_perf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/QMP_qcd_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/QMP_test.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gm_loop.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gm_loop-gm_loop.Po@am__quote@
 
 distclean-depend:
 	-rm -rf ./$(DEPDIR)
@@ -285,6 +288,28 @@ distclean-depend:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/$*.Po' tmpdepfile='$(DEPDIR)/$*.TPo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(COMPILE) -c `if test -f '$<'; then $(CYGPATH_W) '$<'; else $(CYGPATH_W) '$(srcdir)/$<'; fi`
+
+gm_loop-gm_loop.o: gm_loop.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(gm_loop_CFLAGS) $(CFLAGS) -MT gm_loop-gm_loop.o -MD -MP -MF "$(DEPDIR)/gm_loop-gm_loop.Tpo" \
+@am__fastdepCC_TRUE@	  -c -o gm_loop-gm_loop.o `test -f 'gm_loop.c' || echo '$(srcdir)/'`gm_loop.c; \
+@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/gm_loop-gm_loop.Tpo" "$(DEPDIR)/gm_loop-gm_loop.Po"; \
+@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/gm_loop-gm_loop.Tpo"; exit 1; \
+@am__fastdepCC_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='gm_loop.c' object='gm_loop-gm_loop.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/gm_loop-gm_loop.Po' tmpdepfile='$(DEPDIR)/gm_loop-gm_loop.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(gm_loop_CFLAGS) $(CFLAGS) -c -o gm_loop-gm_loop.o `test -f 'gm_loop.c' || echo '$(srcdir)/'`gm_loop.c
+
+gm_loop-gm_loop.obj: gm_loop.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(gm_loop_CFLAGS) $(CFLAGS) -MT gm_loop-gm_loop.obj -MD -MP -MF "$(DEPDIR)/gm_loop-gm_loop.Tpo" \
+@am__fastdepCC_TRUE@	  -c -o gm_loop-gm_loop.obj `if test -f 'gm_loop.c'; then $(CYGPATH_W) 'gm_loop.c'; else $(CYGPATH_W) '$(srcdir)/gm_loop.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/gm_loop-gm_loop.Tpo" "$(DEPDIR)/gm_loop-gm_loop.Po"; \
+@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/gm_loop-gm_loop.Tpo"; exit 1; \
+@am__fastdepCC_TRUE@	fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='gm_loop.c' object='gm_loop-gm_loop.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/gm_loop-gm_loop.Po' tmpdepfile='$(DEPDIR)/gm_loop-gm_loop.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(gm_loop_CFLAGS) $(CFLAGS) -c -o gm_loop-gm_loop.obj `if test -f 'gm_loop.c'; then $(CYGPATH_W) 'gm_loop.c'; else $(CYGPATH_W) '$(srcdir)/gm_loop.c'; fi`
 uninstall-info-am:
 
 ETAGS = etags

@@ -19,7 +19,7 @@ QMP_MPI_SRC = QMP_comm_mpi.c \
 
 libqmp_a_CFLAGS  = @QMP_COMMS_CFLAGS@
 
-include_HEADERS = QMP.h
+include_HEADERS = qmp.h
 
 if QMP_GM
   libqmp_a_SOURCES = $(QMP_GM_SRC)

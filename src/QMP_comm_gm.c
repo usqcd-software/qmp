@@ -17,6 +17,10 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.2  2003/02/11 03:39:24  flemingg
+ *   GTF: Update of automake and autoconf files to use qmp-config in lieu
+ *        of qmp_build_env.sh
+ *
  *   Revision 1.1.1.1  2003/01/27 19:31:36  chen
  *   check into lattice group
  *
@@ -86,8 +90,8 @@
 #include <sys/time.h>
 #include <assert.h>
 
-#include <QMP.h>
-#include <QMP_P_GM.h>
+#include "qmp.h"
+#include "QMP_P_GM.h"
 
 /**
  * forward decleration for a gm receving main loop.
@@ -2049,19 +2053,19 @@ QMP_wait (QMP_msghandle_t h)
  */
 QMP_u32_t QMP_data_size_table[] = {1, 1, 1, 2, 2, 4, 4, 8, 8, 4, 8};
 
-static void qmp_sum_i (void* result, void* source1, void* source2,
+static void qmp_sum_i (void* result, void* source,
 		       QMP_u32_t count, QMP_datatype_t datatype)
 {
   if (count == 1) {
     switch (datatype) {
     case QMP_INT:
-      *(int *)result = *(int *)source1 + *(int *)source2;
+      *(int *)result = *(int *)result + *(int *)source;
       break;
     case QMP_FLOAT:
-      *(float *)result = *(float *)source1 + *(float *)source2;
+      *(float *)result = *(float *)result + *(float *)source;
       break;
     case QMP_DOUBLE:
-      *(double *)result = *(double *)source1 + *(double *)source2;
+      *(double *)result = *(double *)result + *(double *)source;
       break;
     default:
       QMP_error ("qmp sum only supports integer, float and double\n");
@@ -2076,28 +2080,25 @@ static void qmp_sum_i (void* result, void* source1, void* source2,
     case QMP_INT:
       {
 	int* retvalue = (int *)result;
-	int* src1 = (int *)source1;
-	int* src2 = (int *)source2;
+	int* src = (int *)source;
 	for (i = 0; i < count; i++) 
-	  retvalue[i] = src1[i] + src2[i];
+	  retvalue[i] = retvalue[i] + src[i];
       }
       break;
     case QMP_FLOAT:
       {
 	float* retvalue = (float *)result;
-	float* src1 = (float *)source1;
-	float* src2 = (float *)source2;
+	float* src = (float *)source;
 	for (i = 0; i < count; i++) 
-	  retvalue[i] = src1[i] + src2[i];
+	  retvalue[i] = retvalue[i] + src[i];
       }
       break;
     case QMP_DOUBLE:
       {
 	double* retvalue = (double *)result;
-	double* src1 = (double *)source1;
-	double* src2 = (double *)source2;
+	double* src = (double *)source;
 	for (i = 0; i < count; i++) 
-	  retvalue[i] = src1[i] + src2[i];
+	  retvalue[i] = retvalue[i] + src[i];
       }
       break;
     default:
@@ -2109,19 +2110,19 @@ static void qmp_sum_i (void* result, void* source1, void* source2,
 }
 
 
-static void qmp_max_i (void* result, void* source1, void* source2,
+static void qmp_max_i (void* result, void* source,
 		       QMP_u32_t count, QMP_datatype_t datatype)
 {
   if (count == 1) {
     switch (datatype) {
     case QMP_INT:
-      *(int *)result = ((*(int *)source1) > (*(int *)source2)) ? (*(int *)source1): (*(int *)source2);
+      *(int *)result = ((*(int *)result) > (*(int *)source)) ? (*(int *)result): (*(int *)source);
       break;
     case QMP_FLOAT:
-      *(float *)result = ((*(float *)source1) > (*(float *)source2)) ? (*(float *)source1): (*(float *)source2);
+      *(float *)result = ((*(float *)result) > (*(float *)source)) ? (*(float *)result): (*(float *)source);
       break;
     case QMP_DOUBLE:
-      *(double *)result = ((*(double *)source1) > (*(double *)source2)) ? (*(double *)source1): (*(double *)source2);
+      *(double *)result = ((*(double *)result) > (*(double *)source)) ? (*(double *)result): (*(double *)source);
       break;
     default:
       QMP_error ("qmp sum only supports integer, float and double\n");
@@ -2136,28 +2137,25 @@ static void qmp_max_i (void* result, void* source1, void* source2,
     case QMP_INT:
       {
 	int* retvalue = (int *)result;
-	int* src1 = (int *)source1;
-	int* src2 = (int *)source2;
+	int* src = (int *)source;
 	for (i = 0; i < count; i++) 
-	  retvalue[i] = (src1[i] > src2[i]) ? src1[i] : src2[i];
+	  retvalue[i] = (retvalue[i] > src[i]) ? retvalue[i] : src[i];
       }
       break;
     case QMP_FLOAT:
       {
 	float* retvalue = (float *)result;
-	float* src1 = (float *)source1;
-	float* src2 = (float *)source2;
+	float* src = (float *)source;
 	for (i = 0; i < count; i++) 
-	  retvalue[i] = (src1[i] > src2[i]) ? src1[i] : src2[i];
+	  retvalue[i] = (retvalue[i] > src[i]) ? retvalue[i] : src[i];
       }
       break;
     case QMP_DOUBLE:
       {
 	double* retvalue = (double *)result;
-	double* src1 = (double *)source1;
-	double* src2 = (double *)source2;
+	double* src = (double *)source;
 	for (i = 0; i < count; i++) 
-	  retvalue[i] = (src1[i] > src2[i]) ? src1[i] : src2[i];
+	  retvalue[i] = (retvalue[i] > src[i]) ? retvalue[i] : src[i];
       }
       break;
     default:
@@ -2168,19 +2166,19 @@ static void qmp_max_i (void* result, void* source1, void* source2,
   }
 }
 
-static void qmp_min_i (void* result, void* source1, void* source2,
+static void qmp_min_i (void* result, void* source,
 		       QMP_u32_t count, QMP_datatype_t datatype)
 {
   if (count == 1) {
     switch (datatype) {
     case QMP_INT:
-      *(int *)result = ((*(int *)source1) < (*(int *)source2)) ? (*(int *)source1): (*(int *)source2);
+      *(int *)result = ((*(int *)result) < (*(int *)source)) ? (*(int *)result): (*(int *)source);
       break;
     case QMP_FLOAT:
-      *(float *)result = ((*(float *)source1) < (*(float *)source2)) ? (*(float *)source1): (*(float *)source2);
+      *(float *)result = ((*(float *)result) < (*(float *)source)) ? (*(float *)result): (*(float *)source);
       break;
     case QMP_DOUBLE:
-      *(double *)result = ((*(double *)source1) < (*(double *)source2)) ? (*(double *)source1): (*(double *)source2);
+      *(double *)result = ((*(double *)result) < (*(double *)source)) ? (*(double *)result): (*(double *)source);
       break;
     default:
       QMP_error ("qmp sum only supports integer, float and double\n");
@@ -2195,28 +2193,25 @@ static void qmp_min_i (void* result, void* source1, void* source2,
     case QMP_INT:
       {
 	int* retvalue = (int *)result;
-	int* src1 = (int *)source1;
-	int* src2 = (int *)source2;
+	int* src = (int *)source;
 	for (i = 0; i < count; i++) 
-	  retvalue[i] = (src1[i] < src2[i]) ? src1[i] : src2[i];
+	  retvalue[i] = (retvalue[i] < src[i]) ? retvalue[i] : src[i];
       }
       break;
     case QMP_FLOAT:
       {
 	float* retvalue = (float *)result;
-	float* src1 = (float *)source1;
-	float* src2 = (float *)source2;
+	float* src = (float *)source;
 	for (i = 0; i < count; i++) 
-	  retvalue[i] = (src1[i] < src2[i]) ? src1[i] : src2[i];
+	  retvalue[i] = (retvalue[i] < src[i]) ? retvalue[i] : src[i];
       }
       break;
     case QMP_DOUBLE:
       {
 	double* retvalue = (double *)result;
-	double* src1 = (double *)source1;
-	double* src2 = (double *)source2;
+	double* src = (double *)source;
 	for (i = 0; i < count; i++) 
-	  retvalue[i] = (src1[i] < src2[i]) ? src1[i] : src2[i];
+	  retvalue[i] = (retvalue[i] < src[i]) ? retvalue[i] : src[i];
       }
       break;
     default:
@@ -2227,14 +2222,14 @@ static void qmp_min_i (void* result, void* source1, void* source2,
   }
 }
 
-static void qmp_xor_i (void* result, void* source1, void* source2,
+static void qmp_xor_i (void* result, void* source,
 		       QMP_u32_t count, QMP_datatype_t datatype)
 {
   if (count == 1) {
     switch (datatype) {
     case QMP_INT:
     case QMP_64BIT_INT:
-      (*(long *)result) =  (*(long *)source1) ^ (*(long *)source2);
+      (*(long *)result) =  (*(long *)result) ^ (*(long *)source);
       break;
     default:
       QMP_error ("qmp or only supports integer\n");
@@ -2250,10 +2245,9 @@ static void qmp_xor_i (void* result, void* source1, void* source2,
     case QMP_64BIT_INT:
       {
 	long* retvalue = (long *)result;
-	long* src1 = (long *)source1;
-	long* src2 = (long *)source2;
+	long* src = (long *)source;
 	for (i = 0; i < count; i++) 
-	  retvalue[i] =  src1[i] ^ src2[i];
+	  retvalue[i] =  retvalue[i] ^ src[i];
       }
       break;
     default:
@@ -2263,7 +2257,7 @@ static void qmp_xor_i (void* result, void* source1, void* source2,
     }
   }
 }
-		       
+
 
 /**
  * Global arithmatic operator table.
@@ -2721,9 +2715,9 @@ qmp_reduce_i (QMP_machine_t* glm,
 	  return status;
 	}
 	/**
-	 * Function looks like (result, src1, src2).
+	 * Function looks like (result, src).
 	 */
-	(*uop)(recvbuf, recvbuf, buffer, count, datatype);
+	(*uop)(recvbuf, buffer, count, datatype);
       }
     }
     else {
@@ -2890,37 +2884,6 @@ static QMP_status_t qmp_bcast_i (QMP_machine_t* glm,
 }
 
 /**
- * Binary reduction.
- */
-QMP_status_t
-QMP_binary_reduction (void* lbuffer, QMP_u32_t buflen,
-		      QMP_binary_func bfunc)
-{
-  QMP_rop_t    op_ptr;
-  QMP_status_t status;
-  void*        rbuffer;
-
-  QMP_TRACE ("QMP_binary_reduction");
-
-  rbuffer = QMP_memalign (buflen, QMP_MEM_ALIGNMENT);
-  if (!rbuffer)
-    return QMP_NOMEM_ERR;
-
-  op_ptr.op = 0;
-  op_ptr.commute = QMP_TRUE;
-  op_ptr.func = (QMP_opfunc)bfunc;
-
-  status =  qmp_reduce_i (&QMP_global_m, lbuffer, 
-			  rbuffer, buflen, QMP_BYTE, &op_ptr, 0);
-
-  if (status == QMP_SUCCESS) 
-    memcpy (lbuffer, rbuffer, buflen);
-  free (rbuffer);
-  
-  return status;
-}
-
-/**
  * There are alternatives to this algorithm, particular one in which
  * the values are computed on all processors at the same time.  
  * However, this routine should be used on heterogeneous systems, since
@@ -2943,6 +2906,66 @@ qmp_simple_all_reduce_i ( QMP_machine_t* glm,
     return status;
 
   status = qmp_bcast_i (glm, recvbuf, count, datatype, 0);
+
+  return status;
+}
+
+/**
+ * My static binary reduction function which call user 
+ * provided reduction function.
+ */
+
+/**
+ * This is a pure hack because multiple binary reductions cannot
+ * be called simultaneously 
+ */
+static QMP_binary_func qmp_user_bfunc_ = 0;
+
+static void
+qmp_reduce_func_i (void* inout, void* in,
+		   QMP_u32_t count, QMP_datatype_t type)
+{
+  if (qmp_user_bfunc_)
+    (*qmp_user_bfunc_)(inout, in);
+}  
+
+/**
+ * Binary reduction.
+ */
+QMP_status_t
+QMP_binary_reduction (void* lbuffer, QMP_u32_t buflen,
+		      QMP_binary_func bfunc)
+{
+  QMP_rop_t    op_ptr;
+  QMP_status_t status;
+  void*        rbuffer;
+
+  QMP_TRACE ("QMP_binary_reduction");
+
+  /* first check whether there is a binary reduction is in session */
+  if (qmp_user_bfunc_) 
+    QMP_error_exit ("Another binary reduction is in progress.\n");
+
+  rbuffer = QMP_memalign (buflen, QMP_MEM_ALIGNMENT);
+  if (!rbuffer)
+    return QMP_NOMEM_ERR;
+
+  /* set up user binary reduction pointer */
+  qmp_user_bfunc_ = bfunc;
+
+  op_ptr.op = 0;
+  op_ptr.commute = QMP_TRUE;
+  op_ptr.func = qmp_reduce_func_i;
+
+  status = qmp_simple_all_reduce_i (&QMP_global_m, lbuffer, 
+				    rbuffer, buflen, QMP_BYTE, &op_ptr);
+
+  if (status == QMP_SUCCESS) 
+    memcpy (lbuffer, rbuffer, buflen);
+  free (rbuffer);
+
+  /* signal end of the binary reduction session */
+  qmp_user_bfunc_ = 0;
 
   return status;
 }
@@ -3090,9 +3113,9 @@ qmp_butterfly_all_reduce_i (QMP_machine_t* glm,
       }
       
       /**
-       * Function looks like (result, src1, src2).
+       * Function looks like (result, src).
        */
-      (*uop)(recvbuf, recvbuf, buffer, count, datatype);
+      (*uop)(recvbuf, buffer, count, datatype);
     }
 	   
     mask <<= 1;

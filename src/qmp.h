@@ -17,38 +17,6 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
- *   Revision 1.1.1.1  2003/01/27 19:31:36  chen
- *   check into lattice group
- *
- *   Revision 1.10  2002/07/18 18:10:24  chen
- *   Fix broadcasting bug and add several public functions
- *
- *   Revision 1.9  2002/05/07 17:18:44  chen
- *   Make spec and header file consistent
- *
- *   Revision 1.8  2002/04/26 18:35:44  chen
- *   Release 1.0.0
- *
- *   Revision 1.7  2002/04/25 19:20:22  chen
- *   Minor changes
- *
- *   Revision 1.6  2002/04/25 18:40:01  chen
- *   Pre 1.0 release
- *
- *   Revision 1.5  2002/04/22 20:28:40  chen
- *   Version 0.95 Release
- *
- *   Revision 1.4  2002/03/27 20:48:48  chen
- *   Conform to spec 0.9.8
- *
- *   Revision 1.3  2002/02/15 20:34:52  chen
- *   First Beta Release QMP
- *
- *   Revision 1.2  2002/01/24 20:10:49  chen
- *   Nearest Neighbor Communication works
- *
- *   Revision 1.1.1.1  2002/01/21 16:14:50  chen
- *   initial import of QMP
  *
  *
  */
@@ -67,7 +35,7 @@
  * Version Information about QCD Message Passing API.
  */
 #define QMP_MAJOR_VERSION 1
-#define QMP_MINOR_VERSION 0
+#define QMP_MINOR_VERSION 2
 #define QMP_REVIS_VERSION 0
 
 /**
@@ -83,7 +51,7 @@
 /**
  * Current version information in string form.
  */
-#define QMP_VERSION_STR "1.0.0"
+#define QMP_VERSION_STR "1.2.0"
 
 /**
  * 64 bit os environment.
@@ -208,8 +176,11 @@ typedef void* QMP_msghandle_t;
 
 /**
  * binary reduction function.
+ *
+ * operation is defined as inout = inout op in;
+ * this is the same definition as the MPI
  */
-typedef void  (*QMP_binary_func) (void* dest, void* source1, void* source2);
+typedef void  (*QMP_binary_func) (void* inout, void* in);
 
 
 #ifdef __cplusplus
@@ -738,6 +709,9 @@ extern QMP_u32_t        QMP_get_number_of_subgrid_sites (void);
 
 #ifdef __cplusplus
 }
+
+#include "qmp.hh"
+
 #endif
 
 #endif

@@ -17,6 +17,10 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.2  2003/02/11 03:39:24  flemingg
+ *   GTF: Update of automake and autoconf files to use qmp-config in lieu
+ *        of qmp_build_env.sh
+ *
  *   Revision 1.1.1.1  2003/01/27 19:31:37  chen
  *   check into lattice group
  *
@@ -29,7 +33,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <QMP.h>
+#include <qmp.h>
 
 int main (int argc, char** argv)
 {
