@@ -133,10 +133,11 @@ dnl George T. Fleming, 03/03/2003
 dnl
 dnl Part of change from 'qmp_build_env.sh' to 'qmp-config' scripts
 dnl AC_CONFIG_FILES(qmp_build_env.sh)
-AC_CONFIG_FILES(qmp-config)
 AC_CONFIG_FILES(include/Makefile)
 AC_CONFIG_FILES(lib/Makefile)
-AC_CONFIG_FILES(doc/Makefile)
+AC_CONFIG_FILES(bin/Makefile)
+AC_CONFIG_FILES(bin/qmp-config)
 AC_CONFIG_FILES(examples/Makefile)
+AC_CONFIG_FILES(doc/Makefile)
 AC_CONFIG_FILES(doc/QMPdoxyfile)
 AC_OUTPUT

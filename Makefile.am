@@ -2,12 +2,7 @@
 # Recurse down into src (to build the library)
 #                   examples (build examples)
 #
-SUBDIRS = include lib examples doc
-
-#
-# The end user's configuration script
-# 
-bin_SCRIPTS=qmp-config
+SUBDIRS = include lib bin examples doc
 
 #
 # User explicitly has to make docs -- you may not want them
