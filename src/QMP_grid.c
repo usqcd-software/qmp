@@ -24,6 +24,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.3  2003/02/13 16:22:23  chen
+ *   qmp version 1.2
+ *
  *   Revision 1.2  2003/02/11 03:39:24  flemingg
  *   GTF: Update of automake and autoconf files to use qmp-config in lieu
  *        of qmp_build_env.sh
@@ -129,7 +132,7 @@ QMP_detailed_layout_grid(QMP_u32_t *length, QMP_u32_t rank,
 			 QMP_u32_t *ordering)
 {
   int i;
-  int logical_size[ND];
+  unsigned int logical_size[ND];
 
   if (rank < 1 || rank > ND)
   {
@@ -247,7 +250,7 @@ QMP_detailed_layout_grid(QMP_u32_t *length, QMP_u32_t rank,
   else /* Physical machine size is fixed already */
   {
     /* Get info about the machine configuration */
-    const int *physs_size = QMP_get_logical_dimensions();
+    const unsigned int *physs_size = QMP_get_logical_dimensions();
 
     if (QMP_get_logical_number_of_dimensions() != rank)
     {
@@ -340,7 +343,7 @@ QMP_layout_grid (QMP_u32_t *dims, QMP_u32_t num_dims)
     unsigned min_size, used_size[ND], used_len[ND];
 
     /* Get info about the machine configuration */
-    const int *phys_size = QMP_get_logical_dimensions();
+    const unsigned int *phys_size = QMP_get_logical_dimensions();
 
     min_size = 0;
 
@@ -478,7 +481,7 @@ static void QMP_m_site(int site,int *s_p,int *s_v)
 {
   int i,k;  
   int coord[4];
-  const int *logical_size = QMP_get_logical_dimensions();
+  const unsigned int *logical_size = QMP_get_logical_dimensions();
 
 
   /* The lattice coordinates corresponding to this site */
@@ -507,7 +510,7 @@ QMP_shift(int site, unsigned char *data, int prim_size, int sn)
   static int cur_src[4];
   static int cur_lsite[4];
   int nd;
-  const int *logical_size = QMP_get_logical_dimensions();
+  const unsigned int *logical_size = QMP_get_logical_dimensions();
   
   int old_node,cur_node,i,j,shift_size,dir;
   int local_site;
