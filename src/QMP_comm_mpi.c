@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.2  2003/02/13 16:22:23  chen
+ *   qmp version 1.2
+ *
  *   Revision 1.1.1.1  2003/01/27 19:31:36  chen
  *   check into lattice group
  *
@@ -193,11 +196,9 @@ QMP_wait_send_receive(QMP_msghandle_t msgh)
   while (mh)
   {
     if (mh->type == MH_send)
-    {
       mh->request = MPI_REQUEST_NULL;
-      mh->activeP = 0;
-    }
 
+    mh->activeP = 0;
     mh = mh->next;
   }
 
