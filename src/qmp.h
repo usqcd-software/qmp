@@ -17,6 +17,10 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.6  2003/11/04 01:04:32  edwards
+ *   Changed QMP_get_logical_coordinates_from to not have const modifier.
+ *   Now, user must explicitly call "free".
+ *
  *   Revision 1.5  2003/07/29 15:23:48  chen
  *   remove not used decleration
  *
@@ -467,6 +471,19 @@ extern QMP_msghandle_t    QMP_declare_send_to     (QMP_msgmem_t m,
 extern QMP_msghandle_t    QMP_declare_receive_from(QMP_msgmem_t m, 
 						   QMP_u32_t rem_node_rank,
 						   QMP_s32_t priority);
+
+/**
+ * Route a buffer from a source node to a dest node
+ *
+ * @param buffer a message buffer.
+ * @param count  the number of bytes in buffer
+ * @param src    source node
+ * @param dest   destination node
+ *
+ * @return QMP_SUCCESS if a communication is successful.
+ */
+extern QMP_status_t QMP_route (void* buffer, QMP_u32_t count,
+			       QMP_u32_t src, QMP_u32_t dest);
 
 /**
  * Free a message handle.
