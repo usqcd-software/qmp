@@ -1,0 +1,11 @@
+QMP Authors
+===========
+
+Most of the authorship of the code is down to people at the JLAB, and the 
+and those involved in SciDAC. Main developers are Jie Chen, Robert Edwards and
+Chip Watson.
+
+Autoconfiscation and Automakeification is due to Balint Joo
+
+Further autotools work done by George Fleming.
+

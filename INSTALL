@@ -1,0 +1,137 @@
+Installation instructions for QMP
+=================================
+
+1) Configuration.
+---------------- 
+
+QMP has been modified to use the GNU autoconf build system.
+To configure you have to execute the command:
+
+configure <configuration options>
+
+The build system should allow you to build the library and example
+code in a separate directory tree than the source tree.  This is
+desirable for many reasons, but it may not work for every broken
+version of make.  We're pretty sure it will work with recent versions
+of GNU make, so try that first. Here's an example of how it works:
+
+  tar xvfpz qmp-1.3.tar.gz
+  mkdir qmp-1.3-build
+  cd qmp-1.3-build
+  ../qmp-1.3/configure <configuration options>
+
+Certain environment variables are very influential in the configuration
+process, but it is probably not a good idea to have them set all the time.
+You can set them on the configuration command line as follows
+
+  ./configure CFLAGS='-g -Wall' <more configuration options>
+
+Some of the useful ones are CC, CFLAGS, LDFLAGS and LIBS.
+
+You can list the configuration options by running './configure --help'
+None of the options are actually compulsory, but the configure program
+will probably not work without proper setting of CFLAGS, LDFLAGS and LIBS
+or equivalently
+
+   --with-qmp-comms-type=QMP_COMMS_TYPE
+   --with-qmp-comms-cflags=QMP_COMMS_CFLAGS
+   --with-qmp-comms-ldflags=QMP_COMMS_LDFLAGS
+   --with-qmp-comms-libs=QMP_COMMS_LIBS
+   --enable-single-gm-port=yes[no]
+   --enable-quick-global-sun=yes[no]
+
+such that a simple MPI or GM program will compile and link.  Here's a hint:
+if you want a first guess at how to set these flags and you know where
+mpicc (LAM or MPICH) or mpcc (IBM) is installed, try 'mpicc -showme'
+(for LAM) or 'mpicc -show' (for MPICH) or something similar to see
+how mpicc/mpcc does it.
+
+2) Building
+-----------
+
+You build the library by typing:
+
+	make 
+
+3) Testing
+----------
+
+You can optionally check if various test programs will compile and link
+against your newly created libqmp.a by typing:
+
+	make check
+
+4) Installing
+-------------
+
+You install the library by typing:
+
+	make install
+
+
+Installation will also create a directory called $prefix/config 
+where you will be able to find a script called qmp_build_env.sh
+which contains definitions of the environment variables that were
+used to build qmp (including QMP_COMMS_CFLAGS, QMP_COMMS_LDFLAGS, 
+QMP_COMMS_LIBS and also QMP_COMMS_CXXFLAGS. The last of these:
+QMP_COMMS_CXXFLAGS is just a copy of QMP_COMMS_CFLAGS in case you
+are trying to strictly adhere to a naming scheme for environmental
+variables and are using a C++ compiler). You can then source this
+script to set up these environmental variables in other build 
+processes. The main intended use, is if you want to use QMP 
+in other libraries but don't want to have to always pass in 
+all the env flags for your configure/build system. You can 
+reduce them all to just a location of the installed QMP
+directory.
+
+CAVEAT: If you use a wrapper script like mpicc to build QMP, you 
+must have to be careful when building on top of QMP 
+using the qmp_build_env.sh. The reason for this is that these wrapper
+scripts hide the environment variables QMP_COMMS_CFLAGS, QMP_COMMS_LDFLAGS,
+QMP_COMMS_LIBS from you, and hence these will probably not be set
+in the qmp_build_env.sh file. You can do the following:
+
+i) Either use the same wrapper scripts (mpicc , mpiCC etc) to build the 
+software over QMP and use the build_env.sh file.
+
+ii) Use a different compiler, but in that case you may want to override
+the values provided from the qmp_build_env.sh file on the command line.
+
+The point is that it is your responsibility to do this. No QMP_CC / QMP_CXX
+variables have been put into the qmp_build_env.sh file -- eg: because
+QMP is written in straight C and you may want to layer C++ on top of it, 
+or because you may want to use a different C compiler for your software
+than the one used to build QMP.
+
+5) Cleaning up
+--------------
+
+You can clean up the source files, by typing: make clean
+You can remove the files from their installation location, by 
+typing: make distclean. Note this will not remove the installation 
+directory or its subdirectories
+
+6) A complete example
+---------------------
+
+We get a tarball named qmp.tar.gz. We unpack it into a directory called qmp.
+We make a separate build directory called qmp-build.  We configure
+to make a debug version of libqmp.a using MPICH, make, check and install it.
+
+  tar xvfpz qmp.tar.gz
+  mkdir qmp-build
+  cd qmp-build
+  ../qmp/configure                                     \
+    CFLAGS='-g -Wall'                                  \
+    --prefix=/usr/local/qmp                            \
+    --enable-extra-debugging                           \
+    --with-qmp-comms-type=MPI                          \
+    --with-qmp-comms-cflags=-I/usr/local/mpich/include \
+    --with-qmp-comms-ldflags=-L/usr/local/mpich/lib    \
+    --with-qmp-comms-libs='-lmpich -lpmpich'
+  make
+  make check (optional)
+  make install
+  make clean (or make distclean)
+
+Your mileage may vary!

@@ -1,0 +1,399 @@
+#!/bin/sh 
+#!perl 
+# QMP_run for QMP Implementation on GM (Most code are from mpirun.ch_gm)
+eval 'if test -n "$mpirun_version" ; then exec perl -x -S -w $mpirun_version -np $np $progname $cmdLineArgs; else exec perl -x -S -w $0 "$@";fi'
+   if 0;
+
+do 'getcwd.pl';
+
+sub usage {
+   print STDERR "usage: QMP_run [--qmp-v] [-np <n>] [--qmp-f <file>] [--qmp-h] prog [options]\n";
+   print STDERR " --qmp-v         verbose - includes comments\n";
+   print STDERR " -np <n>        specifies the number of processes to run\n";
+   print STDERR " --qmp-np <n>    same as '-np' (use one or the other) \n";
+   print STDERR " --qmp-f <file>  specifies a configuration file\n";
+   print STDERR " --qmp-h         generates this message\n";
+   print STDERR " --qmp-r         start machines in reverse order\n";
+   print STDERR " --qmp-w <n>     wait n secs between starting each machine \n";
+   print STDERR " --qmp-kill <n>  n secs after first process exits, kill all other processes \n";
+   print STDERR " --qmp-dryrun    don't actually execute the commands just print them\n";
+   print STDERR " prog [options] specifies which program to run, with its options\n";
+   exit 1;
+}
+
+sub cleanup {
+   print "control signal received - cleaning up...\n" if $verbose;
+   $kill_after_t = 0;
+   $clean_count = 0;
+   foreach $p (@pid) {
+     if (kill 0 => $p) {
+       print "cleanup: killing process $p (mpi_id = $clean_count)\n" if $verbose;
+       kill 'TERM', $p;
+     }
+     $clean_count++;
+   }
+   exit 0;
+}
+
+$SIG{'INT'} = 'cleanup';
+$SIG{'TERM'} = 'cleanup';
+$SIG{'KILL'} = 'cleanup';
+$SIG{'QUIT'} = 'cleanup';
+
+$rsh="rsh";
+$host = $ENV{'HOST'} || `uname -n`;
+chomp $host;
+$display=$ENV{'DISPLAY'};
+$totalview=$ENV{'TOTALVIEW'} || 'totalview';
+$cmdLineArgs = "";
+#$qmppiopt='';
+$maxnodes=65536;
+@debug=();
+$verbose='';
+$tview='';
+$varenv = '';
+$mget= '';
+$mrel = '';
+$doit = 1;
+
+sub canon_prog {
+  my ($prog) = @_;
+  if ($prog =~ m|^/|) {
+  } elsif ($prog =~ m|/|) {
+    $prog = $pwd."/".$prog;
+  } else {
+    if (-x $prog) {
+      $prog = $pwd."/".$prog;
+    } else {
+      foreach (split(/:/,$ENV{PATH})) {
+	if (-x "$_/$prog") {
+	  $prog = "$_/$prog";
+	  last;
+	}
+      }
+    }
+  }
+
+  -e $prog or die "$prog not found\n";
+  -x $prog or die "$prog is not executable\n";
+
+  print "program is: $prog\n" if $verbose;
+  return $prog;
+}
+
+
+sub parse_on {
+  $_ = shift @_;
+  /[\d,-]+/ or die "bad -on option:$_";
+  my @nodes = split(",",$_);
+  my @arg = canon_prog(shift @_);
+  while (@_ > 0) {
+    my $a = shift @_;
+    if ($a eq '-on') {
+      last;
+    }
+    push @arg,$a;
+  }  
+  foreach (@nodes) {
+    if (/^(\d+)$/) {
+      $argv{$1} = [@arg];
+    } elsif (/^(\d+)-(\d+)$/) {
+      foreach ($1..$2) {
+	$argv{$_} = [@arg];
+      }
+    } else {
+      die "bad node location:$_";
+    }
+  }
+  if (@_ > 0) {
+    &parse_on(@_);
+  }
+}
+
+
+$pwd = &getcwd;
+
+if (defined($ENV{'PWD'})) {
+  my @P = stat($ENV{'PWD'}."/.");
+  my @p = stat(".");
+  if ($p[0] == $P[0] && $p[1] == $P[1]) {
+    $pwd = $ENV{'PWD'};
+  }
+}
+
+
+$wait = 0;
+
+while (@ARGV > 0) {
+    $_ = $ARGV[0];
+#    print "option:$_\n" if $verbose;
+    if ($_ eq '-cd') {
+        shift;
+        print "option cd:$ARGV[0]\n"if $verbose;
+        $vpwd = $ARGV[0];
+    } elsif (($_ eq '-np') || ($_ eq '--qmp-np')) {
+	shift;
+        print "option number of processors:$ARGV[0]\n" if $verbose;
+	usage unless @ARGV >= 1 && $ARGV[0] =~ /^\d+$/;
+	$maxnodes = $ARGV[0];
+	printf("number of processors is %d\n",$maxnodes) if $verbose;
+    } elsif ($_ eq '--qmp-kill') {
+	shift;
+        print "option kill procs after $ARGV[0] seconds\n" if $verbose;
+	usage unless @ARGV >= 1 && $ARGV[0] =~ /^\d+$/;
+        $kill_after_t = 1;
+	$kill_time = $ARGV[0];
+	printf("kill processor %d seconds after first exits\n",$kill_time) if $verbose;
+    } elsif (($_ eq '--qmp-f') || ($_ eq '-f')) {
+	shift;
+        print "option file:$ARGV[0]\n" if $verbose;
+	usage unless @ARGV >= 1;
+	$qmppifile = $ARGV[0];
+    }elsif ($_ eq '--qmp-w') {
+      shift;
+      print "option: wait $ARGV[0] sec between starting each proc\n" if $verbose;
+      usage unless @ARGV >= 1;
+      $wait = $ARGV[0];
+    } elsif ($_ eq '--qmp-v') {
+	$verbose = 1;
+        print "option verbose\n";
+    } elsif ($_ eq '--qmp-r') {
+	$reverse = 1;
+        print "option reverse\n" if $verbose;
+    } elsif (($_ eq '--qmp-h') || ($_ eq '--qmp-help')){
+        print "option help:$_\n" if $verbose;
+	usage;
+    } elsif ($_ eq '-help'){
+        print "option help:$_\n" if $verbose;
+	usage;
+    } elsif ($_ eq '--qmp-d') {
+	shift;
+        print "option debug:$ARGV[0]\n" if $verbose ;
+	usage unless @ARGV >= 1 && $ARGV[0] =~ /^\d+$/;
+	$debug[$ARGV[0]] = 1;
+    } elsif ($_ eq '--qmp-dryrun' ) {
+	$doit = 0;
+    } elsif ($_ eq '-mvback' ) { 
+#for compatibility with MPICH scripts
+	shift;
+        print "option mvback\n" if $verbose;
+    } elsif (($_ eq '-tv') || ($_ eq '-totalview')) {
+        print "option totalview\n" if $verbose;
+	$tview = 1;
+    } elsif ($_ eq '-pg' ) { 
+    } elsif ($_ eq '-mvhome' ) { 
+    } elsif (/=/) {
+	$varenv .= " $ARGV[0]";
+    } elsif (/^-/) {
+      print STDERR "unknown option:$_\n";
+	usage;
+    } else {
+	@argv = (canon_prog($ARGV[0]),@ARGV[1..$#ARGV]);
+        $numargs = $#ARGV;
+#	print "got $numargs args\n" if $verbose;
+	last;
+    }
+    shift;
+}
+
+@argv || %argv or usage;
+
+
+#this next line gives me "unitialized variable" problems
+#perhaps it requires the ENV to exist.
+#$qmppifile="$ENV{'QMPPICONF'}" unless $qmppifile;
+
+if (defined($ENV{'QMP_CONF'}) && !defined($qmppifile)) {
+	$qmppifile="$ENV{'QMP_CONF'}";
+}
+
+$qmppifile="$ENV{'HOME'}/.qmpgmrc" unless $qmppifile;
+
+$qmppifile = $pwd."/".$qmppifile if !($qmppifile =~ m|^/|);
+
+$nbnode = 0;
+sub read_line {
+# should skip commented lines and blank lines
+    while (<QMP_CONF>) {
+	next if /^\s*$/;
+	next if /^#/;
+	return $_;
+    }
+}
+
+open(QMP_CONF,"$qmppifile") or die "cannot open $qmppifile:$!\n";
+print "config file is $qmppifile \n" if $verbose;
+for ($i=0;$i<$maxnodes;$i++) {
+    last if $maxnodes && $i >= $maxnodes;
+    $_ = read_line;
+    if ($_ =~ /^(\S+)\s+(\d+)/) {
+	$mach[$i] = $1;
+	$device_id[$i] = $2;
+    }
+    else {
+	$mach[$i] = $_;
+	chop ($mach[$i]);
+	$device_id[$i] = 0;
+    }
+    print "conf_file: $i '$mach[$i]' '$device_id[$i]'\n" if $verbose;
+}
+$nbnode = $i;
+close(QMP_CONF);
+$lnode = 0;
+$qmppi_ids = '';
+foreach (0..$#mach) {
+  $qmppi_ids .= $mach[$_].",".$device_id[$_].",";
+}
+
+$varenv .= " DISPLAY=$display" if $display;
+$varenv .= " QMP_CONF=$qmppifile";
+
+#print "varenv: $varenv\n";
+
+foreach (0..$#mach) {
+  if (!$argv{$_}) {
+    $argv{$_} = [@argv];
+  }
+}
+
+alarm($mt*2+20) if $mt;
+#foreach (@mach) {
+for ($i=0;$i<$nbnode;$i++) {
+  if ($reverse) {
+    $lnode = $nbnode - $i -1; 
+    $_ = $mach[$nbnode - $i - 1];
+  }
+  else {
+    $lnode = $i;
+    $_ = $mach[$i];
+  }
+
+#  print "loop count $i\n";
+    $pid = fork;
+    if ($pid == 0) {
+#compute destination directory
+	$dir = $pwd;
+	if ($vpwd) {
+	  $vpwd =~ s/%/$lnode/;
+	  $dir .= "/$vpwd";
+	  -d "$dir" or mkdir("$dir",0777) or die "cannot make directory $dir\n"
+	}
+        $qmppi_opts = " QMP_OPTS=m$lnode,n$nbnode ";
+        $dmalloc = " DMALLOC_OPTIONS=debug=0x14f47d83,inter=100,log=dmalloc_log_$lnode ";
+	if (defined($debug[$lnode])) {
+	    my $cmd = $argv{$lnode}->[0];
+	    $cmdline = "cd $dir;$mget env $varenv $qmppi_opts $dmalloc xterm -e gdb $cmd $mrel";
+	} elsif ($tview){
+#	    my $cmd = "@{$argv{$lnode}}";
+	    #
+       	    # Totalview is a parallel debugger, we only need to have one instance of Totalview
+            # itself, however all of the slave processes need to know that they should expect
+            # to be debugged.
+            # The only problem with this scheme is that restarting the application from
+            # inside TotalView will not work, since there is no code to restart the slave
+            # processes :-(
+            #	
+	    if ($i eq 0) {
+		my $cmd = $argv{$lnode}->[0];
+		# This is the first process, that's where we want Totalview itself
+		for ($j=1;$j<=$numargs;$j++) {
+		    $cmdLineArgs = $cmdLineArgs . " $argv{$lnode}->[$j]";
+		}
+		$cmdline = "cd $dir;$mget env $varenv $qmppi_opts $dmalloc $totalview $cmd -a -mpichtv $cmdLineArgs";
+	    } else {
+		my $cmd = "@{$argv{$lnode}}";
+		$cmdline = "cd $dir;$mget env $varenv $qmppi_opts $dmalloc $cmd -mpichtv $mrel";
+	    }
+
+      	} else {
+	    my $cmd = "@{$argv{$lnode}}";
+	    $cmdline = "cd $dir;$mget env $varenv $qmppi_opts $dmalloc $cmd $mrel";
+	}
+
+	print STDERR "starting on $_: $cmdline\n" if ($verbose || !$doit);
+	if ($doit) {
+	    if (0 && ($_ eq $host)) {
+		exec($cmdline);
+	    } else {
+		if ($lnode == 0) {
+		    exec($rsh,$_,$cmdline);
+		}
+		else {
+		    exec($rsh,'-n',$_,$cmdline);
+		}
+	    }
+	    die "$rsh $_ $argv{$lnode}->[0]:$!\n" 
+	    }
+	else {
+	    exit 0;
+	}
+    }
+    $pid[$lnode] = $pid;
+    if ($wait){
+      print "waiting $wait seconds\n" if $verbose;
+      sleep($wait);
+    }
+}
+
+$still_alive = 0;
+
+#check all 1secs after 1st one exits
+if ($kill_after_t){
+  $first_pid = wait;
+  if ($first_pid == -1) {
+    exit 0;
+  }
+  sleep(1);
+  $counter1 = 0;
+  foreach $p (@pid) {
+  if ($p == $first_pid) {
+    $first_mpi_id = $counter1;
+  }
+  $counter1 = $counter1 + 1;
+  if (kill 0 => $p){
+    $still_alive ++;
+#    print "qmp_kill: process $p still alive\n";
+  }
+}
+  print "qmp_kill: process $first_pid (mpiID = $first_mpi_id) was the 1st to exit\n" if $verbose;
+
+  if (!$still_alive){
+#    print "qmp_kill: no one alive - exiting\n";
+    exit 0;
+  }
+  else{ 
+    if ($still_alive == 1){
+      print "qmp_kill: 1 process still alive: wait $kill_time sec, then kill it\n" if $verbose;
+    }
+    else{
+      print "qmp_kill: $still_alive processes (out of $nbnode) still alive: wait $kill_time sec, then kill them\n" if $verbose;
+    }
+    sleep ($kill_time); 
+    $mycounter=0;
+    foreach $p (@pid) {
+      if (kill 0 => $p) {
+        if ($reverse) {
+          $mpiid = $nbnode - $mycounter -1;
+        }
+        else {
+          $mpiid = $mycounter;
+        }
+        print "qmp_kill: killing process $p (mpiID = $mpiid) " if $verbose;
+        $rv = kill 'TERM', $p;
+        if ($rv == 1) {
+          print " SUCCESS\n" if $verbose;
+        }
+        else {
+          print " FAILED\n" if $verbose;
+        }
+      }
+      $mycounter = $mycounter + 1;
+    }
+  }
+}
+
+
+while (wait != -1) {};
+
+exit 0;
+

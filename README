@@ -1,0 +1,153 @@
+			QMP implementation over GM and MPICH
+
+				Jan 27, 2003
+
+QMP over GM and MPICH are implemented according to the documents of LQCD 
+Message Passing API version 1.0.0 (May 7,2002). The implementations supports
+most of APIs specified in the document. Those unsupported routines will be 
+implemented in future releases.
+
+QMP over GM:
+
+	There are two implementations that support channel oriented 
+	communication between two nodes:
+	
+	One implementation uses different ports to receive messages. 
+	The maximum number of receivers for communication channels on a 
+	node is determined by a GM_NUM_PORTS - 4. The value of GM_NUM_PORTS 
+	has default value of 8, but it can be increased to 32.
+	Changing value of  GM_NUM_PORTS will require recompiling both GM 
+	library  and  GM firmware.  
+
+	The other implementation uses a single port to transfer messages. The 
+	memory copy is inevitable. But default gm library can be used.
+
+	This release has been tested on Intel(P4) platforms running 
+	Redhat 7 with GM version 1.5 and 1.6.2
+
+QMP over MPICH:
+
+	This release of QMP allows developers to develop applications on 
+	platforms where MPICH are available. Current QMP implementation has
+	been tested on MPICH-chp4, MPICH-shmem and MPICH-gm.
+
+
+1) Source distribution:
+
+	Source code of QMP is released as QMP_src.tar.gz containing the 
+	following files:
+
+	AUTHORS			------- Authors and people responsible for QMP
+	COPYING			------- Copyright notice file
+	ChangeLog		------- Recent change log file
+	INSTALL			------- How to install QMP
+	README          	------- This file
+	acinclude.m4		------- autoconf related
+	aclocal.m4		------- autoconf related
+	configure		------- autoconf generated configuration script
+	configure.ac		------- autoconf configuration
+	doc/Makefile.am		------- automake configuration for doc
+	doc/Makefile.in		------- automake generated Makefile template
+	doc/MessageAPI.htm	------- html file for QMP API spec
+	doc/QMP-1-0.doc		------- QMP API spec in MS word
+	doc/QMP_API.html	------- html API description for QMP/GM
+	doc/QMPdoxyfile.in	------- doxygen template file
+	src/Makefile.am		------- automake configuration for src
+	src/Makefile.in		------- automake generated makefile template
+	src/QMP.h    		------- public header file to applications
+	src/QMP_P_GM.h 		------- private header file for QMP over GM
+					implementation
+	src/QMP_P_MPI.h		------- private header file for QMP over mpich
+					implementation
+	src/QMP_init_gm.c	------- QMP initialization part
+	src/QMP_init_mpi.c	------- QMP initialization part for mpi
+	src/QMP_topology_gm.c	------- QMP topology routines
+	src/QMP_comm_gm.c	------- QMP communication routines
+	src/QMP_comm_mpi.c	------- QMP communication routines
+	src/QMP_util_gm.c	------- QMP implementation utilities
+	src/QMP_util_mpi.c	------- QMP implementation utilities
+	src/QMP_run		------- perl script to launch QMP gm jobs.
+					behaves similarly to the mpirun.
+	examples/Makefile.am	------- automake configuration file
+	examples/Makefile.in	------- automake generated makefile template
+	examples/QMP_perf.c	------- Simple QMP performance test between
+					two nodes.
+	examples/QMP_gcomm_perf.c ----- Simple QMP global communication
+	examples/QMP_qcd_test.c	------- Emulate a typical QCD communication
+					pattern
+	examples/gm_loop.c	------- Find out how a gm_receive loop 
+					performs.
+	examples/QMP_MILS_test.c ------ Emulate very fast channel setup
+					and channel tear down.
+
+
+2) Installation:
+
+	Read INSTALL file.
+
+
+3) Using QMP:
+
+	a) QMP over mpich:
+
+	Users can use appropriate mpirun script to launch QMP jobs when 
+	the applications using a QMP implementation over one of the mpich.
+
+	b) QMP over gm:
+
+	Use the QMP_run script to launch QMP jobs. The QMP system needs a 
+	configuration file that specifies all myrinet hosts. The QMP looks
+	for the configuration file in users' home directory with a name
+	.qmpgmrc. The configuration file can be also specified using one
+	of the options of QMP_run. The following illustrates an example 
+	configuration file.
+
+	# configuration for for QMP
+	# hostname 	[optional myrinet board number]
+	hpctest1
+	hpctest2
+	hpcdev01  	0
+	hpcdev01  	1
+	hpctest3
+	hpctest4
+
+	The QMP_run has the following options:
+
+	Usage: QMP_run [--qmp-v] [-np <n>] [--qmp-f <file>] [--qmp-h] prog 
+	       [options]
+ 	--qmp-v           verbose - includes comments
+	 -np <n>           specifies the number of processes to run
+ 	--qmp-np <n>      same as '-np' (use one or the other)
+ 	--qmp-f <file>    specifies a configuration file
+ 	--qmp-h           generates this message
+ 	-h                generates this message
+ 	--qmp-dryrun      don't actually execute the commands just print them
+ 	--qmp-working-dir specifies in which directory the program will run
+ 	prog [options]    specifies which program to run, with its options
+
+4) Bugs fix:
+	
+	Nov. 10, 2002 on GM implementation
+	
+	Fix a bug reported from Carleton DeTar about setting up and tearing 
+	down communication channels rapidly. Now user can create and destroy
+	channels as fast as they want, code will perform correctly but poorly.
+
+	Jan. 13, 2003 on GM implementation
+	
+	Use a single port to transfer message as an implementation option.
+
+
+5) To do list:
+
+	QMP_declare_recv and QMP_declare_send may not work before a topology
+	is declared. But global communication works before the topology.
+
+Please send bugs and comments to us (chen@jlab.org, watson@jlab.org,
+ edwards@jlab.org), and check out accompanying html documents for detailed
+API descriptions.
+
+					
+
+
+
