@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.1  2004/06/14 20:36:31  osborn
+ *   Updated to API version 2 and added single node target
+ *
  *   Revision 1.5  2003/06/04 19:19:39  edwards
  *   Added a QMP_abort() function.
  *
@@ -51,6 +54,15 @@
 
 #include "qmp.h"
 #include "QMP_P_COMMON.h"
+
+/**
+ * Check if QMP is initialized.
+ */
+QMP_bool_t
+QMP_is_initialized(void)
+{
+  return QMP_global_m->inited;
+}
 
 /**
  *  Set verbosity level.

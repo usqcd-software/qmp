@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.10  2004/08/26 21:32:21  detar
+ *   Change QMP_master_io_node to function -CD
+ *
  *   Revision 1.9  2004/06/14 20:36:31  osborn
  *   Updated to API version 2 and added single node target
  *
@@ -210,6 +213,13 @@ extern QMP_status_t       QMP_init_msg_passing (int* argc, char*** argv,
 						QMP_thread_level_t *provided);
 
 /**
+ * Check if QMP is initialized.
+ *
+ * @return QMP_TRUE if initialized otherwise QMP_FALSE.
+ */
+extern QMP_bool_t         QMP_is_initialized(void);
+
+/**
  * Shutdown QMP message passing system. Release system resource and memory.
  * No more message passing after this routine.
  */
@@ -295,18 +305,14 @@ extern const int*         QMP_get_allocated_coordinates (void);
  * to its I/O node. 
  *
  */
-
-int 
-QMP_io_node(int node);
+extern int                QMP_io_node(int node);
 
 /**
  * For binary file I/O we designate a master I/O node for the entire
  * machine.  This function defines it 
  *
  */
-
-int 
-QMP_master_io_node(void);
+extern int                QMP_master_io_node(void);
 
 
 /******************************
