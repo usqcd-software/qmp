@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.1  2003/12/19 04:43:00  edwards
+ *   First version of generic routines.
+ *
  *
  *
  */
@@ -60,7 +63,7 @@ QMP_status_t QMP_route (void* buffer, QMP_u32_t count,
 #endif
   }
     
-  if (node == dest)
+  if (node == src)
   {
     QMP_msgmem_t request_msg = QMP_declare_msgmem(buffer, count);
     QMP_msghandle_t request_mh = QMP_declare_send_to(request_msg, dest, 0);
