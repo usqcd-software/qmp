@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.2  2003/02/13 16:22:23  chen
+ *   qmp version 1.2
+ *
  *   Revision 1.1.1.1  2003/01/27 19:31:36  chen
  *   check into lattice group
  *
@@ -160,47 +163,57 @@ MP_allocMsgHandler(void)
 /* Basic handler destructor */
 void QMP_free_msghandle (QMP_msghandle_t msgh)
 {
-  Message_Handle_t mh = (Message_Handle_t)msgh;
+  Message_Handle_t first = (Message_Handle_t)msgh;
+  Message_Handle_t current;
+  Message_Handle_t previous;
 
-  if (mh) {
-    switch (mh->type) {
-    case MH_freed:
-      break;
-
+  if (first) {
+    switch (first->type) {
     case MH_multiple:
-      /* In the multiple case, remove the ganged initial handle and decr.
-       * the refcount for the link */
-      /* Walk the list (note, not by recursion) */
-      while (mh)
+      previous=first; 
+      current =first->next;
+
+      while (current)
       {
-	Message_Handle_t mmh = mh;
 
 	/* Only place a freed MH can actually be deleted */
-	mh->refcount--;
-	if (mh->refcount == 0 && mh->type == MH_freed)
-	  free(mh);
+	current->refcount--;
 
-	mh = mmh->next;
-      };
+	if (current->refcount == 0) {
+	  /* Zero refcount -- free it */
+	  previous->next = current->next;
+	  free(current);
+
+	  /* Previous stays the same */
+	  current = current->next;
+	}
+	else {
+	  /* Increment previous */
+	  previous = current;
+
+	  /* Increment current */
+	  current = current->next;
+	}
+      }
 
       /* Now decrement myself. Note, I could be part of another ganged message */
-      mh = (Message_Handle_t)msgh;
-      mh->refcount--;
-      if (mh->refcount == 0)
-	free(mh);
+      first = (Message_Handle_t)msgh;
+      first->refcount--;
+      if (first->refcount == 0)
+	free(first);
       else
-	mh->type = MH_empty;
+	first->type = MH_empty;
       break;
 
     case MH_empty:
     case MH_send:
     case MH_recv:
       /* If non-null refcount, then mark for free. Must be ganged */
-      mh->refcount--;
-      if (mh->refcount == 0)
-	free(mh);
+      first->refcount--;
+      if (first->refcount == 0)
+	free(first);
       else
-	mh->type = MH_empty;
+	first->type = MH_empty;
       break;
 
     default:
@@ -209,7 +222,6 @@ void QMP_free_msghandle (QMP_msghandle_t msgh)
     }
   }
 }
-
 
 QMP_msghandle_t
 QMP_declare_receive_from (QMP_msgmem_t mm, QMP_u32_t sourceNode,
