@@ -17,6 +17,10 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.5  2003/11/04 01:04:32  edwards
+ *   Changed QMP_get_logical_coordinates_from to not have const modifier.
+ *   Now, user must explicitly call "free".
+ *
  *   Revision 1.4  2003/06/04 19:19:39  edwards
  *   Added a QMP_abort() function.
  *
@@ -499,7 +503,7 @@ QMP_get_logical_coordinates_from (QMP_u32_t node)
 
   logic_id = QMP_allocated_to_logical (node);
 
-  nc = (QMP_u32_t *)malloc (QMP_machine->dimension);
+  nc = (QMP_u32_t *)malloc (sizeof(QMP_u32_t)*QMP_machine->dimension);
 
   crtesn_coord (logic_id, nc, QMP_machine->logical_size,
 		QMP_machine->dimension);
