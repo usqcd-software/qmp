@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.4  2003/06/04 19:19:39  edwards
+ *   Added a QMP_abort() function.
+ *
  *   Revision 1.3  2003/02/14 03:22:25  flemingg
  *   src/qmp.hpp is no longer #include-d by src/qmp.h #ifdef __cplusplus.
  *   Also, since qmp.hpp doesn't need to end up in $prefix/include anymore,
@@ -546,23 +549,6 @@ extern QMP_status_t       QMP_wait (QMP_msghandle_t h);
  * @return QMP_TRUE if a communication is done.
  */
 extern QMP_bool_t         QMP_is_complete (QMP_msghandle_t h);
-
-
-/**
- * Public function for receiving a message.
- * Internal Testing only
- */
-extern QMP_status_t QMP_recv (void* buffer, QMP_u32_t count, 
-			      QMP_datatype_t datatype,
-			      QMP_u32_t src_id, QMP_u32_t operation);
-
-/**
- * Public function for sending a message.
- * Internal Testing only
- */
-extern QMP_status_t QMP_send (void* buffer, QMP_u32_t count, 
-			      QMP_datatype_t datatype,
-			      QMP_u32_t dest_id, QMP_u32_t operation);
 
 
 /**
