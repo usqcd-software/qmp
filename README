@@ -1,9 +1,9 @@
 			QMP implementation over GM and MPICH
 
-				Jan 27, 2003
+				Feb 13, 2003
 
 QMP over GM and MPICH are implemented according to the documents of LQCD 
-Message Passing API version 1.0.0 (May 7,2002). The implementations supports
+Message Passing API version 1.2.0 (Feb 13,2003). The implementations supports
 most of APIs specified in the document. Those unsupported routines will be 
 implemented in future releases.
 
@@ -54,7 +54,7 @@ QMP over MPICH:
 	doc/QMPdoxyfile.in	------- doxygen template file
 	src/Makefile.am		------- automake configuration for src
 	src/Makefile.in		------- automake generated makefile template
-	src/QMP.h    		------- public header file to applications
+	src/qmp.h    		------- public header file to applications
 	src/QMP_P_GM.h 		------- private header file for QMP over GM
 					implementation
 	src/QMP_P_MPI.h		------- private header file for QMP over mpich
@@ -125,7 +125,7 @@ QMP over MPICH:
  	--qmp-working-dir specifies in which directory the program will run
  	prog [options]    specifies which program to run, with its options
 
-4) Bugs fix:
+4) Bugs fix and changes:
 	
 	Nov. 10, 2002 on GM implementation
 	
@@ -136,6 +136,17 @@ QMP over MPICH:
 	Jan. 13, 2003 on GM implementation
 	
 	Use a single port to transfer message as an implementation option.
+
+	Feb. 13, 2003
+
+	QMP.h is changed to qmp.h. User binary reduction function is redefined.
+	C++ header file is included in qmp.h.
+
+	Feb. 13, 2003 on MPI implentation
+	
+	binaray reduction is implemented.
+
+
 
 
 5) To do list:

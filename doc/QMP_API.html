@@ -8,11 +8,11 @@
 </head>
 <body>
 
-<center><b>QMP over GM version 1.0.0</b>
+<center><b>QMP over GM version 1.2.0</b>
 <p><i><a href="mailto:chen@jlab.org,edwards@jlab.org,watson@jlab.org">Jie
 Chen, Robert Edwards and William Watson III</a></i>
 <br><i>Jefferson Lab</i>
-<br>Nov 13, 2002</center>
+<br>Feb 13, 2003</center>
 &nbsp;
 <br>QMP (QCD Message Passing) over GM is implemented according to LQCD
 Message Passing API Specification version 1.0.0 of April. 25, 2002. This
@@ -232,7 +232,7 @@ the implementations and describes behavior of some routines.
 <b>QMP initialization and finalization:</b></li>
 </ul>
 <img SRC="id2.gif" ALT="Done" height=25 width=32> QMP_status_t&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-QMP_init_msg_passing (int argc, char** argv, QMP_smpaddr_type_t smp_type);
+QMP_init_msg_passing (int* argc, char*** argv, QMP_smpaddr_type_t smp_type);
 <ul>
 <ul>
 <ul>
@@ -644,6 +644,19 @@ Returns whether this process is the root of QMP communication.
 <blockquote>This version of QMP puts little overhead on top of GM. The
 latency and bandwidth tests between 2 nodes yield roughly the same performance
 results between QMP and raw GM.</blockquote>
+
+
+<ul>
+<li>
+<b>QMP/GM Implementation:</b></li>
+</ul>
+
+<blockquote>
+There is a compile flag to enable either a single port implementation or 
+multiport implementation. The flag is _QMP_USE_MULTI_PORTS. The single port
+implementation uses memory copies but has very little overhead in setting up
+and tearing down communication channels.
+</blockquote>
 
 </body>
 </html>
