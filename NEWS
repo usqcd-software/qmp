@@ -1,4 +1,8 @@
 06/04/2003 -- Robert Edwards
 
+	Version 1.2.4 : Added QMP_abort()
+
+06/04/2003 -- Robert Edwards
+
 	Version 1.2.3 : bjoo fixed memory leak in MPI version.
 
