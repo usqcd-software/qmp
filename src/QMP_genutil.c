@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.2  2003/12/19 04:45:31  edwards
+ *   Small bug fix.
+ *
  *   Revision 1.1  2003/12/19 04:43:00  edwards
  *   First version of generic routines.
  *
@@ -85,6 +88,7 @@ QMP_status_t QMP_route (void* buffer, QMP_u32_t count,
 #endif
   }
 
+  return status;
 }
 
 
