@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.1  2003/02/13 16:22:24  chen
+ *   qmp version 1.2
+ *
  *
  *
  */
