@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.4  2003/12/23 16:54:13  edwards
+ *   Added trace macro to this top level code.
+ *
  *   Revision 1.3  2003/12/19 04:46:39  edwards
  *   Added return of status.
  *
@@ -38,9 +41,9 @@
  * Trace macro
  */
 #ifdef _QMP_TRACE
-#define QMP_TRACE(x) (printf("%s at line %d of file %s\n", x, __LINE__, __FILE__))
+#define QMP_DEBUG 1
 #else
-#define QMP_TRACE(x)
+#undef QMP_DEBUG
 #endif
 
 /**
@@ -52,7 +55,9 @@ QMP_status_t QMP_route (void* buffer, QMP_u32_t count,
   QMP_status_t status = QMP_SUCCESS;
   QMP_u32_t node;
 
-  QMP_TRACE ("QMP_route");
+#if QMP_DEBUG >= 1
+  QMP_info("QMP_route");
+#endif
 
   node = QMP_get_node_number();
 
@@ -61,7 +66,7 @@ QMP_status_t QMP_route (void* buffer, QMP_u32_t count,
     QMP_msgmem_t request_msg = QMP_declare_msgmem(buffer, count);
     QMP_msghandle_t request_mh = QMP_declare_receive_from(request_msg, src, 0);
 
-#if QMP_DEBUG >= 2
+#if QMP_DEBUG >= 1
     QMP_info("starting a recvFromWait, count=%d, srcenode=%d", count, src);
 #endif
 
@@ -73,7 +78,7 @@ QMP_status_t QMP_route (void* buffer, QMP_u32_t count,
     QMP_free_msghandle(request_mh);
     QMP_free_msgmem(request_msg);
 
-#if QMP_DEBUG >= 2
+#if QMP_DEBUG >= 1
     QMP_info("finished a recvFromWait");
 #endif
   }
@@ -83,7 +88,7 @@ QMP_status_t QMP_route (void* buffer, QMP_u32_t count,
     QMP_msgmem_t request_msg = QMP_declare_msgmem(buffer, count);
     QMP_msghandle_t request_mh = QMP_declare_send_to(request_msg, dest, 0);
 
-#if QMP_DEBUG >= 2
+#if QMP_DEBUG >= 1
     QMP_info("starting a sendToWait, count=%d, destnode=%d", count,dest);
 #endif
 
@@ -95,7 +100,7 @@ QMP_status_t QMP_route (void* buffer, QMP_u32_t count,
     QMP_free_msghandle(request_mh);
     QMP_free_msgmem(request_msg);
 
-#if QMP_DEBUG >= 2
+#if QMP_DEBUG >= 1
     QMP_info("finished a sendToWait");
 #endif
   }
