@@ -17,6 +17,10 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.4  2003/07/21 20:57:12  edwards
+ *   Changed QMP_allocated_align_memory to use QMP_memalign instead of
+ *   memalign directly.
+ *
  *   Revision 1.3  2003/05/23 14:11:01  bjoo
  *   Fixed memory leak in QMP_free_msghandle
  *
@@ -44,9 +48,12 @@
  * Allocate memory according to alignment.
  * calling glibc memalign code.
  */
+
+/*
 #ifndef DMALLOC
 extern void* memalign (unsigned int aignment, unsigned int size);
 #endif
+*/
 
 /**
  * allocate memory with right alignment.
@@ -54,7 +61,25 @@ extern void* memalign (unsigned int aignment, unsigned int size);
 void *
 QMP_memalign (QMP_u32_t size, QMP_u32_t alignment)
 {
-  return memalign (alignment, size);
+  void *ptr;
+  
+/*  ptr = memalign(alignment, size); */
+  ptr = malloc(size);
+
+  /* DO NOT CHECK ptr is 0 - let the user handle that */
+
+  /* 
+   * Check memory alignment. This is used in place of calling a real memalign
+   * which is not very portable. The posix_memalign is often missing on systems.
+   */
+  if (((int)ptr & (alignment-1)) != 0)
+  {
+    QMP_error("QMP_memalign(%d,%d) = %p: bad alignment\n", 
+	      size, alignment, ptr);
+    ptr = 0;   /* Bad alignment */
+  }
+
+  return ptr;
 }
 
 /**
@@ -63,7 +88,7 @@ QMP_memalign (QMP_u32_t size, QMP_u32_t alignment)
 void *
 QMP_allocate_aligned_memory (QMP_u32_t nbytes)
 {
-  return QMP_memalign (QMP_MEM_ALIGNMENT, nbytes);
+  return QMP_memalign (nbytes, QMP_MEM_ALIGNMENT);
 }
 
 /**
