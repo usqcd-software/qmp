@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(qmp, 1.2.2, chen@jlab.org)
+AC_INIT(qmp, 1.2.3, chen@jlab.org)
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_SRCDIR(src/QMP_grid.c)
 AC_CONFIG_SRCDIR(examples/QMP_test.c)
