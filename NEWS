@@ -1,3 +1,9 @@
+10/31/2004 -- James Osborn
+
+	Version 2.0.beta5 : Restored proper behavior of msghandle operations
+          in single node version.  Added CFLAGS to qmp-config script.  Changed
+          QMP_status_code_t to QMP_status_t in qmp.h.
+
 10/18/2004 -- Robert Edwards
 
 	Version 2.0.beta4 : Beta release before version 2.

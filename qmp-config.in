@@ -18,6 +18,7 @@ version="@VERSION@"
 
 qmp_comms_type="@QMP_COMMS_TYPE@"
 qmp_cc="@CC@"
+qmp_copts="@CFLAGS@"
 qmp_cflags="-I@includedir@"
 qmp_ldflags="-L@libdir@ @QMP_COMMS_LDFLAGS@"
 qmp_libs="-lqmp @QMP_COMMS_LIBS@"
@@ -32,6 +33,7 @@ Options:
   [--version]
   [--comms]
   [--cc]
+  [--copts]
   [--cflags]
   [--ldflags]
   [--libs]
@@ -81,6 +83,10 @@ while test $# -gt 0; do
 
     --cc)
       echo $qmp_cc
+      ;;
+
+    --copts)
+      echo $qmp_copts
       ;;
 
     --cflags)

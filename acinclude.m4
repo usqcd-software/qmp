@@ -15,7 +15,7 @@ dnl                     MPI_FUNC="a = MPI_Request_c2f( request );"
 dnl               if MPI_FUNC is empty, assume linking with basic MPI program.
 dnl               i.e. check if MPI definitions are valid
 dnl
-AC_DEFUN(PAC_MPI_LINK_CC_FUNC,[
+AC_DEFUN([PAC_MPI_LINK_CC_FUNC],[
 dnl - set local parallel compiler environments
 dnl   so input variables can be CFLAGS, LDFLAGS or LIBS
     pac_MPI_CFLAGS="$1"
@@ -66,7 +66,7 @@ dnl                     GM_FUNC="status = gm_open(....)"
 dnl               if GM_FUNC is empty, assume linking with basic GM program.
 dnl               i.e. check if definitions are valid -- try linking gm_init()
 dnl
-AC_DEFUN(PAC_GM_LINK_CC_FUNC,[
+AC_DEFUN([PAC_GM_LINK_CC_FUNC],[
 dnl - set local parallel compiler environments
 dnl   so input variables can be CFLAGS, LDFLAGS or LIBS
     pac_GM_CFLAGS="$1"

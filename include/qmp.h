@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.1  2004/10/08 04:49:34  osborn
+ *   Split src directory into include and lib.
+ *
  *   Revision 1.12  2004/09/04 03:33:29  edwards
  *   Changed QMP_layout_grid to take a const qualifier on args.
  *
@@ -77,31 +80,14 @@
  */
 #define QMP_VERSION_STR PACKAGE_VERSION
 
-/**
- * Version Information about QCD Message Passing API.
- */
-#define QMP_MAJOR_VERSION ((QMP_VERSION_STR)[0])
-#define QMP_MINOR_VERSION ((QMP_VERSION_STR)[2])
-#define QMP_REVIS_VERSION ((QMP_VERSION_STR)[4])
-
-/**
- * Current version of QCD Message Passing API.
- */
-#define QMP_VERSION_CODE QMP_VERSION(QMP_MAJOR_VERSION, QMP_MINOR_VERSION, QMP_REVIS_VERSION)
-
-/**
- * Calculate version code from major, minor, revs numbers.
- */
-#define QMP_VERSION (a, b, c) (((a) << 8) + ((b) << 4) + (c))
-
 typedef int                QMP_bool_t;
-#define QMP_TRUE           (QMP_bool_t)1
-#define QMP_FALSE          (QMP_bool_t)0
+#define QMP_TRUE           ((QMP_bool_t)1)
+#define QMP_FALSE          ((QMP_bool_t)0)
 
 /**
- * Function status code.
+ * QMP function return status 
  */
-typedef enum QMP_status_code
+typedef enum QMP_status
 {
   QMP_SUCCESS = 0,
   QMP_ERROR = 0x1001,
@@ -130,7 +116,7 @@ typedef enum QMP_status_code
   QMP_INVALID_OP,
   QMP_TIMEOUT,
   QMP_MAX_STATUS
-}QMP_status_code_t;
+}QMP_status_t;
 
 /**
  * Interconnect type for LQCD.
@@ -161,11 +147,6 @@ typedef enum QMP_thread_level
 #define QMP_MEM_COMMS     0x02
 #define QMP_MEM_FAST      0x04
 #define QMP_MEM_DEFAULT   (QMP_MEM_COMMS|QMP_MEM_FAST)
-
-/**
- * QMP status 
- */
-typedef int QMP_status_t;
 
 /**
  * Memory type 

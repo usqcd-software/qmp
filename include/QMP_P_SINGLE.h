@@ -8,6 +8,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.2  2004/10/18 18:17:22  edwards
+ *   Added support for calling msghandle functions.
+ *
  *   Revision 1.1  2004/10/08 04:49:34  osborn
  *   Split src directory into include and lib.
  *
@@ -26,7 +29,6 @@
 #endif
 
 #define QMP_MSGMEM_ALLOCATED ((QMP_msgmem_t)12345)
-#define QMP_MSGHANDLE_ALLOCATED ((QMP_msghandle_t)23456)
 
 /* Message Memory structure */
 /* here we use a C99 flexible array member so we can allocate the

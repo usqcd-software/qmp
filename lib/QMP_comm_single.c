@@ -8,6 +8,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.2  2004/10/18 18:17:22  edwards
+ *   Added support for calling msghandle functions.
+ *
  *   Revision 1.1  2004/10/08 04:49:34  osborn
  *   Split src directory into include and lib.
  *
@@ -30,41 +33,33 @@
 QMP_status_t
 QMP_start(QMP_msghandle_t msgh)
 {
-  if(msgh!=QMP_MSGHANDLE_ALLOCATED) {
-    QMP_error("QMP_start: not implemented\n");
-    QMP_abort(1);
-  }
-  return QMP_SUCCESS;
+  QMP_error("QMP_start: passed QMP_msghandle_t not allocated\n");
+  QMP_abort(1);
+  return QMP_ERROR;
 }
 
 QMP_bool_t
 QMP_is_complete(QMP_msghandle_t msgh)
 {
-  if(msgh!=QMP_MSGHANDLE_ALLOCATED) {
-    QMP_error("QMP_is_complete: not implemented\n");
-    QMP_abort(1);
-  }
-  return QMP_TRUE;
+  QMP_error("QMP_start: passed QMP_msghandle_t not allocated\n");
+  QMP_abort(1);
+  return QMP_FALSE;
 }
 
 QMP_status_t
 QMP_wait(QMP_msghandle_t msgh)
 {
-  if(msgh!=QMP_MSGHANDLE_ALLOCATED) {
-    QMP_error("QMP_wait: not implemented\n");
-    QMP_abort(1);
-  }
-  return QMP_SUCCESS;
+  QMP_error("QMP_start: passed QMP_msghandle_t not allocated\n");
+  QMP_abort(1);
+  return QMP_ERROR;
 }
 
 QMP_status_t
 QMP_wait_all(QMP_msghandle_t msgh[], int num)
 {
-  if(msgh!=QMP_MSGHANDLE_ALLOCATED) {
-    QMP_error("QMP_wait_all: not implemented\n");
-    QMP_abort(1);
-  }
-  return QMP_SUCCESS;
+  QMP_error("QMP_start: passed QMP_msghandle_t not allocated\n");
+  QMP_abort(1);
+  return QMP_ERROR;
 }
 
 
