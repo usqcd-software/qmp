@@ -10,12 +10,14 @@ QMP_GM_SRC = QMP_comm_gm.c     \
              QMP_mem_gm.c      \
              QMP_topology_gm.c \
              QMP_util_gm.c     \
+             QMP_genutil.c     \
              QMP_P_GM.h
 
 QMP_MPI_SRC = QMP_comm_mpi.c \
               QMP_init_mpi.c \
               QMP_mem_mpi.c  \
               QMP_util_mpi.c \
+              QMP_genutil.c  \
               QMP_P_MPI.h
 
 libqmp_a_CFLAGS  = @QMP_COMMS_CFLAGS@
