@@ -10,39 +10,32 @@ docdir=@prefix@/doc
 DOCSRCDIR=@top_srcdir@/doc
 VPATH=$(DOCSRCDIR)
 
-# Define the 'target'. This is basically the directory containing the docs
-doc_DATA = oxydocs
-
 # A make rule for the oxydocs target
+doc: oxydocs
 oxydocs:
 	doxygen QMPdoxyfile
 
 # A 'special' install rule for the DATA (ie oxydocs) files to be 
 # installed in docdir
-install-docDATA:
+doc-install: oxydocs
 	mkdir -p ${docdir}
 	cp -r oxydocs/* ${docdir}
 
 # Likewise a special (and rather drastic) uninstall rule
-uninstall-docDATA:
-	rm -rf ${docdir}/*
-
-# Now some cleaning rules according to the automake heuristics
-.PHONY: clean_doxygen mostlyclean clean distclean maintainer-clean
+doc-uninstall:
+	-rm -rf ${docdir}
 
 # Remove the whole doxygen generated stuff
-clean_doxygen:
-	rm -rf oxydocs
+doc-clean:
+	-rm -rf oxydocs
 
-#
-# The four GNU clean targets. Since doxygen you may want to rebuild 
-# all the time it should become 'mostlyclean'
-# All the rest are just the same
-mostlyclean: clean_doxygen
+doc-distclean: doc-clean
 
-clean: clean_doxygen
+# also clean on regular make clean
+clean-local: doc-clean
 
-distclean: clean_doxygen
+EXTRA_DIST = MessageAPI.htm QMP_API.html QMP-1-0.doc \
+             boy6.gif constru3.gif id2.gif note02.gif
 
-maintainer-clean: clean_doxygen
+.PHONY: doc doc-install doc-uninstall doc-clean doc-distclean
 

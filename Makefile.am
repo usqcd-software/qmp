@@ -2,9 +2,7 @@
 # Recurse down into src (to build the library)
 #                   examples (build examples)
 #
-SUBDIRS = include lib examples
-EXTRA_DIST = doc/Makefile.am doc/Makefile.in doc/QMPdoxyfile.in \
-             doc/MessageAPI.htm doc/QMP_API.html doc/QMP-1-0.doc
+SUBDIRS = include lib examples doc
 
 #
 # The end user's configuration script
@@ -15,17 +13,18 @@ bin_SCRIPTS=qmp-config
 # User explicitly has to make docs -- you may not want them
 #
 doc:
-	cd docs ; $(MAKE)
+	cd doc && $(MAKE) doc
 
-doc-install: 
-	cd docs ; $(MAKE) install
+doc-install:
+	cd doc && $(MAKE) doc-install
 
 doc-uninstall:
-	cd docs ; $(MAKE) uninstall
+	cd doc && $(MAKE) doc-uninstall
 
 doc-clean:
-	cd docs ; $(MAKE) clean
+	cd doc && $(MAKE) doc-clean
 
 doc-distclean:
-	cd docs ; $(MAKE) distclean
+	cd doc && $(MAKE) doc-distclean
 
+.PHONY: doc doc-install doc-uninstall doc-clean doc-distclean

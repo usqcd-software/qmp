@@ -157,10 +157,7 @@ target_alias = @target_alias@
 # Recurse down into src (to build the library)
 #                   examples (build examples)
 #
-SUBDIRS = include lib examples
-EXTRA_DIST = doc/Makefile.am doc/Makefile.in doc/QMPdoxyfile.in \
-             doc/MessageAPI.htm doc/QMP_API.html doc/QMP-1-0.doc
-
+SUBDIRS = include lib examples doc
 
 #
 # The end user's configuration script
@@ -584,19 +581,21 @@ uninstall-info: uninstall-info-recursive
 # User explicitly has to make docs -- you may not want them
 #
 doc:
-	cd docs ; $(MAKE)
+	cd doc && $(MAKE) doc
 
-doc-install: 
-	cd docs ; $(MAKE) install
+doc-install:
+	cd doc && $(MAKE) doc-install
 
 doc-uninstall:
-	cd docs ; $(MAKE) uninstall
+	cd doc && $(MAKE) doc-uninstall
 
 doc-clean:
-	cd docs ; $(MAKE) clean
+	cd doc && $(MAKE) doc-clean
 
 doc-distclean:
-	cd docs ; $(MAKE) distclean
+	cd doc && $(MAKE) doc-distclean
+
+.PHONY: doc doc-install doc-uninstall doc-clean doc-distclean
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
