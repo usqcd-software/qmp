@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.6  2003/07/22 02:17:00  edwards
+ *   Yet another change/hack of QMP_memalign. Use the obsolete valloc.
+ *
  *   Revision 1.5  2003/07/21 21:07:17  edwards
  *   Changed around QMP_memalign.
  *
@@ -64,11 +67,11 @@ extern void* memalign (unsigned int aignment, unsigned int size);
 void *
 QMP_memalign (QMP_u32_t size, QMP_u32_t alignment)
 {
-  void *ptr;
+  char *ptr;
   
-/*  ptr = memalign(alignment, size); */
+  /* ptr =(char *) memalign(alignment, size);  */
 
-  ptr = valloc(size);
+  ptr = valloc(size); 
 
 #if 0
   ptr = malloc(size);
@@ -87,7 +90,7 @@ QMP_memalign (QMP_u32_t size, QMP_u32_t alignment)
   }
 #endif
 
-  return ptr;
+  return (void *)ptr;
 }
 
 /**
@@ -124,6 +127,7 @@ QMP_declare_msgmem(const void *buf, QMP_u32_t nbytes)
     mem->type = MM_user_buf;
     mem->mem = (void *)buf;
     mem->nbytes = nbytes;
+    mem->mpi_type = MPI_BYTE;
   }
   else
     QMP_SET_STATUS_CODE (QMP_NOMEM_ERR);
@@ -138,10 +142,13 @@ void QMP_free_msgmem(QMP_msgmem_t mm)
 
   if (!mem)
     return;
-
   if (mem->type == MM_lexico_buf)
     free (mem->mem);
-  
+
+  if (mem->type == MM_strided_buf) {
+     MPI_Type_free(&(mem->mpi_type));
+  }
+
   free(mem);
 }
 
@@ -151,9 +158,51 @@ QMP_declare_strided_msgmem (void* base,
 			    QMP_u32_t nblocks,
 			    QMP_u32_t stride)
 {
-  QMP_error_exit ("QMP_declare_strided_msgmem: not yet implemented.");
-  /* make compiler happy */
-  return (QMP_msgmem_t)0;
+
+  Message_Memory_t mem = (Message_Memory_t)MP_allocMsgMem();
+
+  if (mem) {
+    int mpi_stride = stride+blksize;
+    int err_code;
+
+
+    mem->mem = (void *)base;
+
+
+    if( stride == 0 ) { 
+      /* Not really strided */
+      mem->type = MM_user_buf;
+      mem->nbytes = blksize*nblocks;
+      mem->mpi_type = MPI_BYTE;
+      return(QMP_msgmem_t)mem;
+    }
+    else {
+      mem->type = MM_strided_buf;
+      /* Really strided */
+      err_code = MPI_Type_vector(nblocks, blksize, mpi_stride, MPI_BYTE,
+				 &(mem->mpi_type));
+
+      /* if MPI_Type_vector fails */
+      if( err_code != MPI_SUCCESS) {
+	QMP_free_msgmem(mem);
+	QMP_SET_STATUS_CODE (QMP_ERROR);
+	return(QMP_msgmem_t)0;
+      }
+
+      err_code = MPI_Type_commit(&(mem->mpi_type));
+      if( err_code != MPI_SUCCESS) { 
+	QMP_free_msgmem(mem);
+	QMP_SET_STATUS_CODE(QMP_ERROR);
+        return(QMP_msgmem_t)0;
+      }
+      /* It succeeded */
+      return (QMP_msgmem_t)mem;
+    }
+  }
+  else {
+    QMP_SET_STATUS_CODE (QMP_NOMEM_ERR);
+    return(QMP_msgmem_t)0;
+  }
 }
 
 /**
@@ -166,6 +215,8 @@ QMP_declare_strided_array_msgmem (void** base,
 				  QMP_u32_t* nblocks,
 				  QMP_u32_t* stride)
 {
+
+
   QMP_error_exit ("QMP declare_declare_strided_array_msgmem: not yet implemented.");
   /* make compiler happy */
   return (QMP_msgmem_t)0;

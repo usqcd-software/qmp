@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.4  2003/02/19 20:37:44  chen
+ *   Make QMP_is_complete a polling function
+ *
  *   Revision 1.3  2003/02/18 18:16:18  chen
  *   Fix a minor bug for is_complete
  *
@@ -86,10 +89,29 @@ QMP_start (QMP_msghandle_t msgh)
 	       QMP_get_node_number(),
 	       mh->dest_node, mh->tag, mm->nbytes);
 #endif
-      MPI_Isend(mm->mem, mm->nbytes, 
-		MPI_BYTE, mh->dest_node, mh->tag,
-		MPI_COMM_WORLD, &mh->request);
-      mh->activeP = 1;
+      
+      /* Deal with strided sends */
+      switch( mm->type) { 
+      case MM_user_buf:
+	MPI_Isend(mm->mem, mm->nbytes, 
+		  MPI_BYTE, mh->dest_node, mh->tag,
+		  MPI_COMM_WORLD, &mh->request);
+	mh->activeP = 1;
+	break;
+      case MM_strided_buf:
+	MPI_Isend(mm->mem, 1, 
+		  mm->mpi_type,
+		  mh->dest_node,
+		  mh->tag,
+		  MPI_COMM_WORLD, 
+		  &mh->request);
+	mh->activeP = 1;
+	break;
+      default:
+	QMP_error_exit("Can only deal with user bufs and strided bufs for now\n");
+	break;
+      }
+      
       break;
 
     case MH_recv:
@@ -99,10 +121,24 @@ QMP_start (QMP_msghandle_t msgh)
 		QMP_get_node_number(),
 		mh->srce_node, mh->tag, mm->nbytes);
 #endif
-      MPI_Irecv(mm->mem, mm->nbytes,
-		MPI_BYTE, mh->srce_node, mh->tag,
-		MPI_COMM_WORLD, &mh->request);
-      mh->activeP = 1;
+      switch(mm->type) { 
+      case MM_user_buf:
+	MPI_Irecv(mm->mem, mm->nbytes,
+		  MPI_BYTE, mh->srce_node, mh->tag,
+		  MPI_COMM_WORLD, &mh->request);
+	mh->activeP = 1;
+	break;
+      case MM_strided_buf:
+	MPI_Irecv(mm->mem, 1,
+		  mm->mpi_type,
+		  mh->srce_node, mh->tag,
+		  MPI_COMM_WORLD, &mh->request);
+	mh->activeP = 1;
+	break;
+      default:
+	QMP_error_exit("Can only deal with user bufs and strided bufs for now\n");
+	break;
+      }
       break;
 
     case MH_freed:

@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.3  2003/02/19 20:37:44  chen
+ *   Make QMP_is_complete a polling function
+ *
  *   Revision 1.2  2003/02/11 03:39:24  flemingg
  *   GTF: Update of automake and autoconf files to use qmp-config in lieu
  *        of qmp_build_env.sh
@@ -160,6 +163,7 @@ typedef struct Message_Memory
   enum MM_type type;
   void *mem;
   int   nbytes;
+  MPI_Datatype mpi_type; 
 } Message_Memory;
 
 typedef Message_Memory * Message_Memory_t;

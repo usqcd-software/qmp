@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.7  2003/12/19 04:51:29  edwards
+ *   Added prototype for QMP_route.
+ *
  *   Revision 1.6  2003/11/04 01:04:32  edwards
  *   Changed QMP_get_logical_coordinates_from to not have const modifier.
  *   Now, user must explicitly call "free".
@@ -393,7 +396,7 @@ extern void               QMP_free_msgmem (QMP_msgmem_t m);
 /**
  * Declare a strided memory. Not yet implemented.
  */
-extern QMP_msgmem_t       QMP_declare_strided_msg_mem (void* base, 
+extern QMP_msgmem_t       QMP_declare_strided_msgmem (void* base, 
 						       QMP_u32_t blksize,
 						       QMP_u32_t nblocks,
 						       QMP_u32_t stride);
