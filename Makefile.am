@@ -1,24 +1,31 @@
-## Process this file with automake to produce Makefile.in
 #
-# Toplevel Makefile.am -- Deal with source and Doc subdirctories
+# Recurse down into src (to build the library)
+#                   examples (build examples)
 #
-## Balint Joo, 25/11/2002
-##
-## Add the QMPdoxyfile and the QMP run script (which are not part 
-## of anything that gets built or is a _SOURCE or any of automakes
-## other automatics) to the distro, so that make dist willl work out
-## OK.
-##
-## George Fleming, 11/12/2002
-##
-## Moved non-library sources into examples directory and made them compile
-## only under 'make check'.
-##
-## George Fleming, 03/03/2003
-##
-## Implemented qmp-config script in lieu of qmp_build_env.sh script
+SUBDIRS = src examples
+EXTRA_DIST = doc/Makefile.am doc/Makefile.in doc/QMPdoxyfile.in doc/MessageAPI.htm \
+      doc/QMP_API.html doc/QMP-1-0.doc  src/QMP_run
 
-SUBDIRS=src doc examples
-EXTRA_DIST=doc/QMPdoxyfile.in src/QMP_run
-
+#
+# The end user's configuration script
+# 
 bin_SCRIPTS=qmp-config
+
+#
+# User explicitly has to make docs -- you may not want them
+#
+doc:
+	cd docs ; $(MAKE)
+
+doc-install: 
+	cd docs ; $(MAKE) install
+
+doc-uninstall:
+	cd docs ; $(MAKE) uninstall
+
+doc-clean:
+	cd docs ; $(MAKE) clean
+
+doc-distclean:
+	cd docs ; $(MAKE) distclean
+
