@@ -2,7 +2,7 @@
 
 # qmp-config
 #
-# George T. Fleming, 03 March 2003
+# George T. Fleming, 11 February 2003
 #
 # Tool for retrieving configuration information about the installed version
 # of QMP.
@@ -108,12 +108,17 @@ fi
 if test "X${echo_cflags}X" = "XyesX" ; then
   output_cflags=
   for i in $qmp_cflags ; do
-    if test "X${i}X" != "X-I/usr/includeX" ; then
-      case " $output_cflags " in
-        *\ $i\ *) ;;                               # already there, skip it
-        *) output_cflags="$output_cflags $i"       # add it to output
-      esac
-    fi
+    case $i in
+      -I/usr/include) ;;
+      -g) ;;
+      -O*) ;;
+      -W*) ;;
+      *)
+        case " $output_cflags " in
+          *\ $i\ *) ;;                             # already there, skip it
+          *) output_cflags="$output_cflags $i"     # add it to output
+        esac
+    esac
   done
   echo $output_cflags
 fi
