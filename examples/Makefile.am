@@ -10,6 +10,7 @@ check_PROGRAMS = QMP_test          \
                  QMP_loopback      \
                  QMP_qcd_test      \
                  QMP_perf          \
+                 QMP_broadcast     \
                  QMP_gcomm_perf    \
                  QMP_MILC_test     \
                  $(QMP_GM_CHECK)
