@@ -1,0 +1,649 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.78 [en] (X11; U; Linux 2.4.10 i686) [Netscape]">
+   <title>QMP1.0.0</title>
+</head>
+<body>
+
+<center><b>QMP over GM version 1.0.0</b>
+<p><i><a href="mailto:chen@jlab.org,edwards@jlab.org,watson@jlab.org">Jie
+Chen, Robert Edwards and William Watson III</a></i>
+<br><i>Jefferson Lab</i>
+<br>Nov 13, 2002</center>
+&nbsp;
+<br>QMP (QCD Message Passing) over GM is implemented according to LQCD
+Message Passing API Specification version 1.0.0 of April. 25, 2002. This
+document summarizes what routines are implemented and what routines are
+not supported at this moment. In addition this document explains some of
+the implementations and describes behavior of some routines.
+<br>&nbsp;
+<ul>
+<li>
+<b>QMP defined types:</b></li>
+</ul>
+
+<blockquote>&nbsp;
+<table BORDER CELLSPACING=2 CELLPADDING=2 WIDTH="100%" >
+<caption><tbody>
+<br></tbody></caption>
+
+<tr>
+<td ALIGN=CENTER VALIGN=CENTER>unsigned char</td>
+
+<td ALIGN=CENTER VALIGN=CENTER>QMP_u8_t</td>
+</tr>
+
+<tr>
+<td ALIGN=CENTER VALIGN=CENTER>unsigned short</td>
+
+<td ALIGN=CENTER VALIGN=CENTER>QMP_u16_t</td>
+</tr>
+
+<tr>
+<td ALIGN=CENTER VALIGN=CENTER>unsigned int</td>
+
+<td ALIGN=CENTER VALIGN=CENTER>QMP_u32_t</td>
+</tr>
+
+<tr>
+<td ALIGN=CENTER VALIGN=CENTER>char</td>
+
+<td ALIGN=CENTER VALIGN=CENTER>QMP_s8_t</td>
+</tr>
+
+<tr>
+<td ALIGN=CENTER VALIGN=CENTER>short</td>
+
+<td ALIGN=CENTER VALIGN=CENTER>QMP_s16_t</td>
+</tr>
+
+<tr>
+<td ALIGN=CENTER VALIGN=CENTER>int</td>
+
+<td ALIGN=CENTER VALIGN=CENTER>QMP_s32_t</td>
+</tr>
+
+<tr>
+<td ALIGN=CENTER VALIGN=CENTER>int</td>
+
+<td ALIGN=CENTER VALIGN=CENTER>QMP_bool_t</td>
+</tr>
+
+<tr>
+<td ALIGN=CENTER VALIGN=CENTER>int</td>
+
+<td ALIGN=CENTER VALIGN=CENTER>QMP_status_t</td>
+</tr>
+
+<tr>
+<td ALIGN=CENTER VALIGN=CENTER>float</td>
+
+<td ALIGN=CENTER VALIGN=CENTER>QMP_float_t</td>
+</tr>
+
+<tr>
+<td ALIGN=CENTER VALIGN=CENTER>double</td>
+
+<td ALIGN=CENTER VALIGN=CENTER>QMP_double_t</td>
+</tr>
+
+<tr>
+<td ALIGN=CENTER VALIGN=CENTER>unsigned long (64 bit Arch)</td>
+
+<td ALIGN=CENTER VALIGN=CENTER>QMP_u64_t</td>
+</tr>
+
+<tr>
+<td ALIGN=CENTER VALIGN=CENTER>long (64 bit Arch)</td>
+
+<td ALIGN=CENTER VALIGN=CENTER>QMP_s64_t</td>
+</tr>
+
+<tr>
+<td ALIGN=CENTER VALIGN=CENTER>unsigned long long</td>
+
+<td ALIGN=CENTER VALIGN=CENTER>QMP_u64_t</td>
+</tr>
+
+<tr>
+<td ALIGN=CENTER VALIGN=CENTER>long long&nbsp;</td>
+
+<td ALIGN=CENTER VALIGN=CENTER>QMP_s64_t</td>
+</tr>
+</table>
+</blockquote>
+
+<ul>
+<li>
+<b>QMP function status:</b></li>
+</ul>
+&nbsp;
+<table BORDER CELLSPACING=2 CELLPADDING=2 WIDTH="100%" >
+<caption><tbody>
+<br></tbody></caption>
+
+<tr>
+<td ALIGN=LEFT VALIGN=TOP>QMP_SUCCESS = 0</td>
+
+<td VALIGN=TOP>QMP_ERROR</td>
+
+<td VALIGN=TOP>QMP_NOT_INITED</td>
+
+<td VALIGN=TOP>QMP_RTENV_ERR</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP>QMP_CPUINFO_ERR</td>
+
+<td VALIGN=TOP>QMP_NODEINFO_ERR</td>
+
+<td VALIGN=TOP>QMP_NOMEM_ERR</td>
+
+<td VALIGN=TOP>QMP_MEMSIZE_ERR</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP>QMP_HOSTNAME_ERR</td>
+
+<td VALIGN=TOP>QMP_INITSVC_ERR</td>
+
+<td VALIGN=TOP>QMP_TOPOLOGY_EXISTS</td>
+
+<td VALIGN=TOP>QMP_CH_TIMEOUT</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP>QMP_NOTSUPPORTED</td>
+
+<td VALIGN=TOP>QMP_SVC_BUSY</td>
+
+<td VALIGN=TOP>QMP_BAD_MESSAGE</td>
+
+<td VALIGN=TOP>QMP_INVALID_ARG</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP>QMP_INVALID_TOPOLOGY</td>
+
+<td VALIGN=TOP>QMP_NONEIGHBOR_INFO</td>
+
+<td VALIGN=TOP>QMP_MEMSIZE_TOOBIG</td>
+
+<td VALIGN=TOP>QMP_BAD_MEMORY</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP>QMP_NO_PORTS</td>
+
+<td VALIGN=TOP>QMP_NODE_OUTRANGE</td>
+
+<td VALIGN=TOP>QMP_CHDEF_ERR</td>
+
+<td VALIGN=TOP>QMP_MEMUSED_ERR</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP>QMP_INVALID_OP</td>
+
+<td VALIGN=TOP>QMP_TIMEOUT</td>
+
+<td VALIGN=TOP></td>
+
+<td VALIGN=TOP></td>
+</tr>
+</table>
+
+<blockquote>
+<li>
+<b>QMP Interconnect type (QMP_ictype_t):</b></li>
+
+<br><b></b>&nbsp;
+<p>&nbsp;<b></b>
+<center><table BORDER COLS=4 WIDTH="100%" NOSAVE >
+<tr>
+<td>QMP_SWITCH=0</td>
+
+<td>QMP_GRID=1</td>
+
+<td>QMP_MESH=1</td>
+
+<td>QMP_FATTREE=2</td>
+</tr>
+</table></center>
+<b></b>
+<li>
+<b>QMP SMP Address Type (QMP_smpaddr_type_t):</b></li>
+
+<br><b></b>&nbsp;
+<center><table BORDER COLS=2 WIDTH="100%" NOSAVE >
+<tr>
+<td>QMP_SMP_ONE_ADDRESS</td>
+
+<td>QMP_SMP_MULTIPLE_ADDRESS</td>
+</tr>
+</table></center>
+<b></b></blockquote>
+
+<ul>
+<li>
+<b>QMP initialization and finalization:</b></li>
+</ul>
+<img SRC="id2.gif" ALT="Done" height=25 width=32> QMP_status_t&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+QMP_init_msg_passing (int argc, char** argv, QMP_smpaddr_type_t smp_type);
+<ul>
+<ul>
+<ul>
+<ul>
+<li>
+<i>smp_type must be either QMP_SMP_ONE_ADDRESS or QMP_SMP_MULTIPLE_ADDRESS.&nbsp;</i></li>
+</ul>
+</ul>
+</ul>
+</ul>
+<img SRC="id2.gif" ALT="Done" height=25 width=32> void&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+QMP_finalize_msg_passing (void);
+
+<br><img SRC="id2.gif" ALT="Done" height=25 width=32> void&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+QMP_verbose&nbsp; (QMP_bool_t verbose);
+
+<br><img SRC="id2.gif" ALT="Done" height=25 width=32> const QMP_u32_t&nbsp;&nbsp;&nbsp;
+QMP_get_SMP_count (void);
+<br><img SRC="id2.gif" ALT="Done" height=25 width=32> const QMP_ictype_t
+QMP_get_msg_passing_type (void);
+<ul>
+<ul>
+<ul>
+<ul>
+<li>
+<i>returns QMP_SWITCH, QMP_GRID, QMP_FATTREE</i></li>
+</ul>
+</ul>
+</ul>
+</ul>
+<img SRC="id2.gif" ALT="Done" height=25 width=32> const QMP_u32_t&nbsp;&nbsp;&nbsp;
+QMP_get_number_of_nodes (void);
+<br><img SRC="id2.gif" ALT="Done" height=25 width=32> const QMP_u32_t&nbsp;&nbsp;&nbsp;
+QMP_get_allocated_number_of_dimensions (void);
+<br><img SRC="id2.gif" ALT="Done" height=25 width=32> const QMP_u32_t*&nbsp;&nbsp;
+QMP_get_allocated_dimensions (void);
+<ul>
+<ul>
+<ul>
+<ul>
+<li>
+<i>returns null for switched configuration</i> .</li>
+</ul>
+</ul>
+</ul>
+</ul>
+<img SRC="id2.gif" ALT="Done" height=25 width=32> const QMP_u32_t*&nbsp;&nbsp;
+QMP_get_allocated_coordinates (void);
+<ul>
+<ul>
+<ul>
+<ul>
+<li>
+<i>returns 0 for switched configuration.</i></li>
+</ul>
+</ul>
+</ul>
+</ul>
+
+<ul>
+<li>
+<b>QMP logical topology:</b></li>
+</ul>
+<img SRC="id2.gif" ALT="Done" height=25 width=32> QMP_bool_t&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+QMP_declare_logical_topology (const QMP_u32_t* dims, QMP_u32_t ndim);
+<br><img SRC="id2.gif" ALT="Done" height=25 width=32> QMP_bool_t&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+QMP_logical_topology_is_declared (void);
+<br><img SRC="id2.gif" ALT="Done" height=25 width=32> const QMP_u32_t&nbsp;&nbsp;&nbsp;
+QMP_get_logical_number_of_dimensions (void);
+<br><img SRC="id2.gif" ALT="Done" height=25 width=32> const QMP_u32_t*&nbsp;&nbsp;
+QMP_get_logical_dimensions (void);
+<br><img SRC="id2.gif" ALT="Done" height=25 width=32> const QMP_u32_t&nbsp;&nbsp;&nbsp;
+QMP_get_node_number (void);
+<br><img SRC="id2.gif" ALT="Done" height=25 width=32> const QMP_u32_t&nbsp;&nbsp;&nbsp;
+QMP_get_number_of_nodes (void);
+<br><img SRC="id2.gif" ALT="Done" height=25 width=32> const QMP_u32_t*&nbsp;&nbsp;
+QMP_get_logical_coordinates (void);
+<br><img SRC="id2.gif" ALT="Done" height=25 width=32> const QMP_u32_t*&nbsp;&nbsp;
+QMP_get_logical_coordinates_from (QMP_u32_t node);
+<br><img SRC="id2.gif" ALT="Done" height=25 width=32> const QMP_u32_t&nbsp;&nbsp;&nbsp;
+QMP_get_node_number_from (const QMP_u32_t* coordinates);
+<ul>
+<li>
+<b>QMP problem specification:</b></li>
+</ul>
+<img SRC="id2.gif" ALT="Not Done" height=32 width=32> void&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+QMP_layout_grid (const QMP_u32_t* latticeDimensions, QMP_u32_t ndimes);
+<br><img SRC="id2.gif" ALT="Not Done" height=32 width=32> const QMP_u32_t*&nbsp;
+QMP_get_subgrid_dimensions (void);
+<br>&nbsp;
+<ul>
+<li>
+<b>QMP Memory allocation:</b></li>
+</ul>
+<img SRC="id2.gif" ALT="Done" height=25 width=32><b> </b>void*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+QMP_allocate_aligned_memory (QMP_u32_t nbytes);
+<blockquote>
+<blockquote>
+<blockquote>
+<ul>
+<li>
+<i>Allocate memory aligned on 16 byte boundary</i></li>
+</ul>
+</blockquote>
+</blockquote>
+</blockquote>
+<img SRC="id2.gif" ALT="Done" height=25 width=32> void QMP_free_aligned_memory
+(void* mem);
+<br><img SRC="id2.gif" ALT="Done" height=25 width=32> QMP_msgmem_t&nbsp;&nbsp;&nbsp;
+QMP_declare_msgmem (const void* mem,&nbsp; QMP_u32_t nbytes);
+<br><img SRC="id2.gif" ALT="Done" height=25 width=32> void&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+QMP_free_msgmem (QMP_msgmem_t m)
+<blockquote>
+<blockquote>
+<blockquote>
+<ul>
+<li>
+<i>User memory is not freed</i>.</li>
+</ul>
+</blockquote>
+</blockquote>
+</blockquote>
+<img SRC="constru3.gif" ALT="Not Done" height=32 width=32> QMP_msgmem_t&nbsp;&nbsp;&nbsp;
+QMP_declare_strided_msg_mem (void* base, QMP_u32_t blksize,QMP_u32_t nblocks, QMP_u32_t stride,);
+<br><img SRC="constru3.gif" ALT="Not Done" height=32 width=32> QMP_msgmem_t&nbsp;&nbsp;&nbsp;
+QMP_declare_strided_array_msgmem (void** base,QMP_u32_t* blksize,
+QMP_u32_t* nblocks, QMP_u32_t*stride);
+<br>&nbsp;
+<ul>
+<li>
+<b>QMP channel oriented communication:</b></li>
+</ul>
+<img SRC="id2.gif" ALT="Done" height=25 width=32> QMP_msghandle_t&nbsp;&nbsp;&nbsp;
+QMP_declare_receive_relative (QMP_msgmem_t m, QMP_s32_t axis, QMP_s32_t
+dir, QMP_s32_t priority);
+<blockquote>
+<blockquote>
+<ul>
+<li>
+<i>Declares an endpoint for a message channel of receiveing operations
+between this node and its neighbor.&nbsp; The neighbor is described by
+an axis and direction. The axes are from 0 to number of dimensions - 1,
+and directions are -1 or 1.</i></li>
+</ul>
+</blockquote>
+</blockquote>
+<img SRC="id2.gif" ALT="Done" height=25 width=32> QMP_msghandle_t&nbsp;&nbsp;&nbsp;
+QMP_declare_send_relative&nbsp;&nbsp;&nbsp; (QMP_msgmem_t m, QMP_s32_t
+axis, QMP_s32_t dir, QMP_s32_t priority);
+<blockquote>
+<blockquote>
+<ul>
+<li>
+<i>Declares an endpoint for a message channel of send operations between
+this node and it's neighbor.The neighbor is described by an axis and direction.The
+axes are from 0 to dim, and directions are 1 and -1.</i></li>
+</ul>
+</blockquote>
+</blockquote>
+<img SRC="id2.gif" ALT="Done" height=25 width=32> QMP_msghandle_t&nbsp;&nbsp;&nbsp;
+QMP_declare_send_to (QMP_msgmem_t m, QMP_u32_t rem_node, QMP_s32_t priority);
+<blockquote>
+<blockquote>
+<ul>
+<li>
+<i>Declare an endpoint for message send channel operation using remote
+node's number.</i></li>
+</ul>
+</blockquote>
+</blockquote>
+<img SRC="id2.gif" ALT="Done" height=25 width=32> QMP_msghandle_t&nbsp;&nbsp;&nbsp;
+QMP_declare_receive_from(QMP_msgmem_t m,&nbsp; QMP_u32_t
+rem_node_rank, QMP_s32_t priority);
+<blockquote>
+<blockquote>
+<ul>
+<li>
+<i>Declare an endpoint for message channel receiving operation using remote&nbsp;
+node's number.</i></li>
+</ul>
+</blockquote>
+</blockquote>
+<img SRC="id2.gif" ALT="Done" height=25 width=32> QMP_msghandle_t&nbsp;&nbsp;&nbsp;
+QMP_declare_multiple (QMP_msghandle_t* msgh, QMP_u32_t num)
+<blockquote>
+<blockquote>
+<ul>
+<li>
+<i>Collapse multiple message handles into a single one.</i></li>
+
+<ul>
+<li>
+<i>A single message handle cannot appear in different multiple message
+handles.</i></li>
+</ul>
+</ul>
+</blockquote>
+</blockquote>
+<img SRC="id2.gif" ALT="Done" height=25 width=32> void&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+QMP_free_msghandle (QMP_msghandle_t h);
+<blockquote>
+<blockquote>
+<ul>
+<li>
+<i>Free a message handle. If this message handle is a handle for multiple
+message handles, this routine will not free the individual handles</i></li>
+</ul>
+
+<p><br><img SRC="boy6.gif" ALT="Attention" height=32 width=32><font color="#FF6666">
+<b>Advisory for QMP GM</b>: Calling QMP_declare_receive_zzz before QMP_declare_send_zzz guarantees
+connections of desired channels. Otherwise best effort will be made to
+establish connections. Multiple channels are allowed between a pair of
+nodes.</font>
+<br>&nbsp;
+<br>&nbsp;</blockquote>
+</blockquote>
+
+<ul>
+<li>
+<b>QMP communication operations:</b></li>
+</ul>
+<img SRC="id2.gif" ALT="Done" height=25 width=32> QMP_status_t&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+QMP_start (QMP_msghandle_t h);
+<blockquote>
+<blockquote>
+<ul>
+<li>
+<i>Start Send/Recv operations depends on the message handle type. If the
+message handle is a collection of multiple message handles, a loop will
+be used to go over each handle.</i></li>
+</ul>
+</blockquote>
+</blockquote>
+<img SRC="id2.gif" ALT="Done" height=25 width=32> QMP_status_t&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+QMP_wait (QMP_msghandle_t h);
+<blockquote>
+<blockquote>
+<ul>
+<li>
+&nbsp;<i> Wait for an operation to complete for a particular message handle.</i></li>
+
+<ul>
+<li>
+<i>This routine will not block other message handles from continuing their
+send/recv operations.</i></li>
+</ul>
+</ul>
+</blockquote>
+</blockquote>
+<img SRC="id2.gif" ALT="Done" height=25 width=32> QMP_bool_t&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+QMP_is_complete (QMP_msghandle_t h);
+<blockquote>
+<blockquote>
+<ul>
+<li>
+<i>Test whether a communication started by QMP_start with a message handle
+has been completed</i>.</li>
+</ul>
+</blockquote>
+</blockquote>
+
+<ul>
+<li>
+<b>QMP global communication:</b></li>
+</ul>
+<img SRC="id2.gif" ALT="Done" height=25 width=32> QMP_status_t QMP_broadcast
+(void* buffer, QMP_u32_t nbytes);
+<br><img SRC="id2.gif" ALT="Done" height=25 width=32> QMP_status_t QMP_sum_int&nbsp;&nbsp;&nbsp;
+(QMP_s32_t *value);
+<br><img SRC="id2.gif" ALT="Done" height=25 width=32> QMP_status_t QMP_sum_float&nbsp;
+(QMP_float_t *value);
+<br><img SRC="id2.gif" ALT="Done" height=25 width=32> QMP_status_t QMP_sum_double
+(QMP_double_t *value);
+<br><img SRC="id2.gif" ALT="Done" height=25 width=32> QMP_status_t QMP_sum_float_array
+(QMP_float_t* value, QMP_u32_t length);
+<br><img SRC="id2.gif" ALT="Done" height=25 width=32> QMP_status_t QMP_sum_double_array
+(QMP_double_t* value, QMP_u32_t length);
+<br><img SRC="id2.gif" ALT="Done" height=25 width=32> QMP_status_t QMP_max_float
+(QMP_float_t* value);
+<br><img SRC="id2.gif" ALT="Done" height=25 width=32> QMP_status_t QMP_max_double
+(QMP_double_t* value);
+<br><img SRC="id2.gif" ALT="Done" height=25 width=32> QMP_status_t QMP_min_float
+(QMP_float_t* value);
+<br><img SRC="id2.gif" ALT="Done" height=25 width=32> QMP_status_t QMP_min_double
+(QMP_double_t* value);
+<br><img SRC="id2.gif" ALT="Done" height=25 width=32> QMP_status_t QMP_global_xor
+(long* value);
+<br><img SRC="id2.gif" ALT="Done" height=25 width=32> QMP_status_t QMP_wait_for_barrier
+(int millieseconds);
+<br><img SRC="id2.gif" ALT="Done" height=25 width=32> QMP_status_t
+QMP_binary_reduction (void* lbuffer, QMP_u32_t count, QMP_binary_func
+bfunc);
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp
+<img SRC="boy6.gif" ALT="Attention" height=32 width=32><font color="#FF6666">
+Implemented in QMP GM, but not yet implemented in QMP MPICH.</font>
+
+<br>&nbsp;
+<ul>
+<li>
+<b>QMP Misc Utilities:</b></li>
+</ul>
+<img SRC="id2.gif" ALT="Done" height=25 width=32> const char*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+QMP_error_string (QMP_status_t code);
+<blockquote>
+<blockquote>
+<ul>
+<li>
+<i>return an error string corresponding to an error code.</i></li>
+</ul>
+</blockquote>
+</blockquote>
+<img SRC="id2.gif" ALT="Done" height=25 width=32> const QMP_status_t&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+QMP_get_error_number (QMP_msghandle_t mh);
+<br><img SRC="id2.gif" ALT="Done" height=25 width=32> const char*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+QMP_get_error_string (QMP_msghandle_t mh);
+<blockquote>
+<blockquote>
+<ul>
+<li>
+<i>return an error code or an error string for the last QMP function call.
+If the argument mh is null, the global QMP error code will be returned.
+Otherwise the error code of mh will be&nbsp; returned.</i></li>
+</ul>
+</blockquote>
+</blockquote>
+<img SRC="id2.gif" ALT="Done" height=25 width=32> int QMP_printf (const
+char* format, ...);
+<blockquote>
+<blockquote>
+<ul>
+<li>
+<i>returns processor rank and name information in addition to the regular
+printf string.</i></li>
+</ul>
+</blockquote>
+</blockquote>
+
+<img SRC="constru3.gif" ALT="Not Done" height=32 width=32> ERRFUNCPTR_t QMP_set_error_function (ERRFUNCPTR_t funcptr);
+<br>&nbsp;
+<blockquote>
+<blockquote>
+<ul>
+<li>
+<i>
+Applications may declare a message handler. If no handler is declared
+a default handler is used, which generally prints an error message and exits.
+</i></li>
+</ul>
+</blockquote>
+</blockquote>
+
+
+<ul>
+<li>
+<b>QMP Convenience Functions:</b></li>
+
+<ul>
+<li>These functions are found to be very useful in applications, but not
+specified in API documents. If they are desired by applications, they may
+appear as specified APIs.</li></ul>
+
+</ul>
+
+<br><img SRC="note02.gif" ALT="Extension" height=25 width=32> int&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+QMP_fprintf&nbsp; (FILE* stream, const char* formant,...);
+
+<br><img SRC="note02.gif" ALT="Extension" height=25 width=32> int&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+QMP_info&nbsp; (const char* formant,...);
+
+<br><img SRC="note02.gif" ALT="Extension" height=25 width=32> int&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+QMP_error&nbsp; (const char* formant,...);
+
+<br><img SRC="note02.gif" ALT="Extension" height=25 width=32> void&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+QMP_error_exit&nbsp; (const char* formant,...);
+<blockquote>
+<blockquote>
+<ul>
+<li>
+<i>
+Reports error messages and quits.
+</i></li>
+</ul>
+</blockquote>
+</blockquote>
+
+<br><img SRC="note02.gif" ALT="Extension" height=25 width=32> void&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+QMP_fatal&nbsp; (QMP_u32_t rank,  const char* formant,...);
+
+
+<br><img SRC="note02.gif" ALT="Extension" height=25 width=32> QMP_bool_t&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+QMP_is_primary_node&nbsp; (void);
+<blockquote>
+<blockquote>
+<ul>
+<li>
+<i>
+Returns whether this process is the root of QMP communication.
+</i></li>
+</ul>
+</blockquote>
+</blockquote>
+
+
+<ul>
+<li>
+<b>QMP Performance:</b></li>
+</ul>
+
+<blockquote>This version of QMP puts little overhead on top of GM. The
+latency and bandwidth tests between 2 nodes yield roughly the same performance
+results between QMP and raw GM.</blockquote>
+
+</body>
+</html>

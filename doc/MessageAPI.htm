@@ -1,0 +1,1827 @@
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:w="urn:schemas-microsoft-com:office:word"
+xmlns:st1="urn:schemas-microsoft-com:office:smarttags"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 10">
+<meta name=Originator content="Microsoft Word 10">
+<link rel=File-List href="MessageAPI_files/filelist.xml">
+<title>LQCD Message Passing API</title>
+<o:SmartTagType namespaceuri="urn:schemas-microsoft-com:office:smarttags"
+ name="date"/>
+<!--[if gte mso 9]><xml>
+ <o:DocumentProperties>
+  <o:Author>Chip Watson</o:Author>
+  <o:Template>Normal</o:Template>
+  <o:LastAuthor>Jie Chen</o:LastAuthor>
+  <o:Revision>2</o:Revision>
+  <o:TotalTime>329</o:TotalTime>
+  <o:LastPrinted>2002-02-02T19:06:00Z</o:LastPrinted>
+  <o:Created>2002-11-13T20:36:00Z</o:Created>
+  <o:LastSaved>2002-11-13T20:36:00Z</o:LastSaved>
+  <o:Pages>1</o:Pages>
+  <o:Words>4060</o:Words>
+  <o:Characters>23145</o:Characters>
+  <o:Company>SURA / Jefferson Lab</o:Company>
+  <o:Lines>192</o:Lines>
+  <o:Paragraphs>54</o:Paragraphs>
+  <o:CharactersWithSpaces>27151</o:CharactersWithSpaces>
+  <o:Version>10.2625</o:Version>
+ </o:DocumentProperties>
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <w:WordDocument>
+  <w:HideSpellingErrors/>
+  <w:ActiveWritingStyle Lang="EN-US" VendorID="64" DLLVersion="131077"
+   NLCheck="1">1</w:ActiveWritingStyle>
+  <w:ActiveWritingStyle Lang="EN-US" VendorID="64" DLLVersion="131078"
+   NLCheck="1">1</w:ActiveWritingStyle>
+  <w:SpellingState>Clean</w:SpellingState>
+  <w:GrammarState>Clean</w:GrammarState>
+  <w:BrowserLevel>MicrosoftInternetExplorer4</w:BrowserLevel>
+ </w:WordDocument>
+</xml><![endif]--><!--[if !mso]><object
+ classid="clsid:38481807-CA0E-42D2-BF39-B33AF135CC4D" id=ieooui></object>
+<style>
+st1\:*{behavior:url(#ieooui) }
+</style>
+<![endif]-->
+<style>
+<!--
+ /* Font Definitions */
+ @font-face
+	{font-family:Wingdings;
+	panose-1:5 0 0 0 0 0 0 0 0 0;
+	mso-font-charset:2;
+	mso-generic-font-family:auto;
+	mso-font-pitch:variable;
+	mso-font-signature:0 268435456 0 0 -2147483648 0;}
+@font-face
+	{font-family:Tahoma;
+	panose-1:2 11 6 4 3 5 4 4 2 4;
+	mso-font-charset:0;
+	mso-generic-font-family:swiss;
+	mso-font-pitch:variable;
+	mso-font-signature:553679495 -2147483648 8 0 66047 0;}
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin-top:3.0pt;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-language:EN-US;}
+h1
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:3.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:1;
+	font-size:16.0pt;
+	font-family:Arial;
+	mso-font-kerning:16.0pt;
+	mso-fareast-language:EN-US;}
+h2
+	{mso-style-next:Normal;
+	margin-top:3.0pt;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:0in;
+	margin-bottom:.0001pt;
+	text-align:center;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:2;
+	font-size:9.0pt;
+	mso-bidi-font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-language:EN-US;
+	font-weight:normal;
+	font-style:italic;}
+h3
+	{mso-style-next:Normal;
+	margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	mso-pagination:widow-orphan;
+	page-break-after:avoid;
+	mso-outline-level:3;
+	font-size:13.0pt;
+	font-family:Arial;
+	mso-fareast-language:EN-US;}
+p.MsoBodyTextIndent, li.MsoBodyTextIndent, div.MsoBodyTextIndent
+	{margin-top:3.0pt;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:.5in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-language:EN-US;}
+p.MsoBodyTextIndent2, li.MsoBodyTextIndent2, div.MsoBodyTextIndent2
+	{margin-top:3.0pt;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:.5in;
+	margin-bottom:.0001pt;
+	text-indent:-.5in;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-language:EN-US;}
+p.Bullet, li.Bullet, div.Bullet
+	{mso-style-name:Bullet;
+	margin-top:3.0pt;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:.5in;
+	margin-bottom:.0001pt;
+	text-indent:-.25in;
+	mso-pagination:widow-orphan;
+	mso-list:l14 level1 lfo8;
+	tab-stops:list .5in;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";
+	mso-fareast-language:EN-US;}
+span.SpellE
+	{mso-style-name:"";
+	mso-spl-e:yes;}
+span.GramE
+	{mso-style-name:"";
+	mso-gram-e:yes;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.0in .8in 1.0in;
+	mso-header-margin:.5in;
+	mso-footer-margin:.5in;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+ /* List Definitions */
+ @list l0
+	{mso-list-id:37095925;
+	mso-list-type:hybrid;
+	mso-list-template-ids:2083192334 67698703 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l0:level1
+	{mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l1
+	{mso-list-id:408161282;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-900815540 56380614 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l1:level1
+	{mso-level-tab-stop:1.25in;
+	mso-level-number-position:left;
+	margin-left:1.25in;
+	text-indent:-.25in;}
+@list l2
+	{mso-list-id:409153836;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-1436799944 -2003400326 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l2:level1
+	{mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	margin-left:1.0in;
+	text-indent:-.25in;}
+@list l3
+	{mso-list-id:547500113;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-1872833748 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l3:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l3:level2
+	{mso-level-number-format:bullet;
+	mso-level-text:o;
+	mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:"Courier New";}
+@list l4
+	{mso-list-id:686717267;
+	mso-list-type:hybrid;
+	mso-list-template-ids:2083179496 67698703 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l4:level1
+	{mso-level-tab-stop:.75in;
+	mso-level-number-position:left;
+	margin-left:.75in;
+	text-indent:-.25in;}
+@list l5
+	{mso-list-id:723260434;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-507197166 67698703 67698713 1443129448 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l5:level1
+	{mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l5:level2
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:1.0in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l5:level3
+	{mso-level-text:"\(%3\)";
+	mso-level-tab-stop:152.65pt;
+	mso-level-number-position:left;
+	margin-left:152.65pt;
+	text-indent:-53.65pt;}
+@list l6
+	{mso-list-id:803547935;
+	mso-list-type:hybrid;
+	mso-list-template-ids:30080658 67698703 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l6:level1
+	{mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l7
+	{mso-list-id:846359712;
+	mso-list-type:hybrid;
+	mso-list-template-ids:166222384 67698703 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l7:level1
+	{mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l8
+	{mso-list-id:958417310;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-219110554 67698703 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l8:level1
+	{mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l9
+	{mso-list-id:1115559928;
+	mso-list-type:hybrid;
+	mso-list-template-ids:1887370802 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l9:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.25in;
+	mso-level-number-position:left;
+	margin-left:.25in;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l10
+	{mso-list-id:1137449386;
+	mso-list-type:hybrid;
+	mso-list-template-ids:511498320 1858099624 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l10:level1
+	{mso-level-tab-stop:.75in;
+	mso-level-number-position:left;
+	margin-left:.75in;
+	text-indent:-.25in;}
+@list l11
+	{mso-list-id:1158309492;
+	mso-list-type:hybrid;
+	mso-list-template-ids:1741991624 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l11:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l12
+	{mso-list-id:1402218155;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-1182496328 -1785331622 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l12:level1
+	{mso-level-tab-stop:.75in;
+	mso-level-number-position:left;
+	margin-left:.75in;
+	text-indent:-.25in;}
+@list l13
+	{mso-list-id:1422604173;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-1643335516 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l13:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l14
+	{mso-list-id:1544294274;
+	mso-list-type:hybrid;
+	mso-list-template-ids:1172235168 -1631449312 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l14:level1
+	{mso-level-number-format:bullet;
+	mso-level-style-link:Bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	mso-ansi-font-size:8.0pt;
+	font-family:Symbol;}
+@list l15
+	{mso-list-id:1575505190;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-248346094 67698703 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l15:level1
+	{mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l16
+	{mso-list-id:1632707352;
+	mso-list-type:hybrid;
+	mso-list-template-ids:807827194 -1485921838 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l16:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:1.25in;
+	mso-level-number-position:left;
+	margin-left:1.25in;
+	text-indent:-.25in;
+	mso-ansi-font-size:8.0pt;
+	font-family:Symbol;}
+@list l17
+	{mso-list-id:1669285314;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-1842448936 -369587292 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l17:level1
+	{mso-level-tab-stop:.75in;
+	mso-level-number-position:left;
+	margin-left:.75in;
+	text-indent:-.25in;}
+@list l18
+	{mso-list-id:1746143879;
+	mso-list-type:hybrid;
+	mso-list-template-ids:533634216 67698703 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l18:level1
+	{mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l19
+	{mso-list-id:1888292908;
+	mso-list-type:hybrid;
+	mso-list-template-ids:760124046 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l19:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.25in;
+	mso-level-number-position:left;
+	margin-left:.25in;
+	text-indent:-.25in;
+	font-family:Symbol;}
+@list l20
+	{mso-list-id:1948154300;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-378372620 67698703 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l20:level1
+	{mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l21
+	{mso-list-id:2058817770;
+	mso-list-type:hybrid;
+	mso-list-template-ids:1275225822 67698703 67698713 67698715 67698703 67698713 67698715 67698703 67698713 67698715;}
+@list l21:level1
+	{mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;}
+@list l22
+	{mso-list-id:2132165114;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-551526058 67698689 67698691 67698693 67698689 67698691 67698693 67698689 67698691 67698693;}
+@list l22:level1
+	{mso-level-number-format:bullet;
+	mso-level-text:\F0B7;
+	mso-level-tab-stop:.5in;
+	mso-level-number-position:left;
+	text-indent:-.25in;
+	font-family:Symbol;}
+ol
+	{margin-bottom:0in;}
+ul
+	{margin-bottom:0in;}
+-->
+</style>
+<!--[if gte mso 10]>
+<style>
+ /* Style Definitions */
+ table.MsoNormalTable
+	{mso-style-name:"Table Normal";
+	mso-tstyle-rowband-size:0;
+	mso-tstyle-colband-size:0;
+	mso-style-noshow:yes;
+	mso-style-parent:"";
+	mso-padding-alt:0in 5.4pt 0in 5.4pt;
+	mso-para-margin:0in;
+	mso-para-margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Times New Roman";}
+</style>
+<![endif]-->
+</head>
+
+<body lang=EN-US style='tab-interval:.5in'>
+
+<div class=Section1>
+
+<h1 align=center style='text-align:center'>QMP: LQCD Message Passing API</h1>
+
+<h2>Version 1.0</h2>
+
+<h2><st1:date Month="5" Day="7" Year="2002">7-May-02</st1:date></h2>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal style='margin-top:6.0pt'>Recent Changes:</p>
+
+<p class=MsoNormal style='margin-left:.75in'>There is no longer a logical node
+number, only a node number which does not change as the logical machine is
+define. Thus there are two styles of messaging:</p>
+
+<p class=MsoNormal style='margin-left:1.25in;text-indent:-.25in;mso-list:l16 level1 lfo17;
+tab-stops:list 1.25in'><![if !supportLists]><span style='font-size:8.0pt;
+mso-bidi-font-size:12.0pt;font-family:Symbol;mso-fareast-font-family:Symbol;
+mso-bidi-font-family:Symbol'><span style='mso-list:Ignore'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]>messages are sent to a node by node number, or </p>
+
+<p class=MsoNormal style='margin-left:1.25in;text-indent:-.25in;mso-list:l16 level1 lfo17;
+tab-stops:list 1.25in'><![if !supportLists]><span style='font-size:8.0pt;
+mso-bidi-font-size:12.0pt;font-family:Symbol;mso-fareast-font-family:Symbol;
+mso-bidi-font-family:Symbol'><span style='mso-list:Ignore'>·<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]>messages are sent to a relative (logical) node.</p>
+
+<p class=MsoNormal style='margin-left:.75in'>Methods related to node numbers
+have been changed (some dropped, some added).</p>
+
+<p class=MsoNormal>________________________ </p>
+
+<h3>Introduction </h3>
+
+<p class=MsoNormal>This note presents </p>
+
+<ol style='margin-top:0in' start=1 type=1>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo11;tab-stops:list .5in'>the
+     requirements for message passing within Lattice QCD applications </li>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo11;tab-stops:list .5in'>a
+     draft message API for both C and C++ </li>
+ <li class=MsoNormal style='mso-list:l7 level1 lfo11;tab-stops:list .5in'>implementation
+     design ideas<span style='mso-spacerun:yes'>  </span></li>
+</ol>
+
+<p class=MsoNormal style='margin-top:6.0pt'>The API is intended to be
+sufficiently flexible to be used by all Lattice QCD applications, and execute
+efficiently on all existing and anticipated platforms, so that there is no need
+to directly call non-portable message passing routines. </p>
+
+<p class=MsoNormal>Because of the highly regular grid communications within
+LQCD, MPI calls (which are more general) impose some additional overhead that
+is predicted to be non-negligible for large machines. Depending upon demand, a
+subset of MPI could be implemented above this new API so that legacy codes
+which use MPI could function on the new architectures which implement (only)
+the new API.<span style='mso-spacerun:yes'>  </span>Further, the new API has
+been implemented atop MPI so that new applications using this new API can still
+be run on older machines for which only MPI is available.</p>
+
+<p class=MsoNormal>Interspersed with the API description are some descriptions
+for how the API could be implemented for myrinet clusters and the QCDOC
+machine. These are meant to more fully illustrate the functionality, and are
+not intended as the final design.</p>
+
+<p class=MsoNormal>At the time of writing, the following implementations exist:</p>
+
+<p class=Bullet style='mso-list:l0 level1 lfo15'><![if !supportLists]><span
+style='mso-list:Ignore'>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]>QMP-GM<span style='mso-tab-count:1'>        </span>Uses
+GM</p>
+
+<p class=Bullet style='margin-left:1.5in;text-indent:-1.25in;mso-list:l0 level1 lfo15'><![if !supportLists]><span
+style='mso-list:Ignore'>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]>QMP-MPI<span style='mso-tab-count:1'>       </span>Uses
+MPI; tested above MPICH-GM, MPICH-SM (shared memory), and MPICH-P4 (sockets)</p>
+
+<h3>Capability Requirements</h3>
+
+<ol style='margin-top:0in' start=1 type=1>
+ <li class=MsoNormal style='mso-list:l5 level1 lfo3;tab-stops:list .5in'>Barrier
+     call (synchronize all nodes).</li>
+ <li class=MsoNormal style='mso-list:l5 level1 lfo3;tab-stops:list .5in'>Send a
+     contiguous message to a given node (identified by a single number,
+     application manages lexicographic ordering of nodes in a grid).</li>
+ <li class=MsoNormal style='mso-list:l5 level1 lfo3;tab-stops:list .5in'>Send a
+     message to a neighboring node (direction identified by a number, with, for
+     example, magnitude of the number indicating dimension 1,2,3,… , sign of
+     the number indicating left/right; library manages mapping onto physical
+     node).</li>
+ <li class=MsoNormal style='mso-list:l5 level1 lfo3;tab-stops:list .5in'>Send
+     (receive) a non-contiguous message consisting of a set of strided blocks (for
+     each element in the set, specify base, blocksize, stride and number of
+     blocks). This capability will allow sending hypersurfaces and other
+     complicated sub-sets of data, and will map efficiently onto underlying
+     hardware that supports chained strided access, particularly the QCDOC.</li>
+ <li class=MsoNormal style='mso-list:l5 level1 lfo3;tab-stops:list .5in'>Send
+     to a machine specified by a communications map (1-to-1; machine i<span
+     style='mso-spacerun:yes'>  </span>sends to map(i)).</li>
+ <li class=MsoNormal style='mso-list:l5 level1 lfo3;tab-stops:list .5in'>Send
+     to a machine specified by its physical node number (to support “special”
+     nodes). </li>
+ <li class=MsoNormal style='mso-list:l5 level1 lfo3;tab-stops:list .5in'>Broadcast
+     a message to all nodes.</li>
+ <li class=MsoNormal style='mso-list:l5 level1 lfo3;tab-stops:list .5in'>Global
+     sum for 32 bit &amp; 64 bit floats, ints, and arrays of same.<span
+     style='mso-spacerun:yes'>  </span>Calls to do the same for complex may
+     also be provided, perhaps as a convenience routine above the array calls.</li>
+ <li class=MsoNormal style='mso-list:l5 level1 lfo3;tab-stops:list .5in'>Global
+     max for float &amp; double; global exclusive OR for int and long.</li>
+ <li class=MsoNormal style='mso-list:l5 level1 lfo3;tab-stops:list .5in'>Arbitrary
+     binary function global reduction.</li>
+ <li class=MsoNormal style='mso-list:l5 level1 lfo3;tab-stops:list .5in'>Configuration
+     discovery and control (how physical nodes of machine are arranged into a
+     logical grid).</li>
+</ol>
+
+<h3>API Design: Performance Requirements</h3>
+
+<ol style='margin-top:0in' start=1 type=1>
+ <li class=MsoNormal style='mso-list:l6 level1 lfo4;tab-stops:list .5in'>Design
+     must allow for overlapping of computation and communications.<span
+     style='mso-spacerun:yes'>  </span>Hence, initiating the send (or receive)
+     of a message must be decoupled from testing for or waiting for its
+     completion.</li>
+ <li class=MsoNormal style='mso-list:l6 level1 lfo4;tab-stops:list .5in'>Design
+     must allow for issuing multiple sends without waiting for the first to
+     complete.<span style='mso-spacerun:yes'>  </span>Example, send in all 4
+     positive directions. This is important for myrinet so that the overhead of
+     “filling the pipe” is not incurred for each message.</li>
+ <li class=MsoNormal style='mso-list:l6 level1 lfo4;tab-stops:list .5in'>Design
+     must allow initiating sends in all directions in a single call (preserve
+     hardware capability of QCDOC).</li>
+ <li class=MsoNormal style='mso-list:l6 level1 lfo4;tab-stops:list .5in'>Design
+     must avoid forcing the use of barrier calls across the whole machine when
+     all that is really needed is to wait for a single neighboring node.
+     Therefore one must be able to poll or wait for receipt of a particular
+     message, instead of using a global barrier.</li>
+ <li class=MsoNormal style='mso-list:l6 level1 lfo4;tab-stops:list .5in'>Design
+     must allow expensive operations involved in defining a communication to be
+     done ahead of invoking the communication multiple times. Example: locking
+     virtual pages in memory for use by a PCI DMA engine.</li>
+ <li class=MsoNormal style='mso-list:l6 level1 lfo4;tab-stops:list .5in'>Attempts
+     should be made to minimize bookkeeping overhead on host and any
+     intelligent interfaces.</li>
+</ol>
+
+<h3>Hardware Issues</h3>
+
+<p class=MsoNormal>A design (probably not the only one possible) that addresses
+these performance constraints is something along the lines of a zero copy
+(where possible) channel oriented I/O library. Ignoring the scatter-gather
+issue, i.e. restricting the design to contiguous messages for a moment,
+consider the following behavior:</p>
+
+<ol style='margin-top:0in' start=1 type=1>
+ <li class=MsoNormal style='mso-list:l18 level1 lfo5;tab-stops:list .5in'>Node
+     A declares an intent to (repetitively) to receive messages from node B
+     into buffer Q.<span style='mso-spacerun:yes'>  </span>At this point pages
+     are locked in memory, and physical addresses for Q are determined
+     (translate virtual addresses, as needed).<span style='mso-spacerun:yes'> 
+     </span>This defines one endpoint of a message channel B-&gt;A.</li>
+ <li class=MsoNormal style='mso-list:l18 level1 lfo5;tab-stops:list .5in'>Node
+     B declares an intent to (repetitively) send a buffer R to node A.<span
+     style='mso-spacerun:yes'>  </span>At this point R is locked in memory, and
+     physical addresses are determined. Also, whatever work is necessary to
+     compute the target destination (network address and perhaps also remote
+     memory physical address) is done.<span style='mso-spacerun:yes'> 
+     </span>This defines the sending endpoint of a message channel.</li>
+ <li class=MsoNormal style='mso-list:l18 level1 lfo5;tab-stops:list .5in'>Node
+     A initiates a receive operation for channel B-&gt;A.<span
+     style='mso-spacerun:yes'>  </span>This enables the channel and declares
+     the buffer can be written into (semaphore).</li>
+ <li class=MsoNormal style='mso-list:l18 level1 lfo5;tab-stops:list .5in'>Node
+     B initiates the send on channel B-&gt;A.</li>
+ <li class=MsoNormal style='mso-list:l18 level1 lfo5;tab-stops:list .5in'>At
+     some later time, Node A tests to see if the channel B-&gt;A has received
+     new data.</li>
+</ol>
+
+<p class=MsoNormal>Effectively, this defines a channel from B’s R to A’s Q, or
+allows B to remotely write to A’s memory in a way gated by A being ready to
+receive.</p>
+
+<p class=MsoNormal>Hardware notes: on a myrinet system, the receiving network
+interface card (NIC) can autonomously write into the receiving host’s memory,
+at an address determined by the NIC with no receiving host intervention. Also,
+send requests are queued in a FIFO, enabling one to satisfy performance
+requirement<span style='mso-spacerun:yes'>  </span>2.<span
+style='mso-spacerun:yes'>  </span>On the QCDOC, each wire has hardware for both
+send and receive.</p>
+
+<h3>Simplified API Example</h3>
+
+<p class=MsoNormal>To see how this might look, below are a few representative
+calls, written as C code.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal style='margin-top:0in'><span style='mso-spacerun:yes'>   
+</span>Host A:</p>
+
+<p class=MsoNormal style='margin-top:0in'><span style='mso-tab-count:1'>            </span>opaqueFromB
+= declareReceiveFrom (remoteNodeB, buffer,<span style='mso-spacerun:yes'> 
+</span>nbytes);</p>
+
+<p class=MsoNormal style='margin-top:0in'><span style='mso-tab-count:1'>            </span>…</p>
+
+<p class=MsoNormal style='margin-top:0in'><span style='mso-tab-count:1'>            </span>startIO
+(opaqueFromB);</p>
+
+<p class=MsoNormal style='margin-top:0in'><span style='mso-tab-count:1'>            </span>…</p>
+
+<p class=MsoNormal style='margin-top:0in'><span style='mso-tab-count:1'>            </span>testCompletion
+(opaqueFromB);</p>
+
+<p class=MsoNormal style='margin-top:0in'><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal style='margin-top:0in'><span style='mso-spacerun:yes'>   
+</span>Host B:</p>
+
+<p class=MsoNormal style='margin-top:0in;margin-right:-.5in;margin-bottom:0in;
+margin-left:0in;margin-bottom:.0001pt'><span style='mso-tab-count:1'>            </span>opaqueToA
+= declareSendTo (remoteNodeA, buffer, nbytes);</p>
+
+<p class=MsoNormal style='margin-top:0in'><span style='mso-tab-count:1'>            </span>…</p>
+
+<p class=MsoNormal style='margin-top:0in'><span style='mso-tab-count:1'>            </span>startIO(opaqueToA);</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>For myrinet, this send operation could be implemented as a
+single move instruction into a control fifo of the myrinet NIC, where the value
+moved (opaqueToA.myri) could be a pointer to a structure previously created in
+the NIC’s memory, or an index into an array of such structures.<span
+style='mso-spacerun:yes'>  </span>That structure could have a pre-digested set
+of values (resident on the myrinet card) to be moved into the PCI<span
+style='mso-spacerun:yes'>  </span>DMA engine, plus other necessary values.</p>
+
+<p class=MsoNormal>For the QCDOC, opaqueToA could be a pointer to a structure
+containing all values needed to be moved into the corresponding link’s transfer
+engine. Making some assumptions about application behavior, the send could also
+be triggered by a single move instruction to a control register, selecting one
+of several (32) possible pre-digested DMA operations.</p>
+
+<b><span style='font-size:16.0pt;font-family:Arial;mso-fareast-font-family:
+"Times New Roman";mso-font-kerning:16.0pt;mso-ansi-language:EN-US;mso-fareast-language:
+EN-US;mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always'>
+</span></b>
+
+<h1>C Message API</h1>
+
+<p class=MsoNormal>The following presents a C binding of the API; a C++ binding
+is presented in the subsequent section. This C binding hides all intermediate
+structures as opaque types through typedef’s (not shown).</p>
+
+<h3>Initialization and Layout</h3>
+
+<p class=MsoNormal>The following set of calls are used by the application to </p>
+
+<p class=Bullet style='mso-list:l21 level1 lfo16'><![if !supportLists]><span
+style='mso-list:Ignore'>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]>discover the configuration of the allocated machine and
+discover which node the current machine is (0 to N-1)</p>
+
+<p class=Bullet style='mso-list:l21 level1 lfo16'><![if !supportLists]><span
+style='mso-list:Ignore'>2.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]>configure the logical layout of the machine (number of
+boxes in each direction) subject to the constraints of the underlying allocated
+machine, and<span style='mso-spacerun:yes'>  </span>determine which node the
+current node is in the logical grid of boxes</p>
+
+<p class=Bullet style='mso-list:l21 level1 lfo16'><![if !supportLists]><span
+style='mso-list:Ignore'>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]>optimally partition the total lattice onto the logical
+machine</p>
+
+<p class=MsoNormal>The difference between the allocated layout of the machine
+and the logical layout of the machine is that the logical layout of the machine
+is meant to present to the application programmer a simple grid machine,
+convenient for use in grid applications such as lattice QCD. If, for example,
+the machine nodes are connected by a switch, in which all nodes are “adjacent”,
+the creation of a logical “view” of that machine enables one to give meaning to
+sending to the nearest neighbor in the positive X direction.<span
+style='mso-spacerun:yes'>  </span></p>
+
+<p class=MsoNormal>Defining the logical machine may on some platforms also
+“rotate” the machine.<span style='mso-spacerun:yes'>  </span>For example, if
+the allocated machine is 8x4x4x4, but you want more segmentation in the 4<sup>th</sup>
+dimension, the logical view could be converted to 4x4x4x8 by rotating the
+allocated machine.<span style='mso-spacerun:yes'>  </span>This should not be
+necessary in practice for the QCDOC, as the operating system’s allocation
+mechanism will give the requested shape as specified in the job’s parameters
+(prior to job start).<span style='mso-spacerun:yes'>  </span>Similarly,
+defaults for a switched machine could also be passed from the environment to
+this library, but in the initial implementation, it will be required that the
+application specify the desired logical machine prior to using any of the
+nearest-neighbor messaging routines.</p>
+
+<p class=MsoNormal>Laying out the logical machine will not changed the number
+(0 to N-1) of a node, so that node 0 can be treated as a special node. This
+implies that the node number can not be assumed to be the lexicographic<span
+style='mso-spacerun:yes'>  </span>position within the logical grid.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<h3>QMP C API own data types</h3>
+
+<p class=MsoNormal>In order to have better portability for QMP C
+implementation, the following data types are defined:</p>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='mso-list:l3 level1 lfo18;tab-stops:list .5in'>typedef
+     unsigned char<span style='mso-tab-count:2'>               </span>QMP_u8_t</li>
+ <li class=MsoNormal style='mso-list:l3 level1 lfo18;tab-stops:list .5in'>typedef
+     unsigned short<span style='mso-tab-count:1'>  </span>QMP_u16_t</li>
+ <li class=MsoNormal style='mso-list:l3 level1 lfo18;tab-stops:list .5in'>typedef
+     unsigned int<span style='mso-tab-count:2'>                  </span>QMP_u32_t</li>
+ <li class=MsoNormal style='mso-list:l3 level1 lfo18;tab-stops:list .5in'>typedef
+     char<span style='mso-tab-count:3'>                             </span>QMP_s8_t</li>
+ <li class=MsoNormal style='mso-list:l3 level1 lfo18;tab-stops:list .5in'>typedef
+     short<span style='mso-tab-count:3'>                            </span>QMP_s16_t</li>
+ <li class=MsoNormal style='mso-list:l3 level1 lfo18;tab-stops:list .5in'>typedef
+     int<span style='mso-tab-count:3'>                                </span>QMP_s32_t</li>
+ <li class=MsoNormal style='mso-list:l3 level1 lfo18;tab-stops:list .5in'>typedef
+     int<span style='mso-tab-count:3'>                                </span>QMP_bool_t</li>
+ <li class=MsoNormal style='mso-list:l3 level1 lfo18;tab-stops:list .5in'>#ifdef
+     QMP_64BIT_LONG</li>
+</ul>
+
+<p class=MsoNormal style='margin-left:.5in'>typedef unsigned long<span
+style='mso-tab-count:2'>                </span>QMP_u64_t</p>
+
+<p class=MsoNormal style='margin-left:.5in'>typedef long<span style='mso-tab-count:
+3'>                              </span>QMP_s64_t</p>
+
+<p class=MsoNormal style='margin-left:.5in'>#else</p>
+
+<p class=MsoNormal style='margin-left:.5in'>typedef unsigned long long <span
+style='mso-tab-count:1'>       </span>QMP_u64_t</p>
+
+<p class=MsoNormal style='margin-left:.5in'>typedef long long<span
+style='mso-tab-count:2'>                      </span>QMP_s64_t</p>
+
+<p class=MsoNormal style='margin-left:.5in'>#endif</p>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='mso-list:l22 level1 lfo20;tab-stops:list .5in'>typedef
+     float<span style='mso-tab-count:3'>                             </span>QMP_float_t</li>
+ <li class=MsoNormal style='mso-list:l22 level1 lfo20;tab-stops:list .5in'>typedef
+     double<span style='mso-tab-count:3'>                          </span>QMP_double_t</li>
+ <li class=MsoNormal style='mso-list:l22 level1 lfo20;tab-stops:list .5in'>typedef
+     void*<span style='mso-tab-count:3'>                           </span>QMP_msgmem_t</li>
+ <li class=MsoNormal style='mso-list:l22 level1 lfo20;tab-stops:list .5in'>typedef
+     void*<span style='mso-tab-count:3'>                           </span>QMP_msghandle_t
+     </li>
+ <li class=MsoNormal style='mso-list:l22 level1 lfo20;tab-stops:list .5in'>typedef
+     int<span style='mso-tab-count:3'>                                </span>QMP_status_t</li>
+</ul>
+
+<p class=MsoNormal>In addition the following data types are enumerated data
+types:</p>
+
+<ul style='margin-top:0in' type=disc>
+ <li class=MsoNormal style='mso-list:l13 level1 lfo21;tab-stops:list .5in'>QMP_ictype_t</li>
+ <li class=MsoNormal style='mso-list:l13 level1 lfo21;tab-stops:list .5in'>QMP_smpaddr_t</li>
+</ul>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<h3>Allocated Machine</h3>
+
+<p class=MsoNormal>QMP_status_t QMP_init_msg_passing (int argc, char** argv, <span
+style='mso-spacerun:yes'> </span>QMP_smpaddr_t options);</p>
+
+<p class=MsoBodyTextIndent>initialize communications hardware (if necessary),
+and retrieve information from the environment such as number of nodes, and ID’s
+of the other nodes; </p>
+
+<p class=MsoBodyTextIndent>returns QMP_SUCCESS if success, else an error
+number; error string obtained via QMP_get_error_string()</p>
+
+<p class=MsoBodyTextIndent>options may be:</p>
+
+<p class=MsoBodyTextIndent style='margin-left:1.25in;text-indent:-.25in'>QMP_SMP_ONE_ADDRESS
+specifies that the multiple processors of an SMP are to be treated as a single
+node for addressing purposes. In this case, the application is responsible for
+using the multiple processors (the SMP node will have only one logical
+address).</p>
+
+<p class=MsoBodyTextIndent style='margin-left:1.25in;text-indent:-.25in'>QMP_SMP_MULTIPLE_ADDRESS
+specifies that the multiple processors of an SMP are to have multiple
+addresses. This mode is used when multiple copies of the application are
+executing on the SMP (no threads).</p>
+
+<p class=MsoNormal style='page-break-after:avoid'>void QMP_finalize_msg_passing
+(void);</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>            </span>free any
+allocated resources</p>
+
+<p class=MsoBodyTextIndent style='margin-left:0in'>QMP_u32_t QMP_get_SMP_count(void);</p>
+
+<p class=MsoBodyTextIndent>returns the number of processors on this node (for
+use by applications managing the SMP capabilities of the node)</p>
+
+<p class=MsoNormal style='page-break-after:avoid'>QMP_ictype_t QMP_get_msg_passing_type
+(void);</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>            </span>return<span
+style='mso-spacerun:yes'>  </span>enum QMP_SWITCH, QMP_GRID, QMP_FATTREE, …</p>
+
+<p class=MsoNormal>QMP_u32_t QMP_get_number_of_nodes (void);</p>
+
+<p class=MsoNormal style='text-indent:.5in'>return number of nodes allocated to
+this job</p>
+
+<p class=MsoNormal>QMP_u32_t QMP_get_node_number(void);</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>            </span>return the
+node number (0 to N-1) of this node</p>
+
+<p class=MsoNormal>const QMP_u32_t QMP_get_allocated_number_of_dimensions
+(void);</p>
+
+<p class=MsoNormal style='text-indent:.5in'>for a grid machine, returns number
+of dimensions in the grid for the allocated nodes;</p>
+
+<p class=MsoNormal style='text-indent:.5in'>for a switched machine, returns 0</p>
+
+<p class=MsoNormal>const QMP_u32_t * QMP_get_allocated_dimensions (void);</p>
+
+<p class=MsoNormal style='text-indent:.5in'>size of the allocated grid machine
+(returns null for switch)</p>
+
+<p class=MsoNormal>const QMP_u32_t * QMP_get_allocated_coordinates (void);</p>
+
+<p class=MsoNormal style='margin-left:.5in'>returns coordinates within machine
+grid (null for switch)</p>
+
+<h3>Logical Machine</h3>
+
+<p class=MsoNormal>The logical machine is a view of the allocated machine. This
+view can be created explicitly by the call to QMP_declare_logical_topology
+(below), or implicitly by a call to QMP_layout_grid, in the next section.
+Defining the logical machine is necessary on non-grid allocated machines (e.g.
+myrinet cluster) if the application intends to use any nearest neighbor message
+passing calls. (This requirement may be lifted when the ability to define a
+default logical machine via the job environment is implemented).</p>
+
+<p class=MsoNormal>QMP_bool_t QMP_declare_logical_topology ( const QMP_u32_t *
+dimensions, QMP_u32_t ndims);</p>
+
+<p class=MsoBodyTextIndent>forces the logical topology to be a simple grid of
+the given dimensions, if possible; returns false if it fails (if allocated
+machine topology constraints can’t support the request); this routine can only
+be called once</p>
+
+<p class=MsoBodyTextIndent>Note: It is considered an error to declare a logical
+topology which does not map one-to-one to the allocated machine.<span
+style='mso-spacerun:yes'>  </span>In particular, the number of nodes must
+match.</p>
+
+<p class=MsoBodyTextIndent><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>QMP_bool_t QMP_logical_topology_is_declared (void);</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>            </span>returns
+true if QMP_declare_logical_topology has been called (explicitly or implicitly)</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>const QMP_u32_t QMP_get_logical_number_of_dimensions (void);</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>            </span>dimensionality
+of the logical machine, not the allocated machine</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>            </span>if no
+logical topology has been forced, returns info from allocated machine</p>
+
+<p class=MsoBodyTextIndent2><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>const QMP_u32_t * QMP_get_logical_dimensions (void);</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>            </span>returns the
+dimensions of the logical machine, as set by QMP_declare_logical_topology</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>            </span>if no
+logical topology has been forced, returns info from physical machine</p>
+
+<p class=MsoNormal style='margin-left:.5in'><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>const QMP_u32_t* QMP_get_logical_coordinates (void);</p>
+
+<p class=MsoNormal style='margin-left:.5in'>returns coordinates within the
+logical machine grid; if no logical topology has been forced, returns info from
+the allocated machine</p>
+
+<p class=MsoNormal style='margin-left:.5in'><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>const QMP_u32_t QMP_get_node_number_from (QMP_u32_t *
+nodecoordinates);</p>
+
+<p class=MsoNormal style='margin-left:.5in'>returns the node number for
+messaging, given the logical coordinates of the node</p>
+
+<p class=MsoNormal style='margin-left:.5in'><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>const QMP_u32_t * QMP_get_logical_coordinates_from
+(QMP_u32_t nodenumber);</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>            </span>returns
+coordinates within the logical machine grid of the specified node</p>
+
+<p class=MsoNormal style='margin-left:.5in'><o:p>&nbsp;</o:p></p>
+
+<h3>Problem Specification</h3>
+
+<p class=MsoNormal>The following routines are convenience routines for
+subdividing the lattice onto the set of available nodes. They are not required
+for the message passing library to function.</p>
+
+<p class=MsoNormal><span style='font-size:8.0pt;mso-bidi-font-size:12.0pt'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal>void QMP_layout_grid<span style='mso-spacerun:yes'> 
+</span>(QMP_u32_t * latticeDimensions, QMP_u32_t ndims);</p>
+
+<p class=MsoBodyTextIndent2><span style='mso-tab-count:1'>            </span>computes
+optimal layout, and calls QMP_declare_logical_topology if it has not already
+been set (forced) by the application; if the logical layout has been forced,
+this routine uses it to subdivide the lattice.<span style='mso-spacerun:yes'> 
+</span>Note that this function may “rotate” the allocated machine (via the call
+to declare logical topology) to better line up with the lattice dimensions.<span
+style='mso-spacerun:yes'>  </span>I.e. the original machine’s x direction may
+change. This routine can only be called once.</p>
+
+<p class=MsoBodyTextIndent2><o:p>&nbsp;</o:p></p>
+
+<p class=MsoBodyTextIndent2 style='text-indent:0in'>For example: if the problem
+size (lattice size) is 24x24x24x32, and the machine is a switched machine of
+128 nodes, then this routine might create a logical machine of 4x4x1x8 nodes,
+yielding sub-grids of 6x6x24x4, thus collapsing one dimension into the box, and
+minimizing the communicated sub-grid surface area.<span
+style='mso-spacerun:yes'>  </span>The optimization algorithm will likely be
+machine dependent.</p>
+
+<p class=MsoBodyTextIndent2 style='text-indent:0in'><span style='font-size:
+8.0pt;mso-bidi-font-size:12.0pt'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal>const QMP_u32_t* QMP_get_subgrid_dimensions (void);</p>
+
+<p class=MsoNormal style='text-indent:.5in'>get size of lattice for this node;
+only valid if QMP_layout_grid has been called</p>
+
+<p class=MsoNormal style='text-indent:.5in'><span style='font-size:8.0pt;
+mso-bidi-font-size:12.0pt'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='page-break-after:avoid'>These convenience routines
+will typically be used in one of two fashions:</p>
+
+<p class=MsoNormal><span style='mso-spacerun:yes'>    </span>A:</p>
+
+<p class=MsoNormal style='margin-left:.75in;text-indent:-.25in;mso-list:l10 level1 lfo6;
+tab-stops:list .75in'><![if !supportLists]><span style='mso-list:Ignore'>1.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>QMP_layout_grid(..)<span
+style='mso-tab-count:2'>                      </span>// to optimally partition
+the lattice</p>
+
+<p class=MsoNormal style='margin-left:.75in;text-indent:-.25in;mso-list:l10 level1 lfo6;
+tab-stops:list .75in'><![if !supportLists]><span style='mso-list:Ignore'>2.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>QMP_get_subgrid_dimensions()<span
+style='mso-tab-count:1'>     </span>// to get the sub-lattice size</p>
+
+<p class=MsoNormal style='margin-left:225.0pt;text-indent:-189.0pt;mso-list:
+l10 level1 lfo6;tab-stops:list .75in left 3.0in'><![if !supportLists]><span
+style='mso-list:Ignore'>3.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]>QMP_get_logical_dimensions()<span style='mso-tab-count:
+1'>      </span>// to detect if any dimensions collapsed to 1 box, so as to
+avoid communications in that dimension, as in the example above</p>
+
+<p class=MsoNormal style='margin-left:.75in;text-indent:-.25in;mso-list:l10 level1 lfo6;
+tab-stops:list .75in'><![if !supportLists]><span style='mso-list:Ignore'>4.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>QMP_get_node_number()<span
+style='mso-tab-count:1'>  </span>// to find out who I am</p>
+
+<p class=MsoNormal><span style='mso-spacerun:yes'>    </span>B:</p>
+
+<p class=MsoNormal style='margin-left:225.0pt;text-indent:-189.0pt;mso-list:
+l2 level1 lfo7;tab-stops:list .75in 1.0in left 3.0in'><![if !supportLists]><span
+style='mso-list:Ignore'>1.<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span><![endif]>QMP_declare_logical_topology()<span style='mso-tab-count:
+1'>   </span>// to force a particular logical machine (e.g. a ring with all
+nodes in the time dimension, to facilitate FFT’s)</p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-list:l2 level1 lfo7;
+tab-stops:list .75in'><![if !supportLists]><span style='mso-list:Ignore'>2.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>QMP_layout_grid(..)<span
+style='mso-tab-count:2'>                      </span>// constrained, for
+example, by the ring topology</p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-list:l2 level1 lfo7;
+tab-stops:list .75in'><![if !supportLists]><span style='mso-list:Ignore'>3.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>QMP_get_subgrid_dimensions()<span
+style='mso-tab-count:1'>     </span>// (or compute them assuming the ring)</p>
+
+<p class=MsoNormal style='margin-left:1.0in;text-indent:-.5in;mso-list:l2 level1 lfo7;
+tab-stops:list .75in'><![if !supportLists]><span style='mso-list:Ignore'>4.<span
+style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>QMP_get_node_number()<span
+style='mso-tab-count:1'>  </span>// find position within the ring</p>
+
+<h3 style='page-break-before:always'>Communication Declarations</h3>
+
+<p class=MsoNormal>Currently QMP only supports one flavor of message passing.
+This flavor is meant to be highly repetitive and high performance, and uses a
+gated message channel paradigm.<span style='mso-spacerun:yes'>  </span>In this
+case messaging is done by first declaring the source and destination buffers
+and node ID (expensive part), then executing the pre-computed I/O operation on
+demand as rapidly as possible. Destinations are always known – pre-allocated
+buffers are used (no queuing and so no extra copy).<span
+style='mso-spacerun:yes'>  </span>The following functions are used to declare
+buffers and declare message operations:</p>
+
+<p class=MsoNormal><span style='font-size:8.0pt;mso-bidi-font-size:12.0pt'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><b>Declare Memory Addresses for Messages:</b></p>
+
+<p class=MsoNormal>void* QMP_allocate_aligned_memory (QMP_u32_t nbytes ); </p>
+
+<p class=MsoBodyTextIndent>allocates a buffer for messaging, optimally aligned
+(quadword, page, as appropriate for the machine); enhanced version of “malloc”</p>
+
+<p class=MsoBodyTextIndent><o:p>&nbsp;</o:p></p>
+
+<p class=MsoBodyTextIndent style='margin-left:0in'>void
+QMP_free_aligned_memory(void *);</p>
+
+<p class=MsoBodyTextIndent style='margin-left:0in'><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>QMP_msgmem_t QMP_declare_msgmem (const void * buffer,
+QMP_u32_t nbytes);</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal style='margin-right:-.5in'>QMP_msgmem_t QMP_declare_strided_msgmem
+(void * base, QMP_u32_t blksize, <span style='mso-spacerun:yes'> </span>QMP_u32_t
+nblocks, QMP_u32_t stride);</p>
+
+<p class=MsoNormal style='margin-top:3.0pt;margin-right:-.5in;margin-bottom:
+0in;margin-left:3.0in;margin-bottom:.0001pt;text-indent:.5in'><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal style='margin-top:3.0pt;margin-right:-.75in;margin-bottom:
+0in;margin-left:.5in;margin-bottom:.0001pt;text-indent:-.5in'>QMP_msgmem_t
+QMP_declare_strided_array_msgmem (void ** base, QMP_u32_t* blksize, QMP_u32_t *nblocks,
+QMP_u32_t* stride);</p>
+
+<p class=MsoNormal style='margin-top:3.0pt;margin-right:-.75in;margin-bottom:
+0in;margin-left:3.5in;margin-bottom:.0001pt'><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal style='margin-right:-.25in'>void QMP_free_msgmem
+(QMP_msgmem_t mm);</p>
+
+<p class=MsoNormal><span style='font-size:8.0pt;mso-bidi-font-size:12.0pt'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='page-break-after:avoid'><b>Declare (free) a Receive
+or Send Operation:</b></p>
+
+<p class=MsoNormal>QMP_msghandle_t QMP_declare_receive_relative (QMP_msgmem_t
+mm,<span style='mso-spacerun:yes'>  </span>QMP_s32_t dimension, QMP_s32_t sign,
+QMP_s32_t priority);</p>
+
+<p class=MsoNormal style='margin-left:.5in'>Declares an endpoint for a message
+channel operation using the remote node’s direction. dimension is an integer,
+0, 1, …, Ndimensions-1, etc., and sign is +-1 for forward and backwards.
+Priority is used to guide underlying resource allocations, where priority = 0
+is highest priority</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>QMP_msghandle_t QMP_declare_receive_from (QMP_msgmem_t mm, QMP_u32_t
+sourceNode, QMP_s32_t priority);</p>
+
+<p class=MsoNormal style='margin-left:.5in'>Declares an endpoint for a message
+channel operation using the remote node’s node number.</p>
+
+<p class=MsoBodyTextIndent2><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>QMP_msghandle_t QMP_declare_send_relative (QMP_msgmem_t mm,
+QMP_s32_t dimension, QMP_s32_t sign, QMP_s32_t priority);</p>
+
+<p class=MsoNormal style='margin-left:.5in'>Declares an endpoint (or a starting
+point) for a message channel operation using the remote node’s direction.
+dimension is an integer, 0, 1, …, Ndimensions-1, etc., and sign is +-1 for
+forward and backwards. Priority is used to guide underlying resource
+allocations, where priority = 0 is highest priority</p>
+
+<p class=MsoNormal style='margin-right:-.5in'><span style='font-size:11.0pt;
+mso-bidi-font-size:12.0pt'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal>QMP_msghandle_t QMP_declare_send_to (QMP_msgmem_t mm,
+QMP_s32_t remoteHost, QMP_s32_t priority);</p>
+
+<p class=MsoBodyTextIndent2><span style='mso-tab-count:1'>            </span>remoteHost
+is an integer [0,#nodes-1]</p>
+
+<p class=MsoBodyTextIndent2 style='margin-top:6.0pt;margin-right:0in;
+margin-bottom:6.0pt;margin-left:.5in;text-indent:0in'>If possible, the
+receive_from and send_to methods will use the same optimal communications used
+by QMP_xxx_relative routines. So, for example if the machine is a switched
+machine, or if the addressed node is in fact an adjacent node on a grid
+machine, the non-relative methods will have the same effect as the relative
+methods.</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>            </span></p>
+
+<p class=MsoNormal>void QMP_free_msghandle(QMP_msghandle_t mh);</p>
+
+<p class=MsoNormal><span style='font-size:8.0pt;mso-bidi-font-size:12.0pt'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal>If the QMP_msgmem_t is a strided memory declaration (for
+scatter or gather), and the communications hardware cannot directly support
+strided access, then the creation of the QMP_msghandle_t will also create an
+appropriately sized temporary buffer, and scatter/gather operations will then
+be performed by the CPU, with communications then being done to/from this
+hidden buffer.</p>
+
+<p class=MsoNormal><span style='font-size:8.0pt;mso-bidi-font-size:12.0pt'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal>In some cases, performance in initiating multiple sends can
+be improved by collapsing them into a single call. For this purpose, the
+following function is available and recommended (note that the actual
+implementation may simply be a loop over the individual calls):</p>
+
+<p class=MsoNormal><span style='font-size:8.0pt;mso-bidi-font-size:12.0pt'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal>QMP_msghandle_t QMP_declare_multiple (QMP_msghandle_t *
+msgh, QMP_u32_t nhandles);</p>
+
+<p class=MsoNormal><span style='font-size:8.0pt;mso-bidi-font-size:12.0pt'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal>QMP_msghandle_t’s referenced by a multiple style
+QMP_msghandle_t should not be deleted before the multiple QMP_msghandle_t is
+deleted (they may be referenced by the implementation of the multiple).</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>If a multiple operation is started, it is permissible and
+valid to wait on an individual operation using the QMP_msghandle_t used to
+construct the multiple operation.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>Any errors in declaring a send or receive will return a null
+pointer, and error info is retrieved via a separate calls:</p>
+
+<p class=MsoNormal>const char * QMP_get_error_string (QMP_msghandle_t);</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>            </span>If the
+argument is null, returns a global error string from the last operation.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>const QMP_status_t QMP_get_error_number (QMP_msghandle_t);</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>            </span>If the
+argument is null, returns a global error number from the last operation.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>const char* QMP_error_string (QMP_status_t status);</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>            </span>Return an
+error string for an error code.<span style='font-size:8.0pt;mso-bidi-font-size:
+12.0pt'><o:p></o:p></span></p>
+
+<h3>Communication Operations</h3>
+
+<p class=MsoNormal style='page-break-after:avoid'>QMP_status_t QMP_start
+(QMP_msghandle_t msgh);</p>
+
+<p class=MsoNormal><span style='mso-tab-count:1'>            </span>returns
+QMP_SUCCESS if success; can ignore return value and test for completion later</p>
+
+<p class=MsoBodyTextIndent>Implementation probably clears a flag which can be
+tested later. A Send operation is defined as complete when the data has been
+copied out of the user’s buffer, i.e. when the user is free to overwrite the
+data.</p>
+
+<p class=MsoBodyTextIndent><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>QMP_bool_t QMP_is_complete (QMP_msghandle_t msgh);</p>
+
+<p class=MsoBodyTextIndent>Implementation probably tests a flag which is set by
+the underlying library when an operation actually completes. This routine may
+also do a scatter operation if the receive buffer is strided and the underlying
+I/O hardware does not directly support strided access. </p>
+
+<p class=MsoBodyTextIndent><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>QMP_status_t QMP_wait (QMP_msghandle_t msgh);</p>
+
+<p class=MsoBodyTextIndent>This routine will internally attempt to detect and
+recover from lost messages, and time out after a very long time (e.g. 10
+minutes), returning false if the I/O was not completed.</p>
+
+<p class=MsoBodyTextIndent2><span style='mso-tab-count:1'>            </span>Possible
+implementation idea for myrinet is to have QMP_start set a flag in memory,
+which is cleared by the NIC on operation completion; QMP_is_complete then just
+tests this memory location. For QCDOC this could operate on control registers.</p>
+
+<p class=MsoBodyTextIndent2><span style='mso-tab-count:1'>            </span>For
+strided access on a non-strided access hardware machine, the<span
+style='mso-spacerun:yes'>  </span>QMP_is_complete call will detect that the hidden
+internal buffer contains the received data, and will then expand it out into
+the users strided memory.<span style='mso-spacerun:yes'>  </span>It will be
+necessary (for strided calls on a non-strided machine) for the user to call one
+of these two routines to finish the receive operation.</p>
+
+<h3>Global Operations</h3>
+
+<p class=MsoNormal>The following operations are optimized for the hardware, and
+not necessarily built upon the message passing routines above. All routines
+return a status code (0 if success), and do operations “in place”.</p>
+
+<p class=MsoNormal><span style='font-size:8.0pt;mso-bidi-font-size:12.0pt'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal>QMP_status_t QMP_sum_int (QMP_s32_t * i);</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>QMP_status_t QMP_sum_float (QMP_float_t * x);</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>QMP_status_t QMP_sum_double (QMP_double_t * x);</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>QMP_status_t QMP_sum_double_extended (QMP_double_t* x); </p>
+
+<p class=MsoNormal style='margin-left:.25in'>intermediate values kept in
+extended precision if possible</p>
+
+<p class=MsoNormal style='margin-left:.25in'><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>QMP_status_t QMP_sum_float_array (QMP_float_t * x, QMP_u32_t
+length); </p>
+
+<p class=MsoNormal style='margin-left:.25in'>operation is done “in place”</p>
+
+<p class=MsoNormal style='margin-left:.25in'><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>QMP_status_t QMP_sum_double_array (QMP_double_t * x,
+QMP_u32_t length); </p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>QMP_status_t QMP_binary_reduction (void * localvalue,
+QMP_u32_t nbytes, QMP_binary_func funcptr);</p>
+
+<p class=MsoNormal style='margin-left:.25in'>The binary function has a syntax
+like:<span style='mso-spacerun:yes'>  </span></p>
+
+<p class=MsoNormal style='margin-left:.75in;text-indent:.25in'>typedef
+void<span style='mso-spacerun:yes'>  </span>(*QMP_binary_func) (void* dest,
+void* source1, void* source2); </p>
+
+<p class=MsoNormal style='margin-left:.75in;text-indent:.25in'><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>QMP_status_t QMP_max_float (QMP_float_t * x);</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>QMP_status_t QMP_max_double (QMP_double_t * x);</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>QMP_status_t QMP_min_float (QMP_float_t * x);</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>QMP_status_t QMP_min_double (QMP_double_t * x);</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>QMP_status_t QMP_global_xor (long * lval);</p>
+
+<p class=MsoNormal>QMP_status_t QMP_broadcast (void *buf, QMP_u32_t
+nbytes);<span style='mso-spacerun:yes'>  </span></p>
+
+<p class=MsoNormal style='margin-left:.5in'>broadcast from node 0</p>
+
+<p class=MsoNormal style='margin-left:.25in'><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>QMP_status_t QMP_wait_for_barrier (QMP_s32_t milliseconds);</p>
+
+<p class=MsoNormal style='margin-left:.5in'>Wait for a barrier up to timeout
+value in milliseconds. Return either success or timeout.</p>
+
+<p class=MsoNormal style='margin-left:.5in'><i style='mso-bidi-font-style:normal'>Note:
+not yet use the timeout value in QMP GM implementation.<o:p></o:p></i></p>
+
+<h3>Error Handling</h3>
+
+<p class=MsoNormal>Some routines may detect potentially fatal errors (e.g.
+QMP_wait_for). A mechanism similar to signal handling is provided for these
+errors. The application may declare a message handler; if no handler is
+declared a default handler is used, which generally prints an error message and
+exits.</p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>ERRFUNCPTR_t QMP_set_error_function (ERRFUNCPTR_t funcptr);</p>
+
+<h3>QMP Status Code</h3>
+
+<p class=MsoNormal>The following QMP status code are suggestions and currently
+used in our sample implementations.</p>
+
+<p class=MsoNormal><i style='mso-bidi-font-style:normal'><span
+style='font-size:10.0pt'>QMP_SUCCESS = 0<o:p></o:p></span></i></p>
+
+<p class=MsoNormal><i style='mso-bidi-font-style:normal'><span
+style='font-size:10.0pt'>QMP_ERROR = 0x1001<o:p></o:p></span></i></p>
+
+<p class=MsoNormal><i style='mso-bidi-font-style:normal'><span
+style='font-size:10.0pt'>QMP_NOT_INITED<o:p></o:p></span></i></p>
+
+<p class=MsoNormal><i style='mso-bidi-font-style:normal'><span
+style='font-size:10.0pt'>QMP_RTENV_ERR<o:p></o:p></span></i></p>
+
+<p class=MsoNormal><i style='mso-bidi-font-style:normal'><span
+style='font-size:10.0pt'>QMP_CPUINFO_ERR<o:p></o:p></span></i></p>
+
+<p class=MsoNormal><i style='mso-bidi-font-style:normal'><span
+style='font-size:10.0pt'>QMP_NODEINFO_ERR<o:p></o:p></span></i></p>
+
+<p class=MsoNormal><i style='mso-bidi-font-style:normal'><span
+style='font-size:10.0pt'>QMP_NOMEM_ERR<o:p></o:p></span></i></p>
+
+<p class=MsoNormal><i style='mso-bidi-font-style:normal'><span
+style='font-size:10.0pt'>QMP_MEMSIZE_ERR<o:p></o:p></span></i></p>
+
+<p class=MsoNormal><i style='mso-bidi-font-style:normal'><span
+style='font-size:10.0pt'>QMP_HOSTNAME_ERR<o:p></o:p></span></i></p>
+
+<p class=MsoNormal><i style='mso-bidi-font-style:normal'><span
+style='font-size:10.0pt'>QMP_INITSVC_ERR<o:p></o:p></span></i></p>
+
+<p class=MsoNormal><i style='mso-bidi-font-style:normal'><span
+style='font-size:10.0pt'>QMP_TOPOLOGY_EXISTS<o:p></o:p></span></i></p>
+
+<p class=MsoNormal><i style='mso-bidi-font-style:normal'><span
+style='font-size:10.0pt'>QMP_CH_TIMEOUT<o:p></o:p></span></i></p>
+
+<p class=MsoNormal><i style='mso-bidi-font-style:normal'><span
+style='font-size:10.0pt'>QMP_NOTSUPPORTED<o:p></o:p></span></i></p>
+
+<p class=MsoNormal><i style='mso-bidi-font-style:normal'><span
+style='font-size:10.0pt'>QMP_SVC_BUSY<o:p></o:p></span></i></p>
+
+<p class=MsoNormal><i style='mso-bidi-font-style:normal'><span
+style='font-size:10.0pt'>QMP_BAD_MESSAGE<o:p></o:p></span></i></p>
+
+<p class=MsoNormal><i style='mso-bidi-font-style:normal'><span
+style='font-size:10.0pt'>QMP_INVALID_ARG<o:p></o:p></span></i></p>
+
+<p class=MsoNormal><i style='mso-bidi-font-style:normal'><span
+style='font-size:10.0pt'>QMP_INVALID_TOPOLOGY<o:p></o:p></span></i></p>
+
+<p class=MsoNormal><i style='mso-bidi-font-style:normal'><span
+style='font-size:10.0pt'>QMP_NONEIGHBOR_INFO<o:p></o:p></span></i></p>
+
+<p class=MsoNormal><i style='mso-bidi-font-style:normal'><span
+style='font-size:10.0pt'>QMP_MEMSIZE_TOOBIG<o:p></o:p></span></i></p>
+
+<p class=MsoNormal><i style='mso-bidi-font-style:normal'><span
+style='font-size:10.0pt'>QMP_BAD_MEMORY<o:p></o:p></span></i></p>
+
+<p class=MsoNormal><i style='mso-bidi-font-style:normal'><span
+style='font-size:10.0pt'>QMP_NO_PORTS<o:p></o:p></span></i></p>
+
+<p class=MsoNormal><i style='mso-bidi-font-style:normal'><span
+style='font-size:10.0pt'>QMP_NODE_OUTRANGE<o:p></o:p></span></i></p>
+
+<p class=MsoNormal><i style='mso-bidi-font-style:normal'><span
+style='font-size:10.0pt'>QMP_CHDEF_ERR<o:p></o:p></span></i></p>
+
+<p class=MsoNormal><i style='mso-bidi-font-style:normal'><span
+style='font-size:10.0pt'>QMP_MEMUSED_ERR<o:p></o:p></span></i></p>
+
+<p class=MsoNormal><i style='mso-bidi-font-style:normal'><span
+style='font-size:10.0pt'>QMP_INVALID_OP<o:p></o:p></span></i></p>
+
+<p class=MsoNormal><i style='mso-bidi-font-style:normal'><span
+style='font-size:10.0pt'>QMP_TIMEOUT<o:p></o:p></span></i></p>
+
+<p class=MsoNormal><o:p>&nbsp;</o:p></p>
+
+<p class=MsoNormal>A QMP status returned by a QMP function may be the status
+code defined above or may be status codes defined by underlying services such
+as GM or MPI. Nevertheless the QMP_error_string (QMP_status_t status) will
+return corresponding error string for all status codes.</p>
+
+<h1 style='page-break-before:always'>C++ Message API</h1>
+
+<p class=MsoNormal>The following presents a C++ binding of the proposed API. </p>
+
+<p class=Bullet><![if !supportLists]><span style='font-size:8.0pt;mso-bidi-font-size:
+12.0pt;font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-family:
+Symbol'><span style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]>All classes are defined within the namespace
+QMP::</p>
+
+<p class=Bullet><![if !supportLists]><span style='font-size:8.0pt;mso-bidi-font-size:
+12.0pt;font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-family:
+Symbol'><span style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]>Object definitions are not shown, and may be
+implementation dependent.</p>
+
+<p class=Bullet><![if !supportLists]><span style='font-size:8.0pt;mso-bidi-font-size:
+12.0pt;font-family:Symbol;mso-fareast-font-family:Symbol;mso-bidi-font-family:
+Symbol'><span style='mso-list:Ignore'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]>Names of methods are similar to the C binding
+(with different naming convention), and discussion details are omitted (see
+section above).</p>
+
+<h3>Machine Initialization and Layout</h3>
+
+<p class=MsoNormal>These operations will be handled by a single class with<span
+style='mso-spacerun:yes'>  </span>methods, 1-to-1 mapped onto the corresponding
+functions in the C API:<span style='font-size:8.0pt;mso-bidi-font-size:12.0pt'><o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:11.0pt;mso-bidi-font-size:12.0pt'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:11.0pt;mso-bidi-font-size:12.0pt'>namespace
+QMP {<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:11.0pt;mso-bidi-font-size:12.0pt'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span style='font-size:11.0pt;
+mso-bidi-font-size:12.0pt'>void init (bool collapseSMP);<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span style='font-size:11.0pt;
+mso-bidi-font-size:12.0pt'>void finalize (void);<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span style='font-size:11.0pt;
+mso-bidi-font-size:12.0pt'>int getSMPcount();<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span style='font-size:11.0pt;
+mso-bidi-font-size:12.0pt'>int getType (void) const;<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span style='font-size:11.0pt;
+mso-bidi-font-size:12.0pt'>int getNumberOfNodes (void) const;<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span class=GramE><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'>int</span></span><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'> getNodeNumber (void) const;<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span class=SpellE><span
+class=GramE><span style='font-size:11.0pt;mso-bidi-font-size:12.0pt'>int</span></span></span><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'> <span class=SpellE>getAllocatedNumberOfDimensions</span>
+(void) const;<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span class=GramE><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'>const</span></span><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'> <span class=SpellE>int</span>
+* <span class=SpellE>getAllocatedDimensions</span> (void) const;<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span class=GramE><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'>const</span></span><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'> <span class=SpellE>int</span>
+* <span class=SpellE>getAllocatedCoordinates</span> (void) const;<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span style='font-size:11.0pt;
+mso-bidi-font-size:12.0pt'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span class=SpellE><span
+class=GramE><span style='font-size:11.0pt;mso-bidi-font-size:12.0pt'>bool</span></span></span><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'> <span class=SpellE>declareLogicalTopology</span>
+(const <span class=SpellE>int</span> * dimensions, <span class=SpellE>int</span>
+<span class=SpellE>ndims</span>);<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span class=SpellE><span
+class=GramE><span style='font-size:11.0pt;mso-bidi-font-size:12.0pt'>bool</span></span></span><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'> <span class=SpellE>logicalTopologyIsDeclared</span>
+(void) const;<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span class=SpellE><span
+class=GramE><span style='font-size:11.0pt;mso-bidi-font-size:12.0pt'>int</span></span></span><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'> <span class=SpellE>getLogicalNumberOfDimensions</span>
+(void) const;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:11.0pt;mso-bidi-font-size:12.0pt'><span
+style='mso-tab-count:1'>            </span><span class=GramE>const</span> <span
+class=SpellE>int</span> * <span class=SpellE>getLogicalDimensions</span> (void)
+const;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:11.0pt;mso-bidi-font-size:12.0pt'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span class=GramE><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'>const</span></span><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'> <span class=SpellE>int</span>
+* <span class=SpellE>getLogicalCoordinates</span> (void) const;<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span class=SpellE><span
+class=GramE><span style='font-size:11.0pt;mso-bidi-font-size:12.0pt'>int</span></span></span><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'> <span class=SpellE>getLogicalNodeNumber</span>
+(<span class=SpellE>int</span> * <span class=SpellE>nodecoordinates</span>);<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span class=GramE><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'>const</span></span><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'> <span class=SpellE>int</span>
+* <span class=SpellE>getLogicalCoordinates</span> (<span class=SpellE>int</span>
+<span class=SpellE>nodenumber</span>) const;<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-left:.5in'><span style='font-size:11.0pt;
+mso-bidi-font-size:12.0pt'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span style='font-size:11.0pt;
+mso-bidi-font-size:12.0pt'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span class=GramE><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'>void</span></span><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'> <span class=SpellE>layoutGrid</span><span
+style='mso-spacerun:yes'>  </span>(const <span class=SpellE>int</span> * <span
+class=SpellE>latticeDimensions</span>, <span class=SpellE>int</span> <span
+class=SpellE>ndims</span>);<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span class=GramE><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'>const</span></span><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'> <span class=SpellE>int</span>
+* <span class=SpellE>getSubGridDimensions</span> (void) const;<span
+style='mso-spacerun:yes'>  </span><o:p></o:p></span></p>
+
+<b><span style='font-size:13.0pt;font-family:Arial;mso-fareast-font-family:
+"Times New Roman";mso-ansi-language:EN-US;mso-fareast-language:EN-US;
+mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always'>
+</span></b>
+
+<h3>Communication </h3>
+
+<p class=MsoNormal><span style='font-size:11.0pt;mso-bidi-font-size:12.0pt'><span
+style='mso-spacerun:yes'>    </span><span class=GramE>class</span> <span
+class=SpellE>AlignedBuffer</span>{<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:11.0pt;mso-bidi-font-size:12.0pt'><span
+style='mso-tab-count:1'>            </span><span class=SpellE>AlignedBuffer</span>
+(<span class=SpellE>int</span> <span class=SpellE>nbytes</span>);<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:11.0pt;mso-bidi-font-size:12.0pt'><span
+style='mso-tab-count:1'>            </span><span class=GramE>const</span> void
+* <span class=SpellE>getBuffer</span>();<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:11.0pt;mso-bidi-font-size:12.0pt'><span
+style='mso-tab-count:1'>            </span><span class=SpellE><span
+class=GramE>int</span></span> <span class=SpellE>getLength</span>();<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:11.0pt;mso-bidi-font-size:12.0pt'><span
+style='mso-spacerun:yes'>    </span>}<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:11.0pt;mso-bidi-font-size:12.0pt'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='page-break-after:avoid'><span style='font-size:11.0pt;
+mso-bidi-font-size:12.0pt'><span style='mso-spacerun:yes'>    </span><span
+class=GramE>class</span> <span class=SpellE>MessageMemory</span> {<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span class=SpellE><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'>MessageMemory</span></span><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'> (const <span class=SpellE>AlignedBuffer</span>
+<span class=SpellE>ab</span>);<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span class=SpellE><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'>MessageMemory</span></span><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'> (const void * buffer, <span
+class=SpellE>int</span> <span class=SpellE>nbytes</span>);<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span class=SpellE><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'>MessageMemory</span></span><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'> (const void * base, <span
+class=SpellE>int</span> <span class=SpellE>blksize</span>, <span class=SpellE>int</span>
+<span class=SpellE>nblocks</span>, <span class=SpellE>int</span> stride);<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-right:-9.0pt;text-indent:.5in'><span
+class=SpellE><span style='font-size:11.0pt;mso-bidi-font-size:12.0pt'>MessageMemory</span></span><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'> (const void ** base, const <span
+class=SpellE>int</span> * <span class=SpellE>blksize</span>, const <span
+class=SpellE>int</span>* <span class=SpellE>nblocks</span>, const <span
+class=SpellE>int</span> * stride);<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-right:-9.0pt'><span style='font-size:11.0pt;
+mso-bidi-font-size:12.0pt'><span style='mso-spacerun:yes'>    </span>}<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-right:-9.0pt'><span style='font-size:11.0pt;
+mso-bidi-font-size:12.0pt'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:11.0pt;mso-bidi-font-size:12.0pt'><span
+style='mso-spacerun:yes'>    </span><span class=GramE>class</span> <span
+class=SpellE>MessageOperation</span> {<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span class=GramE><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'>void</span></span><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'> start();<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span class=SpellE><span
+class=GramE><span style='font-size:11.0pt;mso-bidi-font-size:12.0pt'>bool</span></span></span><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'> <span class=SpellE>isComplete</span>();<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span class=SpellE><span
+class=GramE><span style='font-size:11.0pt;mso-bidi-font-size:12.0pt'>bool</span></span></span><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'> wait();<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span class=GramE><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'>const</span></span><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'> char * <span class=SpellE>getErrorString</span>
+(void);<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span class=SpellE><span
+class=GramE><span style='font-size:11.0pt;mso-bidi-font-size:12.0pt'>int</span></span></span><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'> <span class=SpellE>getErrorNumber</span>
+(void) const;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:11.0pt;mso-bidi-font-size:12.0pt'><span
+style='mso-spacerun:yes'>    </span>}<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:11.0pt;mso-bidi-font-size:12.0pt'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:11.0pt;mso-bidi-font-size:12.0pt'><span
+style='mso-spacerun:yes'>    </span><span class=GramE>class</span> <span
+class=SpellE>ReceiveOperation</span> : <span class=SpellE>MessageOperation</span>
+{<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-right:-9.0pt;text-indent:.5in'><span
+class=SpellE><span style='font-size:11.0pt;mso-bidi-font-size:12.0pt'>ReceiveOperation</span></span><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'> (<span class=SpellE>MessageMemory</span>
+mm, <span class=SpellE>int</span> dimension, <span class=SpellE>int</span>
+sign);<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-right:-9.0pt;text-indent:.5in'><span
+class=SpellE><span style='font-size:11.0pt;mso-bidi-font-size:12.0pt'>ReceiveOperation</span></span><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'> (<span class=SpellE>MessageMemory</span>
+mm, <span class=SpellE>int</span> <span class=SpellE>remoteHost</span>);<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-right:-9.0pt'><span style='font-size:11.0pt;
+mso-bidi-font-size:12.0pt'><span style='mso-spacerun:yes'>    </span>}<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-right:-9.0pt'><span style='font-size:11.0pt;
+mso-bidi-font-size:12.0pt'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='margin-right:-9.0pt'><span style='font-size:11.0pt;
+mso-bidi-font-size:12.0pt'><span style='mso-spacerun:yes'>    </span><span
+class=GramE>class</span> <span class=SpellE>SendOperation</span> : <span
+class=SpellE>MessageOperation</span> {<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-right:-.5in;text-indent:.5in'><span
+class=SpellE><span style='font-size:11.0pt;mso-bidi-font-size:12.0pt'>SendOperation</span></span><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'> (<span class=SpellE>MessageMemory</span>
+mm, <span class=SpellE>int</span> dimension, <span class=SpellE>int</span>
+sign);<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span class=SpellE><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'>SendOperation</span></span><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'> (<span class=SpellE>MessageMemory</span>
+mm, <span class=SpellE>int</span> <span class=SpellE>remoteHost</span>);<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span style='font-size:11.0pt;
+mso-bidi-font-size:12.0pt'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='margin-right:-.5in'><span style='font-size:11.0pt;
+mso-bidi-font-size:12.0pt'><span style='mso-spacerun:yes'>    </span>}<o:p></o:p></span></p>
+
+<p class=MsoNormal style='margin-right:-.5in'><span style='font-size:11.0pt;
+mso-bidi-font-size:12.0pt'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal style='margin-right:-.5in'><span style='font-size:11.0pt;
+mso-bidi-font-size:12.0pt'><span style='mso-spacerun:yes'>    </span><span
+class=GramE>class</span> <span class=SpellE>MultiOperation</span> : <span
+class=SpellE>MessageOperation</span> {<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span class=SpellE><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'>MessageOperation</span></span><span
+style='font-size:11.0pt;mso-bidi-font-size:12.0pt'> (const <span class=SpellE>MessageOperation</span>
+* <span class=SpellE>msgops</span>, <span class=SpellE>int</span> <span
+class=SpellE>nmsgops</span>);<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:11.0pt;mso-bidi-font-size:12.0pt'><span
+style='mso-spacerun:yes'>    </span>}<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:11.0pt;mso-bidi-font-size:12.0pt'><o:p>&nbsp;</o:p></span></p>
+
+<b><span style='font-size:13.0pt;font-family:Arial;mso-fareast-font-family:
+"Times New Roman";mso-ansi-language:EN-US;mso-fareast-language:EN-US;
+mso-bidi-language:AR-SA'><br clear=all style='page-break-before:always'>
+</span></b>
+
+<h3>Global Operations</h3>
+
+<p class=MsoNormal><span style='font-size:11.0pt;mso-bidi-font-size:12.0pt'><span
+style='mso-spacerun:yes'>    </span><span class=GramE>class</span> Global {<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span style='font-size:11.0pt;
+mso-bidi-font-size:12.0pt'><span style='mso-spacerun:yes'> </span><span
+class=SpellE><span class=GramE>int</span></span> <span class=SpellE>sumInt</span>
+(<span class=SpellE>int</span> * <span class=SpellE>i</span>);<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span style='font-size:11.0pt;
+mso-bidi-font-size:12.0pt'><span style='mso-spacerun:yes'> </span><span
+class=SpellE><span class=GramE>int</span></span> <span class=SpellE>sumFloat</span>
+(float * x);<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span style='font-size:11.0pt;
+mso-bidi-font-size:12.0pt'><span style='mso-spacerun:yes'> </span><span
+class=SpellE><span class=GramE>int</span></span> <span class=SpellE>sumDouble</span>
+(double * x);<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span style='font-size:11.0pt;
+mso-bidi-font-size:12.0pt'><span style='mso-spacerun:yes'> </span><span
+class=SpellE><span class=GramE>int</span></span> <span class=SpellE>sumDoubleExtended</span>
+(double * x);<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span style='font-size:11.0pt;
+mso-bidi-font-size:12.0pt'><span style='mso-spacerun:yes'> </span><span
+class=SpellE><span class=GramE>int</span></span> <span class=SpellE>sumFloatArray</span>
+(float * x, <span class=SpellE>int</span> length);<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span style='font-size:11.0pt;
+mso-bidi-font-size:12.0pt'><span style='mso-spacerun:yes'> </span><span
+class=SpellE><span class=GramE>int</span></span> <span class=SpellE>sumDoubleArray</span>
+(double * x, <span class=SpellE>int</span> length);<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span style='font-size:11.0pt;
+mso-bidi-font-size:12.0pt'><span style='mso-spacerun:yes'> </span><span
+class=SpellE><span class=GramE>int</span></span> <span class=SpellE>binaryReduction</span>
+(void * <span class=SpellE>localvalue</span>, <span class=SpellE>int</span> <span
+class=SpellE>nbytes</span>, BINARYFUNCPTR <span class=SpellE>funcptr</span>);<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span style='font-size:11.0pt;
+mso-bidi-font-size:12.0pt'><span style='mso-spacerun:yes'> </span><span
+class=SpellE><span class=GramE>int</span></span> <span class=SpellE>maxFloat</span>(float
+* x);<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span style='font-size:11.0pt;
+mso-bidi-font-size:12.0pt'><span style='mso-spacerun:yes'> </span><span
+class=SpellE><span class=GramE>int</span></span> <span class=SpellE>maxDouble</span>(double
+* x);<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span style='font-size:11.0pt;
+mso-bidi-font-size:12.0pt'><span style='mso-spacerun:yes'> </span><span
+class=SpellE><span class=GramE>int</span></span> <span class=SpellE>minFloat</span>(float
+* x);<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span style='font-size:11.0pt;
+mso-bidi-font-size:12.0pt'><span style='mso-spacerun:yes'> </span><span
+class=SpellE><span class=GramE>int</span></span> <span class=SpellE>minDouble</span>(double
+* x);<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span style='font-size:11.0pt;
+mso-bidi-font-size:12.0pt'><span style='mso-spacerun:yes'> </span><span
+class=SpellE><span class=GramE>int</span></span> <span class=SpellE>globalXor</span>
+(long * <span class=SpellE>lval</span>);<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span style='font-size:11.0pt;
+mso-bidi-font-size:12.0pt'><span style='mso-spacerun:yes'> </span><span
+class=SpellE><span class=GramE>int</span></span> broadcast (void *<span
+class=SpellE>buf</span>, <span class=SpellE>int</span> <span class=SpellE>nbytes</span>);<o:p></o:p></span></p>
+
+<p class=MsoNormal style='text-indent:.5in'><span style='font-size:11.0pt;
+mso-bidi-font-size:12.0pt'><span style='mso-spacerun:yes'> </span><span
+class=SpellE><span class=GramE>int</span></span> <span class=SpellE>waitForBarrier</span>
+(<span class=SpellE>int</span> milliseconds);<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:11.0pt;mso-bidi-font-size:12.0pt'><span
+style='mso-spacerun:yes'>    </span>}<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:11.0pt;mso-bidi-font-size:12.0pt'><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:11.0pt;mso-bidi-font-size:12.0pt'>}
+// namespace<o:p></o:p></span></p>
+
+<p class=MsoNormal><span style='font-size:11.0pt;mso-bidi-font-size:12.0pt'><o:p>&nbsp;</o:p></span></p>
+
+</div>
+
+</body>
+
+</html>
