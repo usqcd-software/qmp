@@ -104,14 +104,12 @@ QMP_MPI_SRC = QMP_comm_mpi.c \
 
 libqmp_a_CFLAGS = @QMP_COMMS_CFLAGS@
 
-include_HEADERS = qmp.h
+include_HEADERS = qmp.h qmp.hpp
 
 @QMP_GM_TRUE@libqmp_a_SOURCES = $(QMP_GENERIC_SRC) $(QMP_GM_SRC)
 @QMP_MPI_TRUE@libqmp_a_SOURCES = $(QMP_GENERIC_SRC) $(QMP_MPI_SRC)
 @QMP_GM_TRUE@EXTRA_libqmp_a_SOURCES = $(QMP_MPI_SRC)
 @QMP_MPI_TRUE@EXTRA_libqmp_a_SOURCES = $(QMP_GM_SRC)
-
-EXTRA_DIST = qmp.hpp
 
 #
 # The QMP_run script -- this will also get installed into the ./bin directory

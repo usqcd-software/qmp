@@ -20,6 +20,7 @@ QMP_MPI_SRC = QMP_comm_mpi.c \
 
 libqmp_a_CFLAGS  = @QMP_COMMS_CFLAGS@
 
+## GTF: if qmp.hpp needs to end up in @prefix@/include, then add it here
 include_HEADERS = qmp.h
 
 if QMP_GM
@@ -32,9 +33,10 @@ if QMP_MPI
   EXTRA_libqmp_a_SOURCES = $(QMP_GM_SRC)
 endif
 
-## GTF: I don't think qmp.hpp is currently useable, but we might as well
-## have it go along for the ride until it becomes useable.
-EXTRA_DIST = qmp.hpp
+## GTF: if qmp.hpp is just going along for the ride in the dist until it proves
+## to be useful but is not currently not to be installed anywhere, put it here.
+EXTRA_DIST=qmp.hpp
+
 
 #
 # The QMP_run script -- this will also get installed into the ./bin directory

@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.2  2003/02/13 16:37:55  chen
+ *   add qmp.hpp remove qmp.hh
+ *
  *   Revision 1.1  2003/02/13 16:22:24  chen
  *   qmp version 1.2
  *
@@ -713,7 +716,7 @@ extern QMP_u32_t        QMP_get_number_of_subgrid_sites (void);
 #ifdef __cplusplus
 }
 
-#include "qmp.hpp"
+/* #include "qmp.hpp" */
 
 #endif
 
