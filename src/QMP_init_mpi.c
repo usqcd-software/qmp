@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.4  2003/06/04 19:19:39  edwards
+ *   Added a QMP_abort() function.
+ *
  *   Revision 1.3  2003/02/13 16:22:23  chen
  *   qmp version 1.2
  *
@@ -488,7 +491,7 @@ QMP_get_logical_coordinates(void)
 }
 
 /* Return logical coordinate from a physical node id */
-const QMP_u32_t *
+QMP_u32_t *
 QMP_get_logical_coordinates_from (QMP_u32_t node)
 {
   QMP_u32_t logic_id;

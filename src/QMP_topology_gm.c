@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.3  2003/02/13 16:22:23  chen
+ *   qmp version 1.2
+ *
  *   Revision 1.2  2003/02/11 03:39:24  flemingg
  *   GTF: Update of automake and autoconf files to use qmp-config in lieu
  *        of qmp_build_env.sh
@@ -857,7 +860,7 @@ QMP_allocated_to_logical (QMP_u32_t node)
 /**
  * Internal function to get logical coordinate for a node.
  */
-const QMP_u32_t*   
+QMP_u32_t*   
 qmp_get_logical_coordinates_from_i (QMP_machine_t* glm, QMP_u32_t node)
 {
   QMP_topology_t* tpl;
@@ -902,7 +905,7 @@ qmp_get_logical_coordinates_from_i (QMP_machine_t* glm, QMP_u32_t node)
  *
  * This is a public function.
  */
-const QMP_u32_t*   
+QMP_u32_t*   
 QMP_get_logical_coordinates_from (QMP_u32_t node)
 {
   return qmp_get_logical_coordinates_from_i (&QMP_global_m, node);

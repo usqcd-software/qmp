@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.5  2003/07/29 15:23:48  chen
+ *   remove not used decleration
+ *
  *   Revision 1.4  2003/06/04 19:19:39  edwards
  *   Added a QMP_abort() function.
  *
@@ -337,9 +340,10 @@ extern const QMP_u32_t*   QMP_get_logical_coordinates (void);
  *
  *
  * @return a coordinate. If no logical topology declared, 
- * return information from physical geometry.
+ * return information from physical geometry. Callers should free
+ * memory of the returned pointer.
  */
-extern const QMP_u32_t*   QMP_get_logical_coordinates_from (QMP_u32_t node);
+extern QMP_u32_t*   QMP_get_logical_coordinates_from (QMP_u32_t node);
 
 /**
  * Get the node number from its logical coordinates.
