@@ -1,3 +1,4 @@
+10/08/2004:	James Osborn -- Split src directory into include and lib
 09/06/2004:	James Osborn -- Updated to API version 2 and added single node
 03/03/2003:	George Fleming -- changed 'qmp_build_env.sh' to 'qmp-config'
 12/12/2002:	George Fleming -- improved (?) automake and autoconf

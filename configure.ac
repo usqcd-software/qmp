@@ -1,7 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(qmp, 2.0.beta3, josborn@buphy.bu.edu)
+AC_INIT(qmp, 2.0.beta4, josborn@physics.bu.edu)
 AC_CONFIG_AUX_DIR(config)
-AC_CONFIG_SRCDIR(src/QMP_grid.c)
+AC_CONFIG_SRCDIR(lib/QMP_grid.c)
 AC_CONFIG_SRCDIR(examples/QMP_test.c)
 AM_INIT_AUTOMAKE
 
@@ -134,7 +134,8 @@ dnl
 dnl Part of change from 'qmp_build_env.sh' to 'qmp-config' scripts
 dnl AC_CONFIG_FILES(qmp_build_env.sh)
 AC_CONFIG_FILES(qmp-config)
-AC_CONFIG_FILES(src/Makefile)
+AC_CONFIG_FILES(include/Makefile)
+AC_CONFIG_FILES(lib/Makefile)
 AC_CONFIG_FILES(doc/Makefile)
 AC_CONFIG_FILES(examples/Makefile)
 AC_CONFIG_FILES(doc/QMPdoxyfile)

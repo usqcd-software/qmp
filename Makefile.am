@@ -2,9 +2,9 @@
 # Recurse down into src (to build the library)
 #                   examples (build examples)
 #
-SUBDIRS = src examples
-EXTRA_DIST = doc/Makefile.am doc/Makefile.in doc/QMPdoxyfile.in doc/MessageAPI.htm \
-      doc/QMP_API.html doc/QMP-1-0.doc
+SUBDIRS = include lib examples
+EXTRA_DIST = doc/Makefile.am doc/Makefile.in doc/QMPdoxyfile.in \
+             doc/MessageAPI.htm doc/QMP_API.html doc/QMP-1-0.doc
 
 #
 # The end user's configuration script

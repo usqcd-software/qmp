@@ -11,4 +11,4 @@ Incorporation of autoconf and automake into the build system was done
 by Balint Joo <bj@ph.ed.ac.uk> and George Fleming <flemingg@jlab.org>.
 
 Update to API version 2 and addition of single node target was done by
-James Osborn <osborn@physics.utah.edu>.
+James Osborn <josborn@physics.bu.edu>.
