@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.3  2003/02/13 16:22:23  chen
+ *   qmp version 1.2
+ *
  *   Revision 1.2  2003/02/11 03:39:24  flemingg
  *   GTF: Update of automake and autoconf files to use qmp-config in lieu
  *        of qmp_build_env.sh
@@ -210,6 +213,13 @@ void
 QMP_finalize_msg_passing(void)
 {
   MPI_Finalize();
+}
+
+/* Abort the program */
+void 
+QMP_abort(QMP_s32_t error_code)
+{
+  MPI_Abort(MPI_COMM_WORLD, error_code);
 }
 
 /* get number of CPUS */

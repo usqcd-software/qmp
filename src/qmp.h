@@ -17,6 +17,11 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.3  2003/02/14 03:22:25  flemingg
+ *   src/qmp.hpp is no longer #include-d by src/qmp.h #ifdef __cplusplus.
+ *   Also, since qmp.hpp doesn't need to end up in $prefix/include anymore,
+ *   moved it back to EXTRA_DIST in src/Makefile.am
+ *
  *   Revision 1.2  2003/02/13 16:37:55  chen
  *   add qmp.hpp remove qmp.hh
  *
@@ -215,6 +220,12 @@ extern QMP_status_t       QMP_init_msg_passing (int* argc, char*** argv,
  * No more message passing after this routine.
  */
 extern void               QMP_finalize_msg_passing (void);
+
+/**
+ * Shutdown QMP message passing system and abort program. The error_code may
+ * be used for the return code of the program. 
+ */
+extern void               QMP_abort (QMP_s32_t error_code);
 
 /**
  * Verbose mode of execution.

@@ -17,6 +17,10 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.4  2003/04/23 04:59:31  edwards
+ *   Ifdef protected check of MPI_ERR_WIN. Doesn't seem to be defined
+ *   on IBM's.
+ *
  *   Revision 1.3  2003/02/13 16:22:24  chen
  *   qmp version 1.2
  *
@@ -237,7 +241,8 @@ QMP_error_exit (const char* format, ...)
   va_end (argp);
 
   fprintf (stderr, "%s %s\n", info, buffer);
-  exit (1);
+
+  QMP_abort(1);
 }
 
 /**
@@ -262,9 +267,7 @@ QMP_fatal (QMP_u32_t rank, const char* format, ...)
 
   fprintf (stderr, "%s %s\n", info, buffer);
 
-  MPI_Abort(MPI_COMM_WORLD, 1);
-
-  exit(1);
+  QMP_abort(1);
 }
 
 
