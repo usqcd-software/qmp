@@ -17,6 +17,10 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.6  2003/11/04 02:14:55  edwards
+ *   Bug fix. The malloc in QMP_get_logical_coordinates_from had
+ *   an invalid argument.
+ *
  *   Revision 1.5  2003/11/04 01:04:32  edwards
  *   Changed QMP_get_logical_coordinates_from to not have const modifier.
  *   Now, user must explicitly call "free".
@@ -381,10 +385,7 @@ QMP_declare_ordered_logical_topology (const QMP_u32_t *length, QMP_u32_t rank,
   int i;
 
   for(i=0; i < rank; ++i)
-  {
-    printf("ordering[%d] = %d\n",i,ordering[i]);
     QMP_machine->ordering[i] = i;
-  }
     
   return QMP_declare_physical_topology(length, rank);
 }
