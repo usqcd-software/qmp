@@ -14,10 +14,6 @@
 
 @SET_MAKE@
 
-#
-# Toplevel Makefile.am -- Deal with source and Doc subdirctories
-#
-
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 VPATH = @srcdir@
@@ -116,9 +112,18 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 
-SUBDIRS = src doc examples
-EXTRA_DIST = doc/QMPdoxyfile.in src/QMP_run
+#
+# Recurse down into src (to build the library)
+#                   examples (build examples)
+#
+SUBDIRS = src examples
+EXTRA_DIST = doc/Makefile.am doc/Makefile.in doc/QMPdoxyfile.in doc/MessageAPI.htm \
+      doc/QMP_API.html doc/QMP-1-0.doc  src/QMP_run
 
+
+#
+# The end user's configuration script
+# 
 bin_SCRIPTS = qmp-config
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -520,6 +525,24 @@ uninstall-info: uninstall-info-recursive
 	uninstall-binSCRIPTS uninstall-info-am uninstall-info-recursive \
 	uninstall-recursive
 
+
+#
+# User explicitly has to make docs -- you may not want them
+#
+doc:
+	cd docs ; $(MAKE)
+
+doc-install: 
+	cd docs ; $(MAKE) install
+
+doc-uninstall:
+	cd docs ; $(MAKE) uninstall
+
+doc-clean:
+	cd docs ; $(MAKE) clean
+
+doc-distclean:
+	cd docs ; $(MAKE) distclean
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
