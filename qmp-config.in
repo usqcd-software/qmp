@@ -17,6 +17,7 @@ exec_prefix_set=no
 version="@VERSION@"
 
 qmp_comms_type="@QMP_COMMS_TYPE@"
+qmp_cc="@CC@"
 qmp_cflags="-I@includedir@"
 qmp_ldflags="-L@libdir@ @QMP_COMMS_LDFLAGS@"
 qmp_libs="-lqmp @QMP_COMMS_LIBS@"
@@ -30,6 +31,7 @@ Options:
   [--exec-prefix[=DIR]]
   [--version]
   [--comms]
+  [--cc]
   [--cflags]
   [--ldflags]
   [--libs]
@@ -75,6 +77,10 @@ while test $# -gt 0; do
 
     --comms)
       echo $qmp_comms_type
+      ;;
+
+    --cc)
+      echo $qmp_cc
       ;;
 
     --cflags)
