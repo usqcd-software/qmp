@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.3  2003/05/23 14:11:01  bjoo
+ *   Fixed memory leak in QMP_free_msghandle
+ *
  *   Revision 1.2  2003/02/13 16:22:23  chen
  *   qmp version 1.2
  *
@@ -60,7 +63,7 @@ QMP_memalign (QMP_u32_t size, QMP_u32_t alignment)
 void *
 QMP_allocate_aligned_memory (QMP_u32_t nbytes)
 {
-  return memalign (QMP_MEM_ALIGNMENT, nbytes);
+  return QMP_memalign (QMP_MEM_ALIGNMENT, nbytes);
 }
 
 /**
