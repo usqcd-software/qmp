@@ -18,6 +18,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.1.1.1  2003/01/27 19:31:36  chen
+ *   check into lattice group
+ *
  *   Revision 1.10  2003/01/08 20:37:47  chen
  *   Add new implementation to use one gm port
  *
@@ -983,7 +986,7 @@ extern "C"
 extern void  QMP_print_rtenv (QMP_rtenv_t rtenv, QMP_u32_t size);
 extern void  QMP_delete_topology  (QMP_topology_t *topology);
 extern void  QMP_print_topology   (QMP_topology_t* tpl);
-extern const QMP_u32_t QMP_get_logical_node_number_for_neighbor (QMP_dir_t direction);
+extern QMP_u32_t QMP_get_logical_node_number_for_neighbor (QMP_dir_t direction);
 extern QMP_phys_geometry_t *QMP_physical_from_logical (QMP_u32_t logic_rank);
 extern QMP_bool_t QMP_declare_ordered_logical_topology (const QMP_u32_t *dims, 
 							QMP_u32_t ndim, 
@@ -996,18 +999,18 @@ extern QMP_bool_t QMP_declare_ordered_logical_topology (const QMP_u32_t *dims,
  *
  * @return logical node number.
  */
-extern const QMP_u32_t    QMP_allocated_to_logical (QMP_u32_t node);
+extern QMP_u32_t          QMP_allocated_to_logical (QMP_u32_t node);
 
 /**
  * Convert a logical node number to a physical node number.
  *
  * @return a physical node number.
  */
-extern const QMP_u32_t    QMP_logical_to_allocated (QMP_u32_t logic_rank);
+extern QMP_u32_t          QMP_logical_to_allocated (QMP_u32_t logic_rank);
 
-extern const QMP_u32_t    QMP_get_logical_number_of_nodes (void);
+extern QMP_u32_t          QMP_get_logical_number_of_nodes (void);
 
-extern const QMP_u32_t    QMP_get_logical_node_number (void);
+extern QMP_u32_t          QMP_get_logical_node_number (void);
 
 extern void  QMP_print_machine_info (QMP_machine_t* glm);
 extern const QMP_rtenv_t QMP_get_machine_info (QMP_machine_t* glm,

@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.1.1.1  2003/01/27 19:31:36  chen
+ *   check into lattice group
+ *
  *   Revision 1.3  2002/07/18 18:10:24  chen
  *   Fix broadcasting bug and add several public functions
  *
@@ -82,6 +85,13 @@ get_num_cpus (void)
 
   QMP_TRACE ("get_num_cpus");
 
+  /*
+   * GTF: Using /proc/cpuinfo is totally non-portable.  Short circuit for now
+   * because QMP doesn't really use this info anyways.
+   */
+
+  return 1;
+
   fd = fopen ("/proc/cpuinfo", "r");
   if (!fd) {
     QMP_error ("cannot open /proc/cpuinfo file.");
@@ -144,14 +154,14 @@ QMP_init_machine_i (void)
 
 /* This is called by the parent */
 QMP_status_t
-QMP_init_msg_passing (int argc, char** argv, QMP_smpaddr_type_t option)
+QMP_init_msg_passing (int* argc, char*** argv, QMP_smpaddr_type_t option)
 {
   /* Basic variables containing number of nodes and which node this process is */
   int PAR_num_nodes;
   int PAR_node_rank;
   unsigned i,m;
   
-  if (MPI_Init(&argc, &argv) != MPI_SUCCESS) 
+  if (MPI_Init(argc, argv) != MPI_SUCCESS) 
     QMP_fatal (-1, "MPI_Init failed");
   if (MPI_Comm_size(MPI_COMM_WORLD, &PAR_num_nodes) != MPI_SUCCESS)
     QMP_fatal (-1, "MPI_Comm_size failed");
@@ -199,14 +209,14 @@ QMP_finalize_msg_passing(void)
 }
 
 /* get number of CPUS */
-const QMP_u32_t    
+QMP_u32_t    
 QMP_get_SMP_count (void)
 {
   return QMP_global_m.num_cpus;
 }
 
 /* return message passing type */
-const QMP_ictype_t 
+QMP_ictype_t 
 QMP_get_msg_passing_type (void)
 {
   return QMP_global_m.ic_type;
@@ -400,7 +410,7 @@ QMP_get_allocated_dimensions(void)
 }
   
 /* Return the physical size of the machine */
-const QMP_u32_t
+QMP_u32_t
 QMP_get_allocated_number_of_dimensions(void)
 {
   if (!QMP_global_m.inited) {
@@ -423,14 +433,14 @@ QMP_is_primary_node(void)
 }
 
 /* Return the lexicographic nodeid within the machine */
-const QMP_u32_t
+QMP_u32_t
 QMP_get_node_number(void)
 {
   return QMP_machine->physical_nodeid;
 }
 
 /* Return the total number of nodes within the machine */
-const QMP_u32_t
+QMP_u32_t
 QMP_get_number_of_nodes(void)
 {
   int num_nodes;
@@ -489,7 +499,7 @@ QMP_get_logical_dimensions(void)
 }
   
 /* Return the lexicographic nodeid within the machine */
-const QMP_u32_t
+QMP_u32_t
 QMP_get_logical_node_number(void)
 {
   if (QMP_global_m.ic_type == QMP_SWITCH) {
@@ -502,13 +512,13 @@ QMP_get_logical_node_number(void)
 }
 
 /* Return the physical size of the machine */
-const QMP_u32_t
+QMP_u32_t
 QMP_get_logical_number_of_dimensions(void)
 {
   return QMP_machine->dimension;
 }
 
-const QMP_u32_t 
+QMP_u32_t 
 QMP_get_logical_number_of_nodes (void)
 {
   return QMP_machine->num_nodes;
@@ -517,7 +527,7 @@ QMP_get_logical_number_of_nodes (void)
 /**
  * Returns logical node number from a physical node number.
  */
-const QMP_u32_t
+QMP_u32_t
 QMP_allocated_to_logical (QMP_u32_t node)
 {
   if (QMP_global_m.ic_type == QMP_SWITCH)
@@ -531,7 +541,7 @@ QMP_allocated_to_logical (QMP_u32_t node)
 /**
  * Return a physical node number from a logical node number.
  */
-const QMP_u32_t
+QMP_u32_t
 QMP_logical_to_allocated (QMP_u32_t logic_rank)
 {
   if (QMP_global_m.ic_type == QMP_SWITCH)
@@ -546,7 +556,7 @@ QMP_logical_to_allocated (QMP_u32_t logic_rank)
 /**
  * Return a physical node number from a logical coordinate.
  */
-const QMP_u32_t 
+QMP_u32_t 
 QMP_get_node_number_from (const QMP_u32_t* coordinates)
 {
   QMP_u32_t logic_node;

@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.1.1.1  2003/01/27 19:31:37  chen
+ *   check into lattice group
+ *
  *   Revision 1.4  2002/10/03 16:46:36  chen
  *   Add memory copy, change event loops
  *
@@ -163,7 +166,7 @@ int main (int argc, char** argv)
     verify = 1;
 
 
-  status = QMP_init_msg_passing (argc, argv, QMP_SMP_ONE_ADDRESS);
+  status = QMP_init_msg_passing (&argc, &argv, QMP_SMP_ONE_ADDRESS);
 
   if (status != QMP_SUCCESS) 
     QMP_error_exit ("QMP_init failed: %s\n", QMP_error_string(status));

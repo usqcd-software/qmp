@@ -21,7 +21,7 @@ oxydocs:
 # installed in docdir
 install-docDATA:
 	mkdir -p ${docdir}
-	mv oxydocs/* ${docdir}
+	cp -r oxydocs/* ${docdir}
 
 # Likewise a special (and rather drastic) uninstall rule
 uninstall-docDATA:

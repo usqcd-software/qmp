@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.1.1.1  2003/01/27 19:31:36  chen
+ *   check into lattice group
+ *
  *   Revision 1.3  2002/07/18 18:10:24  chen
  *   Fix broadcasting bug and add several public functions
  *
@@ -211,14 +214,14 @@ extern QMP_bool_t QMP_declare_ordered_logical_topology (const QMP_u32_t *dims,
  *
  * @return logical node number.
  */
-extern const QMP_u32_t    QMP_allocated_to_logical (QMP_u32_t node);
+extern QMP_u32_t          QMP_allocated_to_logical (QMP_u32_t node);
 
 /**
  * Convert a logical node number to a physical node number.
  *
  * @return a physical node number.
  */
-extern const QMP_u32_t    QMP_logical_to_allocated (QMP_u32_t logic_rank);
+extern QMP_u32_t          QMP_logical_to_allocated (QMP_u32_t logic_rank);
 
 #ifdef __cplusplus
 }

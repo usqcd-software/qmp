@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.1.1.1  2003/01/27 19:31:36  chen
+ *   check into lattice group
+ *
  *   Revision 1.14  2003/01/08 20:37:48  chen
  *   Add new implementation to use one gm port
  *
@@ -146,6 +149,13 @@ get_num_cpus (void)
   int   numcpu = 0;
 
   QMP_TRACE ("get_num_cpus");
+
+  /*
+   * GTF: Using /proc/cpuinfo is totally non-portable.  Short circuit for now
+   * because QMP doesn't really use this info anyways.
+   */
+
+  return 1;
 
   fd = fopen ("/proc/cpuinfo", "r");
   if (!fd) {
@@ -684,7 +694,7 @@ qmp_init_msg_passing_i (QMP_machine_t* glm,
  * total number of nodes is 20.
  */
 QMP_status_t
-QMP_init_msg_passing (int argc, char** argv,
+QMP_init_msg_passing (int* argc, char*** argv,
 		      QMP_smpaddr_type_t option)
 {
   QMP_machine_t* glm = &QMP_global_m;
@@ -817,7 +827,7 @@ QMP_verbose (QMP_bool_t verbose)
 /**
  * return smp count for this job on this box.
  */
-static const QMP_u32_t
+static QMP_u32_t
 qmp_get_SMP_count_i (QMP_machine_t* glm)
 {
   QMP_TRACE ("qmp_get_smp_count_i");
@@ -831,7 +841,7 @@ qmp_get_SMP_count_i (QMP_machine_t* glm)
 /**
  * Get smp count for this job on this box.
  */
-const QMP_u32_t
+QMP_u32_t
 QMP_get_SMP_count (void)
 {
   return qmp_get_SMP_count_i (&QMP_global_m);
@@ -852,7 +862,7 @@ qmp_get_msg_passing_type_i (QMP_machine_t* glm)
  * Return Interconnect type.
  * Currently we have switched network only.
  */
-const QMP_ictype_t 
+QMP_ictype_t 
 QMP_get_msg_passing_type (void)
 {
   return qmp_get_msg_passing_type_i (&QMP_global_m);
@@ -863,7 +873,7 @@ QMP_get_msg_passing_type (void)
  * Return number of dimensions for hardware configuration.
  * Currently we always return 0 since we have switched configuration.
  */
-static const QMP_u32_t
+static QMP_u32_t
 qmp_get_allocated_number_of_dimensions_i  (QMP_machine_t* glm)
 {
   QMP_TRACE ("qmp_get_allocated_number_of_dimensions_i");
@@ -887,7 +897,7 @@ qmp_get_allocated_number_of_dimensions_i  (QMP_machine_t* glm)
  * Return number of dimensions for hardware configuration.
  * Currently we always return 0 since we have switched configuration.
  */
-const QMP_u32_t
+QMP_u32_t
 QMP_get_allocated_number_of_dimensions  (void)
 {
   return qmp_get_allocated_number_of_dimensions_i (&QMP_global_m);
@@ -907,7 +917,8 @@ qmp_get_allocated_dimensions_i (QMP_machine_t* glm)
     exit (1);
   }
   if (glm->phys->type == QMP_SWITCH)
-    return 0;
+    return glm->tpl->size;
+/*    return 0; */
   else {
     QMP_error ("QMP supports only switched network configuration.");
     exit (1);
@@ -942,7 +953,8 @@ qmp_get_allocated_coordinates_i (QMP_machine_t* glm)
     exit (1);
   }
   if (glm->phys->type == QMP_SWITCH)
-    return 0;
+    return glm->tpl->coordinates;
+/*    return 0; */
   else {
     QMP_error ("QMP supports only switched network configuration.");
     exit (1);
@@ -969,7 +981,7 @@ QMP_get_allocated_coordinates (void)
  *
  * This number may be greater than the number of nodes a job really needs.
  */
-const QMP_u32_t
+QMP_u32_t
 qmp_get_allocated_number_of_nodes_i (QMP_machine_t* glm)
 {
   QMP_TRACE ("qmp_get_allocated_number_of_nodes_i");
@@ -995,7 +1007,7 @@ qmp_get_allocated_number_of_nodes_i (QMP_machine_t* glm)
  * This number should be the same as the number requested by
  * a logical topology.
  */
-const QMP_u32_t
+QMP_u32_t
 QMP_get_number_of_nodes (void)
 {
   return qmp_get_allocated_number_of_nodes_i (&QMP_global_m);

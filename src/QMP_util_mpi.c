@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.1.1.1  2003/01/27 19:31:36  chen
+ *   check into lattice group
+ *
  *   Revision 1.2  2002/07/18 18:10:24  chen
  *   Fix broadcasting bug and add several public functions
  *
@@ -264,7 +267,7 @@ QMP_fatal (QMP_u32_t rank, const char* format, ...)
  * This function should be used when no status
  * code is returned from a function call.
  */
-const QMP_status_t
+QMP_status_t
 QMP_get_error_number (QMP_msghandle_t mh)
 {
   if (!mh)

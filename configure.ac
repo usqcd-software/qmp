@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(qmp, 1.4, chen@jlab.org)
+AC_INIT(qmp, 1.2.0, chen@jlab.org)
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_SRCDIR(src/QMP_grid.c)
 AC_CONFIG_SRCDIR(examples/QMP_test.c)
@@ -28,14 +28,14 @@ AC_ARG_WITH(qmp-comms-type,
     [Build QMP on top of MPI or GM.  If MPI over GM is desired, choose MPI.
       Default is MPI.]),
   [case "${with_qmp_comms_type}" in
-    MPI) ;;
-    mpi) with_qmp_comms_type=MPI ;;
-    GM)  ;;
-    gm) with_qmp_comms_type=GM ;;
-    *) AC_MSG_ERROR([bad value "${with_qmp_comms_type}"
+    mpi|MPI) QMP_COMMS_TYPE=MPI ;;
+    gm|GM)   QMP_COMMS_TYPE=GM  ;;
+    *)       AC_MSG_ERROR([bad value "${with_qmp_comms_type}"
       for --with-qmp-comms-type]) ;;
     esac],
-  [with_qmp_comms_type=MPI])
+  [QMP_COMMS_TYPE=MPI])
+
+AC_SUBST(QMP_COMMS_TYPE)
 
 AC_ARG_WITH( qmp-comms-cflags,
   AC_HELP_STRING([--with-qmp-comms-cflags=QMP_COMMS_CFLAGS],
@@ -60,9 +60,9 @@ AC_ARG_WITH( qmp-comms-libs,
 
 AC_SUBST(QMP_COMMS_LIBS)
 
-# If $with_qmp_comms_type=MPI then perform the following link test
+# If $QMP_COMMS_TYPE=MPI then perform the following link test
 
-case "${with_qmp_comms_type}" in 
+case "${QMP_COMMS_TYPE}" in 
 MPI)
   PAC_MPI_LINK_CC_FUNC( ${QMP_COMMS_CFLAGS}, ${QMP_COMMS_LDFLAGS},
     ${QMP_COMMS_LIBS}, , , [mpi_link_ok=yes], [mpi_link_ok=no])
@@ -108,7 +108,8 @@ AC_ARG_ENABLE( extra-debugging,
 
 AC_ARG_ENABLE( single-gm-port,
   AC_HELP_STRING([--enable-single-gm-port],
-    [Using a single gm port to transfer messages using memory copy.  Default is yes.]),
+    [Using a single gm port to transfer messages using memory copy.
+      Default is yes.]),
   [case "${enable_single_gm_port}" in
     no)
       AC_DEFINE(_QMP_USE_MULTI_PORTS)
@@ -138,7 +139,7 @@ AC_ARG_ENABLE( quick-global-sum,
 AC_DEFINE(_QMP_IC_SWITCH)
 
 # Needed by GM variant of QMP code
-if test "X${with_qmp_comms_type}X" = "XGMX" ; then
+if test "X${QMP_COMMS_TYPE}X" = "XGMX" ; then
   AC_DEFINE(_QMP_USE_GM)
 fi
 
@@ -153,13 +154,17 @@ AM_WITH_DMALLOC
 ############################################################
 #
 
-AM_CONDITIONAL(QMP_MPI, [test "X${with_qmp_comms_type}X" = "XMPIX"])
-AM_CONDITIONAL(QMP_GM,  [test "X${with_qmp_comms_type}X" = "XGMX" ])
+AM_CONDITIONAL(QMP_MPI, [test "X${QMP_COMMS_TYPE}X" = "XMPIX"])
+AM_CONDITIONAL(QMP_GM,  [test "X${QMP_COMMS_TYPE}X" = "XGMX" ])
 
 AC_CHECK_PROG(DOXYGEN, doxygen, doxygen)
 
 AC_CONFIG_FILES(Makefile)
-AC_CONFIG_FILES(qmp_build_env.sh)
+dnl George T. Fleming, 03/03/2003
+dnl
+dnl Part of change from 'qmp_build_env.sh' to 'qmp-config' scripts
+dnl AC_CONFIG_FILES(qmp_build_env.sh)
+AC_CONFIG_FILES(qmp-config)
 AC_CONFIG_FILES(src/Makefile)
 AC_CONFIG_FILES(doc/Makefile)
 AC_CONFIG_FILES(examples/Makefile)

@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.1.1.1  2003/01/27 19:31:37  chen
+ *   check into lattice group
+ *
  *   Revision 1.1  2002/12/05 16:41:02  chen
  *   Add new global communication BufferFly algorithm
  *
@@ -63,7 +66,7 @@ main (int argc, char** argv)
   char         verify[32];
   
 
-  status = QMP_init_msg_passing (argc, argv, QMP_SMP_ONE_ADDRESS);
+  status = QMP_init_msg_passing (&argc, &argv, QMP_SMP_ONE_ADDRESS);
 
   if (status != QMP_SUCCESS) 
     QMP_error_exit ("QMP_init failed: %s\n", QMP_error_string(status));

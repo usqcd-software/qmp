@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.1.1.1  2003/01/27 19:31:37  chen
+ *   check into lattice group
+ *
  *   Revision 1.5  2003/01/08 20:37:49  chen
  *   Add new implementation to use one gm port
  *
@@ -502,7 +505,7 @@ int main (int argc, char** argv)
     exit (1);
   }
 
-  status = QMP_init_msg_passing (argc, argv, QMP_SMP_ONE_ADDRESS);
+  status = QMP_init_msg_passing (&argc, &argv, QMP_SMP_ONE_ADDRESS);
 
   if (status != QMP_SUCCESS) {
     fprintf (stderr, "QMP_init failed\n");

@@ -1,11 +1,11 @@
 QMP Authors
 ===========
 
-Most of the authorship of the code is down to people at the JLAB, and the 
-and those involved in SciDAC. Main developers are Jie Chen, Robert Edwards and
-Chip Watson.
+Main developers are Jie Chen <chen@jlab.org>, Robert Edwards <edwards@jlab.org>
+and Chip Watson <watson@jlab.org>, all at Jefferson Lab.  This software
+is part of the National Computational Infrastructure for Lattice Gauge Theory
+(http://www.lqcd.org/) so other members of the Software Committee
+made significant contributions to the QMP API design.
 
-Autoconfiscation and Automakeification is due to Balint Joo
-
-Further autotools work done by George Fleming.
-
+Incorporation of autoconf and automake into the build system was done
+by Balint Joo <bj@ph.ed.ac.uk> and George Fleming <flemingg@jlab.org>.

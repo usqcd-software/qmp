@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.1.1.1  2003/01/27 19:31:36  chen
+ *   check into lattice group
+ *
  *   Revision 1.10  2002/07/18 18:10:24  chen
  *   Fix broadcasting bug and add several public functions
  *
@@ -51,6 +54,14 @@
  */
 #ifndef _QMP_H
 #define _QMP_H
+
+/**
+ * GTF: must #include <stdio.h> so that FILE* type is declared before
+ * the QMP_fprintf() prototype below.  Previous implementation depended
+ * on the user including it before this file.
+ */
+
+#include <stdio.h>
 
 /**
  * Version Information about QCD Message Passing API.
@@ -219,7 +230,7 @@ extern "C"
  * @param option QMP_SMP_ONE_ADDRESS or QMP_SMP_MULTIPLE_ADDRES.
  * @return QMP_SUCCESS if the QMP system is initialized correctly.
  */
-extern QMP_status_t       QMP_init_msg_passing (int argc, char** argv,
+extern QMP_status_t       QMP_init_msg_passing (int* argc, char*** argv,
 						QMP_smpaddr_type_t option);
 
 /**
@@ -238,20 +249,20 @@ extern void               QMP_verbose  (QMP_bool_t verbose);
  * Get SMP Count for this node.
  * @return number of CPUs in this node.
  */
-extern const QMP_u32_t    QMP_get_SMP_count (void);
+extern QMP_u32_t          QMP_get_SMP_count (void);
 
 /**
  * Get network inter_connection type
  * @return QMP_SWITCH, QMP_GRID (QMP_MESH) or QMP_FATTREE.
  */
-extern const QMP_ictype_t QMP_get_msg_passing_type (void);
+extern QMP_ictype_t       QMP_get_msg_passing_type (void);
 
 /**
  * Get number of physical nodes available
  *
  * @return number of allocated nodes for this job.
  */
-extern const QMP_u32_t    QMP_get_number_of_nodes (void);
+extern QMP_u32_t          QMP_get_number_of_nodes (void);
 
 /**
  * Get number of allocated dimensions.
@@ -259,7 +270,7 @@ extern const QMP_u32_t    QMP_get_number_of_nodes (void);
  * @return number of dimensions in a grid type of machines, 0 for
  * switched configuration.
  */
-extern const QMP_u32_t    QMP_get_allocated_number_of_dimensions (void);
+extern QMP_u32_t          QMP_get_allocated_number_of_dimensions (void);
 
 /**
  * Return allocated size of grid machines.
@@ -303,7 +314,7 @@ extern QMP_bool_t         QMP_logical_topology_is_declared (void);
  * @return dimensionality of the logical topology. If there is no
  * logical topology, return physical topology information.
  */
-extern const QMP_u32_t    QMP_get_logical_number_of_dimensions (void);
+extern QMP_u32_t          QMP_get_logical_number_of_dimensions (void);
 
 /**
  * Get dimension size information for a logical topology.
@@ -318,7 +329,7 @@ extern const QMP_u32_t*   QMP_get_logical_dimensions (void);
  *
  * @return node number of this machine
  */
-extern const QMP_u32_t    QMP_get_node_number (void);
+extern QMP_u32_t          QMP_get_node_number (void);
 
 
 /**
@@ -343,14 +354,14 @@ extern const QMP_u32_t*   QMP_get_logical_coordinates_from (QMP_u32_t node);
  * Get the node number from its logical coordinates.
  * @return node number.
  */
-extern const QMP_u32_t    QMP_get_node_number_from (const QMP_u32_t* coordinates);
+extern QMP_u32_t          QMP_get_node_number_from (const QMP_u32_t* coordinates);
 
 /**
  * Allocate optimally 16 byte aligned memory of length nbytes.
  * @param nbytes number of bytes of memory to allocate.
  * @return pointer to a newly allocated memory, 0 if no memory.
  */
-extern void* QMP_allocate_aligned_memory (QMP_u32_t nbytes);
+extern void*              QMP_allocate_aligned_memory (QMP_u32_t nbytes);
 
 
 /**
@@ -358,7 +369,7 @@ extern void* QMP_allocate_aligned_memory (QMP_u32_t nbytes);
  *
  * @param mem pointer to an allocated memory.
  */
-extern void QMP_free_aligned_memory (void* mem);
+extern void               QMP_free_aligned_memory (void* mem);
 
 /**
  * Create a message memory using memory created by user.
@@ -468,7 +479,7 @@ extern QMP_msghandle_t    QMP_declare_receive_from(QMP_msgmem_t m,
  * If this message handle is a handle for multiple message handles,
  * this routine will not free the individual handles.
  *
- * @param m message handle.
+ * @param h message handle.
  */
 extern void               QMP_free_msghandle (QMP_msghandle_t h);
 
@@ -509,12 +520,12 @@ extern const char*        QMP_error_string (QMP_status_t code);
  * If mh is not null, the error code associated with the mh is returned.
  * Otherwise, the global error code is returned.
  */
-extern const QMP_status_t        QMP_get_error_number (QMP_msghandle_t mh);
+extern QMP_status_t       QMP_get_error_number (QMP_msghandle_t mh);
 
 /**
  * Get error string for a message handle.
  */
-extern const char*               QMP_get_error_string (QMP_msghandle_t mh);
+extern const char*        QMP_get_error_string (QMP_msghandle_t mh);
 
 /**
  * Start a communication for a message handle.
@@ -714,15 +725,15 @@ extern QMP_bool_t QMP_layout_grid (QMP_u32_t* dimensions,
 				   QMP_u32_t  rank);
 
 /**
- * Return logical (lattice) grid sizes.
+ * Return logical (lattice) subgrid sizes.
  */
 extern const QMP_u32_t* QMP_get_subgrid_dimensions (void);
 
 
 /**
- * Return subgrid volume of this layout.
- */
-extern const QMP_u32_t  QMP_get_subgrid_volume (void);
+ *  * Return logical (lattice) subgrid number of sites.
+ *   */
+extern QMP_u32_t        QMP_get_number_of_subgrid_sites (void);
 
 
 #ifdef __cplusplus

@@ -24,6 +24,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.1.1.1  2003/01/27 19:31:36  chen
+ *   check into lattice group
+ *
  *   Revision 1.3  2002/07/18 18:10:24  chen
  *   Fix broadcasting bug and add several public functions
  *
@@ -96,9 +99,9 @@ QMP_get_subgrid_dimensions (void)
   return geom->subgrid_length;
 }
 
-/* Return subgrid volume of this layout */
-const QMP_u32_t
-QMP_get_subgrid_volume (void)
+/* Return the logical subgrid number of sites */
+QMP_u32_t
+QMP_get_number_of_subgrid_sites (void)
 {
   return geom->subgrid_vol;
 }

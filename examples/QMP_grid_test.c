@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.1.1.1  2003/01/27 19:31:37  chen
+ *   check into lattice group
+ *
  *   Revision 1.2  2002/04/26 18:35:44  chen
  *   Release 1.0.0
  *
@@ -38,7 +41,7 @@ int main(int argc, char **argv)
   int i,err;
   int num;
 
-  QMP_init_msg_passing(argc, argv, QMP_SMP_ONE_ADDRESS);
+  QMP_init_msg_passing(&argc, &argv, QMP_SMP_ONE_ADDRESS);
 
   /* Let the geometry arrange itself */
   fprintf(stderr,"Dynamical machine size\n");

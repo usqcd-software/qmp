@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.1.1.1  2003/01/27 19:31:37  chen
+ *   check into lattice group
+ *
  *   Revision 1.4  2002/11/15 15:37:34  chen
  *   Fix bugs caused by rapid creating/deleting channels
  *
@@ -77,7 +80,7 @@ int main (int argc, char** argv)
     verbose = QMP_TRUE;
   
   QMP_verbose (verbose);
-  status = QMP_init_msg_passing (argc, argv, QMP_SMP_ONE_ADDRESS);
+  status = QMP_init_msg_passing (&argc, &argv, QMP_SMP_ONE_ADDRESS);
 
   if (status != QMP_SUCCESS) {
     QMP_fprintf(stderr, "QMP_init failed\n");

@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.1.1.1  2003/01/27 19:31:36  chen
+ *   check into lattice group
+ *
  *   Revision 1.7  2002/07/18 18:10:24  chen
  *   Fix broadcasting bug and add several public functions
  *
@@ -679,7 +682,7 @@ qmp_get_logical_number_of_dimensions_i (QMP_machine_t* glm)
  *
  * This is a public function.
  */
-const QMP_u32_t 
+QMP_u32_t 
 QMP_get_logical_number_of_dimensions (void)
 {
   return qmp_get_logical_number_of_dimensions_i (&QMP_global_m);
@@ -742,7 +745,7 @@ qmp_get_logical_node_number_i (QMP_machine_t* glm)
  *
  * This is a public function.
  */
-const QMP_u32_t    
+QMP_u32_t    
 QMP_get_logical_node_number (void)
 {
   return qmp_get_logical_node_number_i (&QMP_global_m);
@@ -754,7 +757,7 @@ QMP_get_logical_node_number (void)
  *
  * This is a public function.
  */
-const QMP_u32_t    
+QMP_u32_t    
 QMP_get_node_number (void)
 {
   QMP_machine_t* glm = &QMP_global_m;
@@ -841,7 +844,7 @@ qmp_allocated_to_logical_i (QMP_machine_t* glm, QMP_u32_t node)
  *
  * This is a public function.
  */
-const QMP_u32_t
+QMP_u32_t
 QMP_allocated_to_logical (QMP_u32_t node)
 {
   return qmp_allocated_to_logical_i (&QMP_global_m, node);
@@ -953,7 +956,7 @@ qmp_get_logical_node_number_for_neighbor_i (QMP_machine_t* glm,
  *
  * This is a public function.
  */
-const QMP_u32_t
+QMP_u32_t
 QMP_get_logical_node_number_for_neighbor (QMP_dir_t direction)
 {
   return qmp_get_logical_node_number_for_neighbor_i (&QMP_global_m,
@@ -1006,7 +1009,7 @@ QMP_get_logical_node_number_from (const QMP_u32_t* coordinates)
  *
  * This is a public function.
  */
-const QMP_u32_t
+QMP_u32_t
 QMP_get_node_number_from (const QMP_u32_t* coordinates)
 {
   QMP_u32_t logic_node;
@@ -1044,7 +1047,7 @@ qmp_get_logical_number_of_nodes_i (QMP_machine_t* glm)
     return QMP_NUM_NODES (glm->phys);
 }  
 
-const QMP_u32_t 
+QMP_u32_t 
 QMP_get_logical_number_of_nodes (void)
 {
   return qmp_get_logical_number_of_nodes_i (&QMP_global_m);
@@ -1085,7 +1088,7 @@ qmp_logical_to_allocated_i (QMP_machine_t* glm, QMP_u32_t logic_rank)
  *
  * This is a public function.
  */
-const QMP_u32_t    
+QMP_u32_t    
 QMP_logical_to_allocated (QMP_u32_t logic_rank)
 {
   return qmp_logical_to_allocated_i (&QMP_global_m, logic_rank);
