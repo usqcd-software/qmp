@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.1  2003/02/13 16:37:55  chen
+ *   add qmp.hpp remove qmp.hh
+ *
  *   Revision 1.1  2003/02/13 16:22:24  chen
  *   qmp version 1.2
  *
@@ -175,4 +178,3 @@ namespace QMP {
   QMP_status_t waitForBarrier(QMP_s32_t milliseconds);
 }
 #endif
-
