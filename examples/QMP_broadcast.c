@@ -16,6 +16,10 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.1  2003/06/13 18:50:41  edwards
+ *   Test program for broadcasts. Under MPICH, I see the primary node consume
+ *   a huge amount of memory.
+ *
  *
  *
  *
@@ -27,22 +31,48 @@
 
 #include <qmp.h>
 
-#define NUM_HANDLES 4
+void
+stupid_broadcast(void *send_buf, QMP_u32_t count)
+{
+  int node;
+  int num_nodes = QMP_get_number_of_nodes();
+  QMP_msgmem_t request_msg = QMP_declare_msgmem(send_buf, count);
+  QMP_msghandle_t request_mh;
+
+  // Send to each node
+  for(node=1; node < num_nodes; ++node)
+  {
+    if (QMP_get_node_number() == node)
+    {
+      request_mh = QMP_declare_receive_from(request_msg, 0, 0);
+
+      if (QMP_start(request_mh) != QMP_SUCCESS)
+	QMP_error_exit("recvFromWait failed\n");
+
+      QMP_wait(request_mh);
+      QMP_free_msghandle(request_mh);
+    }
+
+    if (QMP_is_primary_node())
+    {
+      request_mh = QMP_declare_send_to(request_msg, node, 0);
+
+      if (QMP_start(request_mh) != QMP_SUCCESS)
+	QMP_error_exit("sendToWait failed\n");
+
+      QMP_wait(request_mh);
+      QMP_free_msghandle(request_mh);
+    }
+  }
+
+  QMP_free_msgmem(request_msg);
+}
+
 
 int main (int argc, char** argv)
 {
-  int i, j;
-  QMP_bool_t status, sender, verbose;
-  QMP_u32_t  rank;
+  QMP_bool_t status, verbose;
   QMP_status_t err;
-
-#if 1
-  QMP_u32_t dims[4] = {1, 1, 3, 1};
-  QMP_u32_t ndims = 4;
-#else
-  QMP_u32_t dims[1] = {2};
-  QMP_u32_t ndims = 1;
-#endif
 
   verbose = QMP_FALSE;  
   if (argc > 1 && strcmp (argv[1], "-v") == 0)
@@ -56,21 +86,26 @@ int main (int argc, char** argv)
     return -1;
   }
 
-  status = QMP_declare_logical_topology (dims, ndims);
-
-  if (status == QMP_FALSE)
-    QMP_fprintf (stderr, "Cannot declare logical grid\n");
-  else
-    QMP_fprintf (stderr, "Declare logical grid ok\n");
-
   {
     char p[288];
     int i;
+
     for(i=0; i < 288;++i)
       p[i] = 0;
 
+    if (QMP_is_primary_node())
+      for(i=0; i < 288;++i)
+	p[i] = 65;
+
+#if 0
     for(i=0; i < 1000000;++i)
       QMP_broadcast(p, 288);
+#else
+    for(i=0; i < 1000000;++i)
+      stupid_broadcast(p, 288);
+#endif
+
+    QMP_info("result = %c",p[0]);
   }
 
 
