@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.1  2004/06/14 20:36:31  osborn
+ *   Updated to API version 2 and added single node target
+ *
  *   Revision 1.7  2004/02/05 02:33:37  edwards
  *   Removed a debugging statement.
  *
@@ -138,3 +141,20 @@ QMP_get_allocated_coordinates(void)
     return 0;
   }
 }
+
+/* For partitioned I/O, nodes are partitioned into subsets.  Each
+   subset includes a designated I/O node.  This function maps a node
+   to its I/O node. */
+int
+QMP_io_node(int node){
+  /* The default partitioning scheme for switched
+     clusters has each node perform as its own I/O node, subsets
+     have only one member */
+  return node;
+}
+
+/* For binary file I/O we designate a master I/O node for the entire
+   machine.  This global constant defines it */
+
+const int 
+QMP_master_io_node = 0;
