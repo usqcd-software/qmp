@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.9  2004/06/14 20:36:31  osborn
+ *   Updated to API version 2 and added single node target
+ *
  *   Revision 1.8  2004/04/08 09:00:20  bjoo
  *   Added experimental support for strided msgmem
  *
@@ -279,6 +282,31 @@ extern const int*         QMP_get_allocated_dimensions (void);
  *
  */
 extern const int*         QMP_get_allocated_coordinates (void);
+
+
+
+/****************
+ *  I/O layout  *
+ ****************/
+
+/**
+ * For partitioned I/O, nodes are partitioned into subsets.  Each
+ * subset includes a designated I/O node.  This function maps a node
+ * to its I/O node. 
+ *
+ */
+
+int 
+QMP_io_node(int node);
+
+/**
+ * For binary file I/O we designate a master I/O node for the entire
+ * machine.  This function defines it 
+ *
+ */
+
+int 
+QMP_master_io_node(void);
 
 
 /******************************

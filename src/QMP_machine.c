@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.2  2004/08/26 18:14:42  detar
+ *   Added QMP_io_node and QMP_master_io_node for compatibility with qio-1.0  -CD
+ *
  *   Revision 1.1  2004/06/14 20:36:31  osborn
  *   Updated to API version 2 and added single node target
  *
@@ -156,5 +159,7 @@ QMP_io_node(int node){
 /* For binary file I/O we designate a master I/O node for the entire
    machine.  This global constant defines it */
 
-const int 
-QMP_master_io_node = 0;
+int 
+QMP_master_io_node(void){
+  return 0;
+}
