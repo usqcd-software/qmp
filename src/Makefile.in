@@ -83,12 +83,15 @@ install_sh = @install_sh@
 
 lib_LIBRARIES = libqmp.a
 
+QMP_GENERIC_SRC = QMP_grid.c \
+                  qmp.h
+
+
 QMP_GM_SRC = QMP_comm_gm.c     \
              QMP_init_gm.c     \
              QMP_mem_gm.c      \
              QMP_topology_gm.c \
              QMP_util_gm.c     \
-             QMP_grid.c        \
              QMP_P_GM.h
 
 
@@ -96,21 +99,20 @@ QMP_MPI_SRC = QMP_comm_mpi.c \
               QMP_init_mpi.c \
               QMP_mem_mpi.c  \
               QMP_util_mpi.c \
-              QMP_grid.c \
               QMP_P_MPI.h
 
 
 libqmp_a_CFLAGS = @QMP_COMMS_CFLAGS@
 
-include_HEADERS = qmp.h
-
-@QMP_GM_TRUE@libqmp_a_SOURCES = $(QMP_GM_SRC)
-@QMP_MPI_TRUE@libqmp_a_SOURCES = $(QMP_MPI_SRC)
+@QMP_GM_TRUE@libqmp_a_SOURCES = $(QMP_GENERIC_SRC) $(QMP_GM_SRC)
+@QMP_MPI_TRUE@libqmp_a_SOURCES = $(QMP_GENERIC_SRC) $(QMP_MPI_SRC)
 @QMP_GM_TRUE@EXTRA_libqmp_a_SOURCES = $(QMP_MPI_SRC)
 @QMP_MPI_TRUE@EXTRA_libqmp_a_SOURCES = $(QMP_GM_SRC)
 
+EXTRA_DIST = qmp.hpp
+
 #
-# The QMP_run script -- this will also get installed intot the ./bin directory
+# The QMP_run script -- this will also get installed into the ./bin directory
 #
 bin_SCRIPTS = QMP_run
 subdir = src
@@ -120,15 +122,16 @@ LIBRARIES = $(lib_LIBRARIES)
 
 libqmp_a_AR = $(AR) cru
 libqmp_a_LIBADD =
-am__objects_1 = libqmp_a-QMP_comm_gm.$(OBJEXT) \
+am__objects_1 = libqmp_a-QMP_grid.$(OBJEXT)
+am__objects_2 = libqmp_a-QMP_comm_gm.$(OBJEXT) \
 	libqmp_a-QMP_init_gm.$(OBJEXT) libqmp_a-QMP_mem_gm.$(OBJEXT) \
 	libqmp_a-QMP_topology_gm.$(OBJEXT) \
-	libqmp_a-QMP_util_gm.$(OBJEXT) libqmp_a-QMP_grid.$(OBJEXT)
-am__objects_2 = libqmp_a-QMP_comm_mpi.$(OBJEXT) \
+	libqmp_a-QMP_util_gm.$(OBJEXT)
+am__objects_3 = libqmp_a-QMP_comm_mpi.$(OBJEXT) \
 	libqmp_a-QMP_init_mpi.$(OBJEXT) libqmp_a-QMP_mem_mpi.$(OBJEXT) \
-	libqmp_a-QMP_util_mpi.$(OBJEXT) libqmp_a-QMP_grid.$(OBJEXT)
-@QMP_GM_TRUE@am_libqmp_a_OBJECTS = $(am__objects_1)
-@QMP_MPI_TRUE@am_libqmp_a_OBJECTS = $(am__objects_2)
+	libqmp_a-QMP_util_mpi.$(OBJEXT)
+@QMP_GM_TRUE@am_libqmp_a_OBJECTS = $(am__objects_1) $(am__objects_2)
+@QMP_MPI_TRUE@am_libqmp_a_OBJECTS = $(am__objects_1) $(am__objects_3)
 libqmp_a_OBJECTS = $(am_libqmp_a_OBJECTS)
 SCRIPTS = $(bin_SCRIPTS)
 
@@ -156,9 +159,7 @@ CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 CFLAGS = @CFLAGS@
 DIST_SOURCES = $(libqmp_a_SOURCES) $(EXTRA_libqmp_a_SOURCES)
-HEADERS = $(include_HEADERS)
-
-DIST_COMMON = $(include_HEADERS) Makefile.am Makefile.in
+DIST_COMMON = Makefile.am Makefile.in
 SOURCES = $(libqmp_a_SOURCES) $(EXTRA_libqmp_a_SOURCES)
 
 all: all-am
@@ -202,12 +203,12 @@ uninstall-libLIBRARIES:
 
 clean-libLIBRARIES:
 	-test -z "$(lib_LIBRARIES)" || rm -f $(lib_LIBRARIES)
+libqmp_a-QMP_grid.$(OBJEXT): QMP_grid.c
 libqmp_a-QMP_comm_gm.$(OBJEXT): QMP_comm_gm.c
 libqmp_a-QMP_init_gm.$(OBJEXT): QMP_init_gm.c
 libqmp_a-QMP_mem_gm.$(OBJEXT): QMP_mem_gm.c
 libqmp_a-QMP_topology_gm.$(OBJEXT): QMP_topology_gm.c
 libqmp_a-QMP_util_gm.$(OBJEXT): QMP_util_gm.c
-libqmp_a-QMP_grid.$(OBJEXT): QMP_grid.c
 libqmp_a-QMP_comm_mpi.$(OBJEXT): QMP_comm_mpi.c
 libqmp_a-QMP_init_mpi.$(OBJEXT): QMP_init_mpi.c
 libqmp_a-QMP_mem_mpi.$(OBJEXT): QMP_mem_mpi.c
@@ -269,6 +270,18 @@ distclean-depend:
 @AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 	$(COMPILE) -c `cygpath -w $<`
 
+libqmp_a-QMP_grid.o: QMP_grid.c
+@AMDEP_TRUE@	source='QMP_grid.c' object='libqmp_a-QMP_grid.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/libqmp_a-QMP_grid.Po' tmpdepfile='$(DEPDIR)/libqmp_a-QMP_grid.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libqmp_a_CFLAGS) $(CFLAGS) -c -o libqmp_a-QMP_grid.o `test -f 'QMP_grid.c' || echo '$(srcdir)/'`QMP_grid.c
+
+libqmp_a-QMP_grid.obj: QMP_grid.c
+@AMDEP_TRUE@	source='QMP_grid.c' object='libqmp_a-QMP_grid.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/libqmp_a-QMP_grid.Po' tmpdepfile='$(DEPDIR)/libqmp_a-QMP_grid.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libqmp_a_CFLAGS) $(CFLAGS) -c -o libqmp_a-QMP_grid.obj `cygpath -w QMP_grid.c`
+
 libqmp_a-QMP_comm_gm.o: QMP_comm_gm.c
 @AMDEP_TRUE@	source='QMP_comm_gm.c' object='libqmp_a-QMP_comm_gm.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@	depfile='$(DEPDIR)/libqmp_a-QMP_comm_gm.Po' tmpdepfile='$(DEPDIR)/libqmp_a-QMP_comm_gm.TPo' @AMDEPBACKSLASH@
@@ -329,18 +342,6 @@ libqmp_a-QMP_util_gm.obj: QMP_util_gm.c
 @AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libqmp_a_CFLAGS) $(CFLAGS) -c -o libqmp_a-QMP_util_gm.obj `cygpath -w QMP_util_gm.c`
 
-libqmp_a-QMP_grid.o: QMP_grid.c
-@AMDEP_TRUE@	source='QMP_grid.c' object='libqmp_a-QMP_grid.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@	depfile='$(DEPDIR)/libqmp_a-QMP_grid.Po' tmpdepfile='$(DEPDIR)/libqmp_a-QMP_grid.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libqmp_a_CFLAGS) $(CFLAGS) -c -o libqmp_a-QMP_grid.o `test -f 'QMP_grid.c' || echo '$(srcdir)/'`QMP_grid.c
-
-libqmp_a-QMP_grid.obj: QMP_grid.c
-@AMDEP_TRUE@	source='QMP_grid.c' object='libqmp_a-QMP_grid.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@	depfile='$(DEPDIR)/libqmp_a-QMP_grid.Po' tmpdepfile='$(DEPDIR)/libqmp_a-QMP_grid.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libqmp_a_CFLAGS) $(CFLAGS) -c -o libqmp_a-QMP_grid.obj `cygpath -w QMP_grid.c`
-
 libqmp_a-QMP_comm_mpi.o: QMP_comm_mpi.c
 @AMDEP_TRUE@	source='QMP_comm_mpi.c' object='libqmp_a-QMP_comm_mpi.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@	depfile='$(DEPDIR)/libqmp_a-QMP_comm_mpi.Po' tmpdepfile='$(DEPDIR)/libqmp_a-QMP_comm_mpi.TPo' @AMDEPBACKSLASH@
@@ -390,24 +391,6 @@ libqmp_a-QMP_util_mpi.obj: QMP_util_mpi.c
 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libqmp_a_CFLAGS) $(CFLAGS) -c -o libqmp_a-QMP_util_mpi.obj `cygpath -w QMP_util_mpi.c`
 CCDEPMODE = @CCDEPMODE@
 uninstall-info-am:
-includeHEADERS_INSTALL = $(INSTALL_HEADER)
-install-includeHEADERS: $(include_HEADERS)
-	@$(NORMAL_INSTALL)
-	$(mkinstalldirs) $(DESTDIR)$(includedir)
-	@list='$(include_HEADERS)'; for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  f="`echo $$p | sed -e 's|^.*/||'`"; \
-	  echo " $(includeHEADERS_INSTALL) $$d$$p $(DESTDIR)$(includedir)/$$f"; \
-	  $(includeHEADERS_INSTALL) $$d$$p $(DESTDIR)$(includedir)/$$f; \
-	done
-
-uninstall-includeHEADERS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(include_HEADERS)'; for p in $$list; do \
-	  f="`echo $$p | sed -e 's|^.*/||'`"; \
-	  echo " rm -f $(DESTDIR)$(includedir)/$$f"; \
-	  rm -f $(DESTDIR)$(includedir)/$$f; \
-	done
 
 ETAGS = etags
 ETAGSFLAGS =
@@ -472,10 +455,10 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(LIBRARIES) $(SCRIPTS) $(HEADERS)
+all-am: Makefile $(LIBRARIES) $(SCRIPTS)
 
 installdirs:
-	$(mkinstalldirs) $(DESTDIR)$(libdir) $(DESTDIR)$(bindir) $(DESTDIR)$(includedir)
+	$(mkinstalldirs) $(DESTDIR)$(libdir) $(DESTDIR)$(bindir)
 
 install: install-am
 install-exec: install-exec-am
@@ -518,7 +501,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-includeHEADERS
+install-data-am:
 
 install-exec-am: install-binSCRIPTS install-libLIBRARIES
 
@@ -536,21 +519,19 @@ mostlyclean: mostlyclean-am
 
 mostlyclean-am: mostlyclean-compile mostlyclean-generic
 
-uninstall-am: uninstall-binSCRIPTS uninstall-includeHEADERS \
-	uninstall-info-am uninstall-libLIBRARIES
+uninstall-am: uninstall-binSCRIPTS uninstall-info-am \
+	uninstall-libLIBRARIES
 
 .PHONY: GTAGS all all-am check check-am clean clean-generic \
 	clean-libLIBRARIES distclean distclean-compile distclean-depend \
 	distclean-generic distclean-tags distdir dvi dvi-am info \
 	info-am install install-am install-binSCRIPTS install-data \
-	install-data-am install-exec install-exec-am \
-	install-includeHEADERS install-info install-info-am \
-	install-libLIBRARIES install-man install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
+	install-data-am install-exec install-exec-am install-info \
+	install-info-am install-libLIBRARIES install-man install-strip \
+	installcheck installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic tags uninstall uninstall-am \
-	uninstall-binSCRIPTS uninstall-includeHEADERS uninstall-info-am \
-	uninstall-libLIBRARIES
+	uninstall-binSCRIPTS uninstall-info-am uninstall-libLIBRARIES
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
