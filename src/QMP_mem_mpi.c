@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.5  2003/07/21 21:07:17  edwards
+ *   Changed around QMP_memalign.
+ *
  *   Revision 1.4  2003/07/21 20:57:12  edwards
  *   Changed QMP_allocated_align_memory to use QMP_memalign instead of
  *   memalign directly.
@@ -64,6 +67,10 @@ QMP_memalign (QMP_u32_t size, QMP_u32_t alignment)
   void *ptr;
   
 /*  ptr = memalign(alignment, size); */
+
+  ptr = valloc(size);
+
+#if 0
   ptr = malloc(size);
 
   /* DO NOT CHECK ptr is 0 - let the user handle that */
@@ -78,6 +85,7 @@ QMP_memalign (QMP_u32_t size, QMP_u32_t alignment)
 	      size, alignment, ptr);
     ptr = 0;   /* Bad alignment */
   }
+#endif
 
   return ptr;
 }
