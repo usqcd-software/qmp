@@ -17,6 +17,11 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.2  2004/10/31 23:21:35  osborn
+ *   Restored proper behavior of msghandle operations in single node version.
+ *   Added CFLAGS to qmp-config script.
+ *   Changed QMP_status_code_t to QMP_status_t in qmp.h.
+ *
  *   Revision 1.1  2004/10/08 04:49:34  osborn
  *   Split src directory into include and lib.
  *
@@ -772,6 +777,12 @@ extern int   QMP_fprintf            (FILE* stream, const char *format, ...);
 extern int   QMP_info               (const char *format, ...);
 extern int   QMP_error              (const char *format, ...);
 
+/**
+ *Profiling fuunction declarations
+ */
+
+extern void  QMP_reset_total_qmp_time(void);
+extern double QMP_get_total_qmp_time(void);
 
 #ifdef __cplusplus
 }
