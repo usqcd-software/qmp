@@ -104,6 +104,8 @@ QMP_MPI_SRC = QMP_comm_mpi.c \
 
 libqmp_a_CFLAGS = @QMP_COMMS_CFLAGS@
 
+include_HEADERS = qmp.h
+
 @QMP_GM_TRUE@libqmp_a_SOURCES = $(QMP_GENERIC_SRC) $(QMP_GM_SRC)
 @QMP_MPI_TRUE@libqmp_a_SOURCES = $(QMP_GENERIC_SRC) $(QMP_MPI_SRC)
 @QMP_GM_TRUE@EXTRA_libqmp_a_SOURCES = $(QMP_MPI_SRC)
@@ -159,7 +161,9 @@ CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 CFLAGS = @CFLAGS@
 DIST_SOURCES = $(libqmp_a_SOURCES) $(EXTRA_libqmp_a_SOURCES)
-DIST_COMMON = Makefile.am Makefile.in
+HEADERS = $(include_HEADERS)
+
+DIST_COMMON = $(include_HEADERS) Makefile.am Makefile.in
 SOURCES = $(libqmp_a_SOURCES) $(EXTRA_libqmp_a_SOURCES)
 
 all: all-am
@@ -391,6 +395,24 @@ libqmp_a-QMP_util_mpi.obj: QMP_util_mpi.c
 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libqmp_a_CFLAGS) $(CFLAGS) -c -o libqmp_a-QMP_util_mpi.obj `cygpath -w QMP_util_mpi.c`
 CCDEPMODE = @CCDEPMODE@
 uninstall-info-am:
+includeHEADERS_INSTALL = $(INSTALL_HEADER)
+install-includeHEADERS: $(include_HEADERS)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(includedir)
+	@list='$(include_HEADERS)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  f="`echo $$p | sed -e 's|^.*/||'`"; \
+	  echo " $(includeHEADERS_INSTALL) $$d$$p $(DESTDIR)$(includedir)/$$f"; \
+	  $(includeHEADERS_INSTALL) $$d$$p $(DESTDIR)$(includedir)/$$f; \
+	done
+
+uninstall-includeHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(include_HEADERS)'; for p in $$list; do \
+	  f="`echo $$p | sed -e 's|^.*/||'`"; \
+	  echo " rm -f $(DESTDIR)$(includedir)/$$f"; \
+	  rm -f $(DESTDIR)$(includedir)/$$f; \
+	done
 
 ETAGS = etags
 ETAGSFLAGS =
@@ -455,10 +477,10 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(LIBRARIES) $(SCRIPTS)
+all-am: Makefile $(LIBRARIES) $(SCRIPTS) $(HEADERS)
 
 installdirs:
-	$(mkinstalldirs) $(DESTDIR)$(libdir) $(DESTDIR)$(bindir)
+	$(mkinstalldirs) $(DESTDIR)$(libdir) $(DESTDIR)$(bindir) $(DESTDIR)$(includedir)
 
 install: install-am
 install-exec: install-exec-am
@@ -501,7 +523,7 @@ info: info-am
 
 info-am:
 
-install-data-am:
+install-data-am: install-includeHEADERS
 
 install-exec-am: install-binSCRIPTS install-libLIBRARIES
 
@@ -519,19 +541,21 @@ mostlyclean: mostlyclean-am
 
 mostlyclean-am: mostlyclean-compile mostlyclean-generic
 
-uninstall-am: uninstall-binSCRIPTS uninstall-info-am \
-	uninstall-libLIBRARIES
+uninstall-am: uninstall-binSCRIPTS uninstall-includeHEADERS \
+	uninstall-info-am uninstall-libLIBRARIES
 
 .PHONY: GTAGS all all-am check check-am clean clean-generic \
 	clean-libLIBRARIES distclean distclean-compile distclean-depend \
 	distclean-generic distclean-tags distdir dvi dvi-am info \
 	info-am install install-am install-binSCRIPTS install-data \
-	install-data-am install-exec install-exec-am install-info \
-	install-info-am install-libLIBRARIES install-man install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
+	install-data-am install-exec install-exec-am \
+	install-includeHEADERS install-info install-info-am \
+	install-libLIBRARIES install-man install-strip installcheck \
+	installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic tags uninstall uninstall-am \
-	uninstall-binSCRIPTS uninstall-info-am uninstall-libLIBRARIES
+	uninstall-binSCRIPTS uninstall-includeHEADERS uninstall-info-am \
+	uninstall-libLIBRARIES
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
