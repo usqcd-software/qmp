@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.3  2003/12/19 04:46:39  edwards
+ *   Added return of status.
+ *
  *   Revision 1.2  2003/12/19 04:45:31  edwards
  *   Small bug fix.
  *
@@ -30,6 +33,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include "qmp.h"
+
+/**
+ * Trace macro
+ */
+#ifdef _QMP_TRACE
+#define QMP_TRACE(x) (printf("%s at line %d of file %s\n", x, __LINE__, __FILE__))
+#else
+#define QMP_TRACE(x)
+#endif
 
 /**
  * Public function for QMP_routing
