@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.6  2004/06/14 20:36:31  osborn
+ *   Updated to API version 2 and added single node target
+ *
  *   Revision 1.5  2004/04/08 09:00:20  bjoo
  *   Added experimental support for strided msgmem
  *
@@ -568,7 +571,7 @@ QMP_binary_reduction (void *lbuffer, size_t count, QMP_binary_func bfunc)
   if (qmp_user_bfunc_) 
     QMP_FATAL ("Another binary reduction is in progress.");
 
-  //rbuffer = QMP_memalign (count, QMP_MEM_ALIGNMENT);
+  /* rbuffer = QMP_memalign (count, QMP_MEM_ALIGNMENT); */
   rbuffer = QMP_allocate_memory (count);
   if (!rbuffer)
     return QMP_NOMEM_ERR;
@@ -591,7 +594,7 @@ QMP_binary_reduction (void *lbuffer, size_t count, QMP_binary_func bfunc)
   QMP_free_memory (rbuffer);
 
   /* free binary operator */
-  //MPI_Op_free (&bop);
+  /* MPI_Op_free (&bop); */
 
   /* signal end of the binary reduction session */
   qmp_user_bfunc_ = 0;

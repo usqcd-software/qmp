@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.8  2004/06/14 20:36:31  osborn
+ *   Updated to API version 2 and added single node target
+ *
  *   Revision 1.7  2004/04/08 09:00:20  bjoo
  *   Added experimental support for strided msgmem
  *
@@ -73,7 +76,7 @@ QMP_mem_t *
 QMP_allocate_aligned_memory (size_t nbytes, size_t alignment, int flags)
 {
   QMP_mem_t *mem;
-  if(alignment<0) alignment = 0;  // shouldn't happen but doesn't hurt to check
+  if(alignment<0) alignment = 0;  /* shouldn't happen but doesn't hurt to check */
   mem = malloc(sizeof(QMP_mem_t)+nbytes+alignment);
   if(mem) {
     if(alignment) {
@@ -427,7 +430,7 @@ QMP_declare_multiple(QMP_msghandle_t msgh[], int nhandle)
   /* The first handle is a indicator it is a placeholder */
   mmh->type = MH_multiple;
   mmh->mm = NULL;
-  //mmh->num = nhandle;  fill this in later
+  /* mmh->num = nhandle;  fill this in later */
   mmh->dest_node = MPI_UNDEFINED;
   mmh->srce_node = MPI_UNDEFINED;
   mmh->tag  = MPI_UNDEFINED;
