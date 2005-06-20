@@ -108,8 +108,7 @@ AC_ARG_ENABLE(
     [build QMP with weak linkage allowing profiling library to be inserted]),
   [if test "X$enableval" != "Xno"; then
     AC_DEFINE([QMP_BUILD_PROFILING],[],[build QMP to allow profiling])
-  fi],
-  []
+  fi]
 )
 
 # Currently, this implementation of QMP only supports switched or shared
