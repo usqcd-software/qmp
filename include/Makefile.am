@@ -8,4 +8,5 @@ include_HEADERS = qmp.h
 EXTRA_DIST = qmp.hpp \
 	QMP_P_COMMON.h \
 	QMP_P_SINGLE.h \
-	QMP_P_MPI.h
+	QMP_P_MPI.h \
+	QMP_profiling.h

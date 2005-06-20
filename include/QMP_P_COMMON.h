@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.3  2005/06/20 21:14:53  osborn
+ *   Moved autoconf defines into qmp_config.h to make XLC happy.
+ *
  *   Revision 1.2  2004/12/19 07:28:54  morten
  *   Added the include statement for QMP_profiling.h
  *
@@ -58,9 +61,9 @@
 #include <dmalloc.h>
 #endif
 
-#include "qmp.h"
 #include "qmp_config.h"
 #include "QMP_profiling.h"
+#include "qmp.h"
 /**
  * Simple information holder for this machine
  */

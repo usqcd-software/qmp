@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.1  2004/10/08 04:49:34  osborn
+ *   Split src directory into include and lib.
+ *
  *   Revision 1.1  2004/06/17 21:37:23  osborn
  *   added file QMP_error_mpi.c
  *
@@ -52,8 +55,6 @@
 #include <ctype.h>
 #include <stdarg.h>
 
-#include "qmp.h"
-#include "QMP_P_COMMON.h"
 #include "QMP_P_MPI.h"
 
 /**

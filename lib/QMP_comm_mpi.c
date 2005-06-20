@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.3  2005/03/02 18:21:35  morten
+ *   Minor bug fix for QMP_wait_all which always returned QMP_ERROR
+ *
  *   Revision 1.2  2004/12/16 02:44:12  osborn
  *   Changed QMP_mem_t structure, fixed strided memory and added test.
  *
@@ -65,8 +68,6 @@
 #include <sys/time.h>
 #include <assert.h>
 
-#include "qmp.h"
-#include "QMP_P_COMMON.h"
 #include "QMP_P_MPI.h"
 
 /* Start send (non-blocking) from possibly ganged message handles */

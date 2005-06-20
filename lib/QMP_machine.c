@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.1  2004/10/08 04:49:34  osborn
+ *   Split src directory into include and lib.
+ *
  *   Revision 1.3  2004/08/26 21:32:21  detar
  *   Change QMP_master_io_node to function -CD
  *
@@ -68,7 +71,6 @@
 #include <ctype.h>
 #include <stdarg.h>
 
-#include "qmp.h"
 #include "QMP_P_COMMON.h"
 
 /* return message passing type */

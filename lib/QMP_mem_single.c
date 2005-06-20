@@ -8,6 +8,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.4  2004/12/16 02:44:12  osborn
+ *   Changed QMP_mem_t structure, fixed strided memory and added test.
+ *
  *   Revision 1.3  2004/10/31 23:21:36  osborn
  *   Restored proper behavior of msghandle operations in single node version.
  *   Added CFLAGS to qmp-config script.
@@ -29,10 +32,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#include "qmp.h"
-#include "QMP_P_COMMON.h"
 #include "QMP_P_SINGLE.h"
-
 
 /**
  * allocate memory with default alignment and flags.
@@ -40,18 +40,8 @@
 QMP_mem_t *
 QMP_allocate_memory (size_t nbytes)
 {
-  QMP_mem_t *mem;
-  mem = (QMP_mem_t *) malloc(sizeof(QMP_mem_t));
-  if(mem) {
-    mem->allocated_ptr = malloc(nbytes);
-    if(mem->allocated_ptr) {
-      mem->aligned_ptr = mem->allocated_ptr;
-    } else {
-      free(mem);
-      mem = NULL;
-    }
-  }
-  return mem;
+  return
+    QMP_allocate_aligned_memory(nbytes, QMP_ALIGN_DEFAULT, QMP_MEM_DEFAULT);
 }
 
 /**
@@ -61,7 +51,7 @@ QMP_mem_t *
 QMP_allocate_aligned_memory (size_t nbytes, size_t alignment, int flags)
 {
   QMP_mem_t *mem;
-  if(alignment<0) alignment = 0; /*shouldn't happen but doesn't hurt to check*/
+
   mem = (QMP_mem_t *) malloc(sizeof(QMP_mem_t));
   if(mem) {
     mem->allocated_ptr = malloc(nbytes+alignment);

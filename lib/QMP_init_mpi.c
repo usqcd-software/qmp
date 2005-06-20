@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.2  2004/12/16 02:44:12  osborn
+ *   Changed QMP_mem_t structure, fixed strided memory and added test.
+ *
  *   Revision 1.1  2004/10/08 04:49:34  osborn
  *   Split src directory into include and lib.
  *
@@ -66,8 +69,6 @@
 #define __USE_UNIX98 /* needed to get gethostname from GNU unistd.h */
 #include <unistd.h>
 
-#include "qmp.h"
-#include "QMP_P_COMMON.h"
 #include "QMP_P_MPI.h"
 
 /* global communicator */

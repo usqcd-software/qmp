@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.2  2004/12/16 02:44:12  osborn
+ *   Changed QMP_mem_t structure, fixed strided memory and added test.
+ *
  *   Revision 1.1  2004/10/08 04:49:34  osborn
  *   Split src directory into include and lib.
  *
@@ -59,8 +62,6 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#include "qmp.h"
-#include "QMP_P_COMMON.h"
 #include "QMP_P_MPI.h"
 
 /**
@@ -69,18 +70,8 @@
 QMP_mem_t *
 QMP_allocate_memory (size_t nbytes)
 {
-  QMP_mem_t *mem;
-  mem = (QMP_mem_t *) malloc(sizeof(QMP_mem_t));
-  if(mem) {
-    mem->allocated_ptr = malloc(nbytes);
-    if(mem->allocated_ptr) {
-      mem->aligned_ptr = mem->allocated_ptr;
-    } else {
-      free(mem);
-      mem = NULL;
-    }
-  }
-  return mem;
+  return
+    QMP_allocate_aligned_memory(nbytes, QMP_ALIGN_DEFAULT, QMP_MEM_DEFAULT);
 }
 
 /**
@@ -90,7 +81,7 @@ QMP_mem_t *
 QMP_allocate_aligned_memory (size_t nbytes, size_t alignment, int flags)
 {
   QMP_mem_t *mem;
-  if(alignment<0) alignment = 0; /*shouldn't happen but doesn't hurt to check*/
+
   mem = (QMP_mem_t *) malloc(sizeof(QMP_mem_t));
   if(mem) {
     mem->allocated_ptr = malloc(nbytes+alignment);

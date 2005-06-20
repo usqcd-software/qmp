@@ -17,6 +17,11 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.2  2004/12/19 07:33:11  morten
+ *   Added dummy functions for the new profiling functions,
+ *   QMP_get_total_qmp_time(void)
+ *   QMP_get_total_qmp_time(void)
+ *
  *   Revision 1.1  2004/10/08 04:49:34  osborn
  *   Split src directory into include and lib.
  *
@@ -58,7 +63,6 @@
 #include <ctype.h>
 #include <stdarg.h>
 
-#include "qmp.h"
 #include "QMP_P_COMMON.h"
 
 /**

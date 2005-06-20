@@ -8,6 +8,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.1  2004/10/08 04:49:34  osborn
+ *   Split src directory into include and lib.
+ *
  *   Revision 1.1  2004/06/14 20:36:31  osborn
  *   Updated to API version 2 and added single node target
  *
@@ -20,8 +23,6 @@
 #include <ctype.h>
 #include <stdarg.h>
 
-#include "qmp.h"
-#include "QMP_P_COMMON.h"
 #include "QMP_P_SINGLE.h"
 
 /**
