@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.3  2004/12/19 07:30:14  morten
+ *   Added function declerations for the new profiling functions.
+ *
  *   Revision 1.2  2004/10/31 23:21:35  osborn
  *   Restored proper behavior of msghandle operations in single node version.
  *   Added CFLAGS to qmp-config script.
@@ -83,7 +86,8 @@
  * Current version information in string form.
  * Provided by autoconf.
  */
-#define QMP_VERSION_STR PACKAGE_VERSION
+/* not anymore.  if needed we'll add it later. */
+//#define QMP_VERSION_STR PACKAGE_VERSION
 
 typedef int                QMP_bool_t;
 #define QMP_TRUE           ((QMP_bool_t)1)
@@ -146,7 +150,7 @@ typedef enum QMP_thread_level
 }QMP_thread_level_t;
 
 #define QMP_ALIGN_ANY     0
-#define QMP_ALIGN_DEFAULT QMP_ALIGN_ANY
+#define QMP_ALIGN_DEFAULT 16
 
 #define QMP_MEM_NONCACHE  0x01
 #define QMP_MEM_COMMS     0x02

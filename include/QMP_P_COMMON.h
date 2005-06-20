@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.2  2004/12/19 07:28:54  morten
+ *   Added the include statement for QMP_profiling.h
+ *
  *   Revision 1.1  2004/10/08 04:49:34  osborn
  *   Split src directory into include and lib.
  *
@@ -56,6 +59,7 @@
 #endif
 
 #include "qmp.h"
+#include "qmp_config.h"
 #include "QMP_profiling.h"
 /**
  * Simple information holder for this machine

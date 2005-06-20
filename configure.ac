@@ -1,8 +1,9 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(qmp, 2.0.1, josborn@physics.bu.edu)
+AC_INIT(qmp, 2.0.2, josborn@physics.bu.edu)
 AC_CONFIG_AUX_DIR(config)
-AC_CONFIG_SRCDIR(lib/QMP_grid.c)
-AC_CONFIG_SRCDIR(examples/QMP_test.c)
+AC_CONFIG_SRCDIR([lib/QMP_grid.c])
+AC_CONFIG_SRCDIR([examples/QMP_test.c])
+AC_CONFIG_HEADER([include/qmp_config.h])
 AM_INIT_AUTOMAKE
 
 dnl automake manual, ch 6 says to use this when SUBDIRS is used
@@ -11,9 +12,10 @@ AC_PROG_MAKE_SET
 dnl Define these as defaults 
 dnl Needed below to check if compiler works
 
-AC_PROG_CC(gcc cc)
+AC_PROG_CC(cc gcc)
 AC_ISC_POSIX
 AC_PROG_RANLIB
+AC_CHECK_TOOL(AR, ar, [ar])
 
 dnl George Fleming, 12/12/2002
 dnl
@@ -90,8 +92,8 @@ AC_ARG_ENABLE( extra-debugging,
     [Extra debugging messages useful for QMP developers.  Default is no.]),
   [case "${enable_extra_debugging}" in
     yes)
-      AC_DEFINE(_QMP_DEBUG)
-      AC_DEFINE(_QMP_TRACE)
+      AC_DEFINE([_QMP_DEBUG],[],[enable extra debugging])
+      AC_DEFINE([_QMP_TRACE],[],[enable extra tracing])
       ;;
     no) ;;
     *) AC_MSG_ERROR([bad value ${enable_extra_debugging}
@@ -99,10 +101,21 @@ AC_ARG_ENABLE( extra-debugging,
     esac],
   [enable_extra_debugging=no])
 
+dnl --enable-profiling
+AC_ARG_ENABLE(
+  profiling,
+  AC_HELP_STRING([--enable-profiling],
+    [build QMP with weak linkage allowing profiling library to be inserted]),
+  [if test "X$enableval" != "Xno"; then
+    AC_DEFINE([QMP_BUILD_PROFILING],[],[build QMP to allow profiling])
+  fi],
+  []
+)
+
 # Currently, this implementation of QMP only supports switched or shared
 # memory interconnect (IC) types.  If support for other types is added,
 # something will have to change here.
-AC_DEFINE(_QMP_IC_SWITCH)
+AC_DEFINE([_QMP_IC_SWITCH],[],[switched architecture])
 
 AM_CONDITIONAL(QMP_SINGLE, [test "X${QMP_COMMS_TYPE}X" = "XSINGLEX"])
 AM_CONDITIONAL(QMP_MPI, [test "X${QMP_COMMS_TYPE}X" = "XMPIX"])
