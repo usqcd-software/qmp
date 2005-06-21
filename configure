@@ -275,7 +275,7 @@ PACKAGE_BUGREPORT='josborn@physics.bu.edu'
 
 ac_unique_file="lib/QMP_grid.c"
 ac_unique_file="examples/QMP_test.c"
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE RANLIB ac_ct_RANLIB AR ac_ct_AR QMP_COMMS_TYPE QMP_COMMS_CFLAGS QMP_COMMS_LDFLAGS QMP_COMMS_LIBS QMP_SINGLE_TRUE QMP_SINGLE_FALSE QMP_MPI_TRUE QMP_MPI_FALSE DOXYGEN LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE RANLIB ac_ct_RANLIB AR ac_ct_AR QMP_COMMS_TYPE QMP_COMMS_CFLAGS QMP_COMMS_LDFLAGS QMP_COMMS_LIBS QMP_SINGLE_TRUE QMP_SINGLE_FALSE QMP_MPI_TRUE QMP_MPI_FALSE DOXYGEN DISTCHECK_CONFIGURE_FLAGS LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -3237,6 +3237,11 @@ fi
 # Check for library functions
 ############################################################
 
+############################################################
+# Pass configuration to distcheck target
+############################################################
+DISTCHECK_CONFIGURE_FLAGS="--enable-parallel-arch=$QMP_COMMS_TYPE CC=\"$CC\" CFLAGS=\"$CFLAGS\" QMP_COMMS_CFLAGS=\"$QMP_COMMS_CFLAGS\" QMP_COMMS_LDFLAGS=\"$QMP_COMMS_LDFLAGS\" QMP_COMMS_LIBS=\"$QMP_COMMS_LIBS\""
+
 
 ############################################################
 # Define files to configure and do it
@@ -3967,6 +3972,7 @@ s,@QMP_SINGLE_FALSE@,$QMP_SINGLE_FALSE,;t t
 s,@QMP_MPI_TRUE@,$QMP_MPI_TRUE,;t t
 s,@QMP_MPI_FALSE@,$QMP_MPI_FALSE,;t t
 s,@DOXYGEN@,$DOXYGEN,;t t
+s,@DISTCHECK_CONFIGURE_FLAGS@,$DISTCHECK_CONFIGURE_FLAGS,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t
 s,@LTLIBOBJS@,$LTLIBOBJS,;t t
 CEOF

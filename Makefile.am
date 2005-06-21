@@ -4,6 +4,8 @@
 #
 SUBDIRS = include lib bin examples doc
 
+DISTCHECK_CONFIGURE_FLAGS = @DISTCHECK_CONFIGURE_FLAGS@
+
 #
 # User explicitly has to make docs -- you may not want them
 #

@@ -130,16 +130,17 @@ AC_CHECK_PROG(DOXYGEN, doxygen, doxygen)
 # Check for library functions
 ############################################################
 
+############################################################
+# Pass configuration to distcheck target
+############################################################
+DISTCHECK_CONFIGURE_FLAGS="--enable-parallel-arch=$QMP_COMMS_TYPE CC=\"$CC\" CFLAGS=\"$CFLAGS\" QMP_COMMS_CFLAGS=\"$QMP_COMMS_CFLAGS\" QMP_COMMS_LDFLAGS=\"$QMP_COMMS_LDFLAGS\" QMP_COMMS_LIBS=\"$QMP_COMMS_LIBS\""
+AC_SUBST(DISTCHECK_CONFIGURE_FLAGS)
 
 ############################################################
 # Define files to configure and do it
 ############################################################
 
 AC_CONFIG_FILES(Makefile)
-dnl George T. Fleming, 03/03/2003
-dnl
-dnl Part of change from 'qmp_build_env.sh' to 'qmp-config' scripts
-dnl AC_CONFIG_FILES(qmp_build_env.sh)
 AC_CONFIG_FILES(include/Makefile)
 AC_CONFIG_FILES(lib/Makefile)
 AC_CONFIG_FILES(bin/Makefile)
