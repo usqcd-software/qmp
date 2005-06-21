@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.4  2005/06/20 22:20:59  osborn
+ *   Fixed inclusion of profiling header.
+ *
  *   Revision 1.3  2005/06/20 21:14:53  osborn
  *   Moved autoconf defines into qmp_config.h to make XLC happy.
  *
@@ -83,6 +86,15 @@ typedef struct QMP_machine
 
   /* My node id */
   int nodeid;
+
+  /* number of dimensions if acting like mesh */
+  int ndim;
+
+  /* geometry if acting like mesh */
+  int *geom;
+
+  /* my coordinate if acting like mesh */
+  int *coord;
 
   /* verbose level                                           */
   int verbose;

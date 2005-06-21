@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.3  2005/06/20 22:20:59  osborn
+ *   Fixed inclusion of profiling header.
+ *
  *   Revision 1.2  2004/12/16 02:44:12  osborn
  *   Changed QMP_mem_t structure, fixed strided memory and added test.
  *
@@ -88,19 +91,43 @@ QMP_logical_topology_t QMP_topo = &par_logical_topology;
  * Populate this machine information.
  */
 static void
-QMP_init_machine_i (void)
+QMP_init_machine_i(int* argc, char*** argv)
 {
   /* get host name of this machine */
   gethostname (QMP_global_m->host, sizeof (QMP_global_m->host));
 
-#ifdef _QMP_IC_SWITCH
-  QMP_global_m->ic_type = QMP_SWITCH;
-#else
-#error "QMP over MPICH only supports switched configuration or shared memory."
-#endif
+  int first=-1, last=-1;
+  for(int i=0; i<*argc; i++) {
+    if(strcmp((*argv)[i], "-qmp-geom")==0) {
+      first = i;
+      while( (++i<*argc) && (isdigit((*argv)[i][0])) );
+      last = i-1;
+    }
+  }
 
-  QMP_global_m->inited = QMP_FALSE;
-  QMP_global_m->err_code = QMP_SUCCESS;
+  int nd = last - first;
+  if(nd<=0) {
+    QMP_global_m->ic_type = QMP_SWITCH;
+    QMP_global_m->ndim = 0;
+    QMP_global_m->geom = NULL;
+    QMP_global_m->coord = NULL;
+  } else { /* act like a mesh */
+    QMP_global_m->ic_type = QMP_MESH;
+    QMP_global_m->ndim = nd;
+    QMP_global_m->geom = (int *) malloc(nd*sizeof(int));
+    QMP_global_m->coord = (int *) malloc(nd*sizeof(int));
+    int n = QMP_global_m->nodeid;
+    for(int i=0; i<nd; i++) {
+      QMP_global_m->geom[i] = atoi((*argv)[i+first+1]);
+      QMP_global_m->coord[i] = n % QMP_global_m->geom[i];
+      n /= QMP_global_m->geom[i];
+    }
+  }
+  if(first>=0) {  /* remove from arguments */
+    for(int i=last+1; i<*argc; i++) (*argv)[i-nd-1] = (*argv)[i];
+    *argc -= nd + 1;
+  }
+  //QMP_printf("allocated dimensions = %i\n", QMP_global_m->ndim);
 }
 
 /* This is called by the parent */
@@ -112,8 +139,9 @@ QMP_init_msg_passing (int* argc, char*** argv, QMP_thread_level_t required,
   int PAR_num_nodes;
   int PAR_node_rank;
 
-#if 0 /* MPI_Init_thread seems to be broken on the Cray X1 so we will
-         use MPI_Init for now until we need real thread support */
+#if 0
+  /* MPI_Init_thread seems to be broken on the Cray X1 so we will
+     use MPI_Init for now until we need real thread support */
   int mpi_req, mpi_prv;
   mpi_req = MPI_THREAD_SINGLE;  /* just single for now */
   if (MPI_Init_thread(argc, argv, mpi_req, &mpi_prv) != MPI_SUCCESS) 
@@ -130,16 +158,18 @@ QMP_init_msg_passing (int* argc, char*** argv, QMP_thread_level_t required,
   if (MPI_Comm_rank(QMP_COMM_WORLD, &PAR_node_rank) != MPI_SUCCESS)
     QMP_abort_string (-1, "MPI_Comm_rank failed");
 
-  QMP_init_machine_i ();
   QMP_global_m->num_nodes = PAR_num_nodes;
   QMP_global_m->nodeid = PAR_node_rank;
   QMP_global_m->verbose = 0;
   QMP_global_m->proflevel = 0;
   QMP_global_m->inited = QMP_TRUE;
+  QMP_global_m->err_code = QMP_SUCCESS;
 
   QMP_topo->topology_declared = QMP_FALSE;
 
-  return QMP_SUCCESS;
+  QMP_init_machine_i(argc, argv);
+
+  return QMP_global_m->err_code;
 }
 
 /* Shutdown the machine */
@@ -147,6 +177,7 @@ void
 QMP_finalize_msg_passing(void)
 {
   MPI_Finalize();
+  QMP_global_m->inited = QMP_FALSE;
 }
 
 /* Abort the program */

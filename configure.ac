@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(qmp, 2.0.2, josborn@physics.bu.edu)
+AC_INIT(qmp, 2.0.3, josborn@physics.bu.edu)
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_SRCDIR([lib/QMP_grid.c])
 AC_CONFIG_SRCDIR([examples/QMP_test.c])
@@ -110,11 +110,6 @@ AC_ARG_ENABLE(
     AC_DEFINE([QMP_BUILD_PROFILING],[],[build QMP to allow profiling])
   fi]
 )
-
-# Currently, this implementation of QMP only supports switched or shared
-# memory interconnect (IC) types.  If support for other types is added,
-# something will have to change here.
-AC_DEFINE([_QMP_IC_SWITCH],[],[switched architecture])
 
 AM_CONDITIONAL(QMP_SINGLE, [test "X${QMP_COMMS_TYPE}X" = "XSINGLEX"])
 AM_CONDITIONAL(QMP_MPI, [test "X${QMP_COMMS_TYPE}X" = "XMPIX"])

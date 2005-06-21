@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.2  2005/06/20 22:20:59  osborn
+ *   Fixed inclusion of profiling header.
+ *
  *   Revision 1.1  2004/10/08 04:49:34  osborn
  *   Split src directory into include and lib.
  *
@@ -115,15 +118,12 @@ QMP_declare_logical_topology (const int* dims, int ndim)
   int num_nodes = 1;
 
   if (ndim < 0) {
-    QMP_error ("QMP_declare_physical_topology: invalid ndim = %d\n", ndim);
+    QMP_error ("QMP_declare_logical_topology: invalid ndim = %d\n", ndim);
     return QMP_INVALID_ARG;
   }
-
-  for(i=0; i < ndim; ++i)
-  {
-    if (dims[i] < 1)
-    {
-      QMP_error ("QMP_declare_physical_topology: invalid length\n");
+  for(i=0; i < ndim; ++i) {
+    if (dims[i] < 1) {
+      QMP_error ("QMP_declare_logical_topology: invalid length\n");
       return QMP_INVALID_ARG;
     }
 
@@ -132,8 +132,21 @@ QMP_declare_logical_topology (const int* dims, int ndim)
 
   if (num_nodes != QMP_global_m->num_nodes)
   {
-    QMP_error ("QMP_declare_physical_topology: requested machine size not equal to number of nodes\n");
+    QMP_error ("QMP_declare_logical_topology: requested machine size not equal to number of nodes\n");
     return QMP_INVALID_ARG;
+  }
+
+  if(QMP_global_m->ic_type!=QMP_SWITCH) {
+    if(ndim!=QMP_global_m->ndim) {
+      QMP_error ("QMP_declare_logical_topology: requested ndim (%d) not equal to machine ndim (%d)\n", ndim, QMP_global_m->ndim);
+      return QMP_INVALID_ARG;
+    }
+    for(i=0; i<ndim; ++i) {
+      if(dims[i] != QMP_global_m->geom[i]) {
+	QMP_error ("QMP_declare_logical_topology: requested dim (%d) not equal to machine geom (%d) in direction %d\n", dims[i], QMP_global_m->geom[i], i);
+	return QMP_INVALID_ARG;
+      }
+    }
   }
 
   QMP_topo->dimension = ndim;
@@ -168,7 +181,7 @@ QMP_declare_logical_topology (const int* dims, int ndim)
   return QMP_SUCCESS;
 }
 
-/* This file implements a switch architecture and does so over MPI */
+/* Is the logical topology declared? */
 QMP_bool_t
 QMP_logical_topology_is_declared (void)
 {

@@ -24,6 +24,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.3  2005/06/20 22:20:59  osborn
+ *   Fixed inclusion of profiling header.
+ *
  *   Revision 1.2  2004/12/16 02:44:12  osborn
  *   Changed QMP_mem_t structure, fixed strided memory and added test.
  *
@@ -108,6 +111,10 @@ QMP_layout_grid (const int *dims, int ndim)
 {
   int squaresize[ndim], nsquares[ndim];
   int i;
+
+  if(QMP_global_m->ic_type!=QMP_SWITCH) {
+    QMP_declare_logical_topology(QMP_global_m->geom, QMP_global_m->ndim);
+  }
 
   /* If logical topology not set, this machine allows configuration of size */
   if (! QMP_logical_topology_is_declared()) {

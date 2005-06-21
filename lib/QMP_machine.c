@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.2  2005/06/20 22:20:59  osborn
+ *   Fixed inclusion of profiling header.
+ *
  *   Revision 1.1  2004/10/08 04:49:34  osborn
  *   Split src directory into include and lib.
  *
@@ -109,12 +112,7 @@ QMP_get_allocated_number_of_dimensions(void)
     QMP_FATAL ("QMP system is not initialized.");
     return 0;
   }
-  if (QMP_global_m->ic_type == QMP_SWITCH)
-    return 0;
-  else {
-    QMP_FATAL ("QMP supports only switched network configuration.");
-    return 0;
-  }
+  return QMP_global_m->ndim;
 }
 
 /* Return the physical size of the machine */
@@ -125,12 +123,7 @@ QMP_get_allocated_dimensions(void)
     QMP_FATAL ("QMP system is not initialized.");
     return 0;
   }
-  if (QMP_global_m->ic_type == QMP_SWITCH)
-    return 0;
-  else {
-    QMP_FATAL ("QMP supports only switched network configuration.");
-    return 0;
-  }
+  return QMP_global_m->geom;
 }
 
 /* Return the physical coordinate of this node */
@@ -141,13 +134,7 @@ QMP_get_allocated_coordinates(void)
     QMP_FATAL("QMP system is not initialized.");
     return 0;
   }
-
-  if (QMP_global_m->ic_type == QMP_SWITCH)
-    return 0;
-  else {
-    QMP_FATAL("QMP supports only switched network configuration.");
-    return 0;
-  }
+  return QMP_global_m->coord;
 }
 
 /* For partitioned I/O, nodes are partitioned into subsets.  Each

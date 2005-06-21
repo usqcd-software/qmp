@@ -30,8 +30,5 @@
 /* enable extra debugging */
 #undef _QMP_DEBUG
 
-/* switched architecture */
-#undef _QMP_IC_SWITCH
-
 /* enable extra tracing */
 #undef _QMP_TRACE
