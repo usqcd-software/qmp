@@ -1,3 +1,7 @@
+06/29/2005 -- Robert Edwards
+
+	Version 2.0.4 : Removed some ANSI-99-isms. Should compile under c89
+
 05/24/2005 -- Robert Edwards
 
 	Version 2.0.1 : New install scripts.
