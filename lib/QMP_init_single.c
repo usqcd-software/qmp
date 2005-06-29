@@ -8,6 +8,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.3  2005/06/21 20:18:39  osborn
+ *   Added -qmp-geom command line argument to force grid-like behavior.
+ *
  *   Revision 1.2  2005/06/20 22:20:59  osborn
  *   Fixed inclusion of profiling header.
  *
@@ -49,7 +52,8 @@ QMP_init_machine_i(int* argc, char*** argv)
   gethostname (QMP_global_m->host, sizeof (QMP_global_m->host));
 
   int first=-1, last=-1;
-  for(int i=0; i<*argc; i++) {
+  int i, nd, n;
+  for(i=0; i<*argc; i++) {
     if(strcmp((*argv)[i], "-qmp-geom")==0) {
       first = i;
       while( (++i<*argc) && (isdigit((*argv)[i][0])) );
@@ -57,7 +61,7 @@ QMP_init_machine_i(int* argc, char*** argv)
     }
   }
 
-  int nd = last - first;
+  nd = last - first;
   if(nd>0) {
     QMP_global_m->ic_type = QMP_SWITCH;
     QMP_global_m->ndim = 0;
@@ -68,15 +72,15 @@ QMP_init_machine_i(int* argc, char*** argv)
     QMP_global_m->ndim = nd;
     QMP_global_m->geom = (int *) malloc(nd*sizeof(int));
     QMP_global_m->coord = (int *) malloc(nd*sizeof(int));
-    int n = QMP_global_m->nodeid;
-    for(int i=0; i<nd; i++) {
+    n = QMP_global_m->nodeid;
+    for(i=0; i<nd; i++) {
       QMP_global_m->geom[i] = atoi((*argv)[i+first+1]);
       QMP_global_m->coord[i] = n % QMP_global_m->geom[i];
       n /= QMP_global_m->geom[i];
     }
   }
   if(first>=0) {  /* remove from arguments */
-    for(int i=last+1; i<*argc; i++) (*argv)[i-nd-1] = (*argv)[i];
+    for(i=last+1; i<*argc; i++) (*argv)[i-nd-1] = (*argv)[i];
     *argc -= nd + 1;
   }
 }
