@@ -140,7 +140,7 @@ if test "X${echo_ldflags}X" = "XyesX" ; then
   for i in $qmp_ldflags ; do
     if test "X${i}X" != "X-I/usr/libX" ; then
       case " $output_ldflags " in
-        *\ $i\ *) ;;                               # already there, skip it
+        *\ $i\ *) ;;                                # already here skip it
         *) output_ldflags="$output_ldflags $i"     # add it to output
       esac
     fi
@@ -159,7 +159,6 @@ if test "X${echo_libs}X" = "XyesX" ; then
   output_libs=
   for i in $rev_libs ; do
     case " $output_libs " in
-      *\ $i\ *) ;;                         # already there, skip it
       *) output_libs="$i $output_libs" ;;  # add it to output in reverse order
     esac
   done
