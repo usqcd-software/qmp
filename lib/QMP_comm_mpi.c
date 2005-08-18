@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.4  2005/06/20 22:20:59  osborn
+ *   Fixed inclusion of profiling header.
+ *
  *   Revision 1.3  2005/03/02 18:21:35  morten
  *   Minor bug fix for QMP_wait_all which always returned QMP_ERROR
  *
@@ -78,8 +81,7 @@ QMP_start (QMP_msghandle_t msgh)
 {
   Message_Handle_t mh = (Message_Handle_t)msgh;
   int err = QMP_SUCCESS;
-  int multipleP = 0;
-    
+
 #ifdef _QMP_DEBUG
   QMP_info ("starting QMP_start: id=%d\n", QMP_get_node_number());
 #endif
@@ -89,102 +91,27 @@ QMP_start (QMP_msghandle_t msgh)
     return QMP_INVALID_ARG;
   }
 
-  while (mh)
-  {
-    Message_Memory_t mm;
+  switch (mh->type) {
+  case MH_multiple:
+    MPI_Startall(mh->num, mh->request_array);
+    mh->activeP = 1;
+    break;
 
-    switch (mh->type)
-    {
-    case MH_multiple:
-      multipleP = 1;
-      break;
+  case MH_send:
+  case MH_recv:
+    MPI_Start(&mh->request);
+    mh->activeP = 1;
+    break;
 
-    case MH_send:
-      mm = (Message_Memory_t)(mh->mm);
-#ifdef _QMP_DEBUG
-      QMP_info("Node %d: isend to %d with tag=%d and %d bytes long\n", 
-	       QMP_get_node_number(),
-	       mh->dest_node, mh->tag, mm->nbytes);
-#endif
-      
-      /* Deal with strided sends */
-      switch( mm->type) { 
-      case MM_user_buf:
-	MPI_Isend(mm->mem, mm->nbytes, 
-		  MPI_BYTE, mh->dest_node, mh->tag,
-		  QMP_COMM_WORLD, &mh->request);
-	mh->activeP = 1;
-	break;
-      case MM_strided_buf:
-	MPI_Isend(mm->mem, 1, 
-		  mm->mpi_type,
-		  mh->dest_node,
-		  mh->tag,
-		  QMP_COMM_WORLD, 
-		  &mh->request);
-	mh->activeP = 1;
-	break;
-      case MM_strided_array_buf:
-	MPI_Isend(MPI_BOTTOM, 1,
-		  mm->mpi_type,
-		  mh->dest_node,
-		  mh->tag,
-		  QMP_COMM_WORLD,
-		  &mh->request);
-	mh->activeP = 1;
-	break;
-      default:
-	QMP_FATAL("internal error: unknown memory type");
-	break;
-      }
-      
-      break;
+  case MH_freed:
+  case MH_empty:
+    err = QMP_INVALID_OP;
+    QMP_SET_STATUS_CODE (QMP_INVALID_OP);
+    break;
 
-    case MH_recv:
-      mm = (Message_Memory_t)(mh->mm);
-#ifdef _QMP_DEBUG
-      QMP_info ("Node %d: irecv from %d with tag=%d and %d bytes long\n", 
-		QMP_get_node_number(),
-		mh->srce_node, mh->tag, mm->nbytes);
-#endif
-      switch(mm->type) { 
-      case MM_user_buf:
-	MPI_Irecv(mm->mem, mm->nbytes,
-		  MPI_BYTE, mh->srce_node, mh->tag,
-		  QMP_COMM_WORLD, &mh->request);
-	mh->activeP = 1;
-	break;
-      case MM_strided_buf:
-	MPI_Irecv(mm->mem, 1,
-		  mm->mpi_type,
-		  mh->srce_node, mh->tag,
-		  QMP_COMM_WORLD, &mh->request);
-	mh->activeP = 1;
-	break;
-      case MM_strided_array_buf:
-	MPI_Irecv(MPI_BOTTOM, 1,
-		  mm->mpi_type,
-		  mh->srce_node, mh->tag,
-		  QMP_COMM_WORLD, &mh->request);
-	mh->activeP = 1;
-	break;
-      default:
-	QMP_FATAL("internal error: unknown memory type");
-	break;
-      }
-      break;
-
-    case MH_freed:
-    case MH_empty:
-      err = QMP_INVALID_OP;
-      QMP_SET_STATUS_CODE (QMP_INVALID_OP);
-      break;
-    default:
-      QMP_FATAL("internal error: unknown message type");
-      break;
-    }
-
-    mh = (multipleP) ? mh->next : NULL;
+  default:
+    QMP_FATAL("internal error: unknown message type");
+    break;
   }
 
 #ifdef _QMP_DEBUG
@@ -195,77 +122,54 @@ QMP_start (QMP_msghandle_t msgh)
 }
 
 
-#define MAXBUFFER  64
 /* Internal routine for checking on waiting send & receive messages */
 static QMP_status_t
 QMP_wait_send_receive(QMP_msghandle_t msgh)
 {
   Message_Handle_t mh = (Message_Handle_t)msgh;
   int flag = QMP_SUCCESS;
-  MPI_Request request[MAXBUFFER];
-  MPI_Status  status[MAXBUFFER];
-  int num = 0;
 
 #ifdef _QMP_DEBUG
   QMP_info ("Calling QMP_wait, id=%d\n",QMP_get_node_number());
 #endif
 
-  /* Collect together all the outstanding send/recv requests and process */
-  while(1) {
+  switch (mh->type) {
 
-    if( (!mh) || (num == MAXBUFFER) ) {  /* Wait on all the messages */
-      if(num>0) {
-#ifdef _QMP_DEBUG
-	fprintf(stderr,"QMP_wait: waiting on %d sends\n",num);
-#endif
-	if ((flag = MPI_Waitall(num, request, status)) != MPI_SUCCESS) {
-	  QMP_fprintf (stderr, "Wait all Flag is %d\n", flag);
-	  QMP_FATAL("test unexpectedly failed");
-	}
-#ifdef _QMP_DEBUG
-	fprintf(stderr,"QMP_wait: finished %d sends\n",num);
-#endif
-	num = 0;
-      } else {
-#ifdef _QMP_DEBUG
-	fprintf(stderr,"QMP_wait: no send/recvs outstanding, id=%d\n",QMP_get_node_number());
-#endif
+  case MH_multiple:
+    if(mh->activeP) {
+      MPI_Status status[mh->num];
+      flag = MPI_Waitall(mh->num, mh->request_array, status);
+      if (flag != MPI_SUCCESS) {
+	QMP_fprintf (stderr, "Wait all Flag is %d\n", flag);
+	QMP_FATAL("test unexpectedly failed");
       }
+      mh->activeP = 0;
     }
+    break;
 
-    if(!mh) break;
-
-    if( (mh->type == MH_send) || (mh->type == MH_recv) ) {
-#if 1
-      /* (Slow) Paranoid test for activity. Check against both the activity
-       * and the request field */
-      if (mh->activeP && (mh->request == MPI_REQUEST_NULL))
-	QMP_FATAL("internal error: found null request but active message");
-
-      if (! mh->activeP && (mh->request != MPI_REQUEST_NULL))
-	QMP_FATAL("internal error: found active request but inactive message");
-#endif
-
-      /* Quick test for activity. Be careful this flag matches reality! */
-      if (mh->activeP) {
-	request[num++] = mh->request;
+  case MH_send:
+  case MH_recv:
+    if(mh->activeP) {
+      MPI_Status status;
+      flag = MPI_Wait(&mh->request, &status);
+      if (flag != MPI_SUCCESS) {
+	QMP_fprintf (stderr, "Wait all Flag is %d\n", flag);
+	QMP_FATAL("test unexpectedly failed");
       }
+      mh->activeP = 0;
     }
+    break;
 
-    mh = mh->next;
-  }
+  case MH_freed:
+  case MH_empty:
+    flag = QMP_INVALID_OP;
+    QMP_SET_STATUS_CODE (QMP_INVALID_OP);
+    break;
 
-  /* Mark all sends as inactive */
-  /* To be safe, update all the send request handles. Probably not needed in
-   * general, but is used in tests above */
-  /* NOTE: not handling errors at all */
-  mh = (Message_Handle_t)msgh;
+  default:
+    QMP_FATAL("internal error: unknown message type");
+    break;
 
-  while (mh) {
-    mh->request = MPI_REQUEST_NULL;
-
-    mh->activeP = 0;
-    mh = mh->next;
   }
 
 #ifdef _QMP_DEBUG
@@ -275,105 +179,68 @@ QMP_wait_send_receive(QMP_msghandle_t msgh)
   return flag;
 }
 
-
-/* Internal routine for testing on waiting send & receive messages */
-static QMP_bool_t
-QMP_test_send_receive (QMP_msghandle_t msgh)
-{
-  Message_Handle_t mh = (Message_Handle_t)msgh;
-  int flag, callst;
-  QMP_bool_t  done;
-  MPI_Request request;
-  MPI_Status  status;
-
-#ifdef _QMP_DEBUG
-  QMP_info ("Calling QMP_test_send_receive, id=%d\n",QMP_get_node_number());
-#endif
-
-  /* Check each request to find out whether it is finished */
-  done = QMP_TRUE;
-
-  while (mh) {
-    flag = 0;
-
-    if (mh->type == MH_send || mh->type == MH_recv) {
-#if 1
-      /* (Slow) Paranoid test for activity. Check against both the activity
-       * and the request field */
-      if (mh->activeP && (mh->request == MPI_REQUEST_NULL))
-	QMP_FATAL("internal error: found null request but active message");
-      
-      if (! mh->activeP && (mh->request != MPI_REQUEST_NULL))
-	QMP_FATAL("internal error: found active request but inactive message");
-#endif
-
-      /* Quick test for activity. Be careful this flag matches reality! */
-      if (mh->activeP) {
-	request = mh->request;
-
-	if ((callst = MPI_Test (&request, &flag, &status)) != MPI_SUCCESS) {
-	  QMP_FATAL("test unexpected failed.");
-	}
-	else {
-	  if (flag) {
-	    /* This request is done */
-	    mh->request = MPI_REQUEST_NULL;
-	    mh->activeP = 0;
-	  }
-	  else
-	    done = QMP_FALSE;
-	}
-      }
-    }
-
-    /* Go to next */
-    mh = mh->next;
-  }
-
-  return done;
-}
-
-/* Check if all messages in msgh are received. 
- * NOTE: Does not attempt to receive any messages 
- */
+/* Check if all messages in msgh are completed */
 QMP_bool_t
 QMP_is_complete(QMP_msghandle_t msgh)
 {
   Message_Handle_t mh = (Message_Handle_t)msgh;
-  int activeP = 0;
-  
+  int flag, callst;
+  QMP_bool_t done = QMP_FALSE;
+
 #ifdef _QMP_DEBUG
-  fprintf(stderr,"Calling QMP_is_complete, id=%d\n",QMP_get_node_number());
+  QMP_info ("Calling QMP_is_complete, id=%d\n", QMP_get_node_number());
 #endif
 
-  /* Just OR all message activities */
-  while (mh)
-  {
-    switch (mh->type)
-    {
-    case MH_send:
-    case MH_recv:
-      activeP |= mh->activeP;
-      break;
+  switch (mh->type) {
 
-    default:
-      break;
+  case MH_multiple:
+    if(mh->activeP) {
+      MPI_Status status[mh->num];
+      callst = MPI_Testall(mh->num, mh->request_array, &flag, status);
+      if (callst != MPI_SUCCESS) {
+	QMP_fprintf (stderr, "Testall return value is %d\n", callst);
+	QMP_FATAL("test unexpectedly failed");
+      }
+      if(flag) {
+	done = QMP_TRUE;
+	mh->activeP = 0;
+      }
     }
+    break;
 
-    mh = mh->next;
+  case MH_send:
+  case MH_recv:
+    if(mh->activeP) {
+      MPI_Status status;
+      callst = MPI_Test(&mh->request, &flag, &status);
+      if (callst != MPI_SUCCESS) {
+	QMP_fprintf (stderr, "Test return value is %d\n", callst);
+	QMP_FATAL("test unexpectedly failed");
+      }
+      if(flag) {
+	done = QMP_TRUE;
+	mh->activeP = 0;
+      }
+    }
+    break;
+
+  case MH_freed:
+  case MH_empty:
+    QMP_SET_STATUS_CODE (QMP_INVALID_OP);
+    break;
+
+  default:
+    QMP_FATAL("internal error: unknown message type");
+    break;
+
   }
 
 #ifdef _QMP_DEBUG
-  fprintf(stderr,"Finished QMP_is_complete, id=%d\n",QMP_get_node_number());
+  QMP_info ("Finished QMP_is_complete, id=%d\n", QMP_get_node_number());
 #endif
 
-  /* Not finished we do a quick test */
-  if (activeP) 
-    return QMP_test_send_receive (msgh);
-  else 
-    return QMP_TRUE;
+  return done;
 }
-
 
 /* Wait on communications (blocks) */
 /* NOTE: this routine allows mixtures of sends and receives */
@@ -386,9 +253,9 @@ QMP_wait(QMP_msghandle_t msgh)
   QMP_info ("Starting QMP_wait, id=%d\n",QMP_get_node_number());
 #endif
 
-  if (!QMP_is_complete(msgh))
-    if (QMP_wait_send_receive(msgh))
-      QMP_FATAL("some error in QMP_wait_send_receive");
+  /* if (!QMP_is_complete(msgh)) */
+  if (QMP_wait_send_receive(msgh))
+    QMP_FATAL("some error in QMP_wait_send_receive");
 
 #ifdef _QMP_DEBUG
   QMP_info ("Finished QMP_wait, id=%d\n",QMP_get_node_number());
@@ -410,13 +277,13 @@ QMP_wait_all(QMP_msghandle_t msgh[], int num)
 #endif
 
   for(i=0; i<num; i++) {
-    if(!QMP_is_complete(msgh[i])) {
-      err = QMP_wait_send_receive(msgh[i]);
-      if(err!=QMP_SUCCESS) {
-	QMP_FATAL("some error in QMP_wait_send_receive");
-	break;
-      }
+    /* if(!QMP_is_complete(msgh[i])) { */
+    err = QMP_wait_send_receive(msgh[i]);
+    if(err!=QMP_SUCCESS) {
+      QMP_FATAL("some error in QMP_wait_send_receive");
+      break;
     }
+    /*}*/
   }
 
 #ifdef _QMP_DEBUG

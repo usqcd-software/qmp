@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.3  2005/06/20 22:20:59  osborn
+ *   Fixed inclusion of profiling header.
+ *
  *   Revision 1.2  2004/12/16 02:44:12  osborn
  *   Changed QMP_mem_t structure, fixed strided memory and added test.
  *
@@ -259,8 +262,6 @@ void QMP_free_msgmem(QMP_msgmem_t mm)
 
   if (!mem)
     return;
-  if (mem->type == MM_lexico_buf)
-    free (mem->mem);
 
   if ( (mem->type == MM_strided_buf) ||
        (mem->type == MM_strided_array_buf) ) {
@@ -287,7 +288,6 @@ MP_allocMsgHandler(void)
     mh->srce_node = MPI_UNDEFINED;
     mh->tag  = MPI_UNDEFINED;
     mh->request = MPI_REQUEST_NULL;
-    mh->refcount = 1;
     mh->next = NULL;
     mh->err_code = QMP_SUCCESS;
   }
@@ -303,52 +303,33 @@ void QMP_free_msghandle (QMP_msghandle_t msgh)
   Message_Handle_t previous;
 
   if (first) {
+    if(first->num==0) 
+      QMP_FATAL("error: attempt to free one message handle of a multiple");
+
     switch (first->type) {
     case MH_multiple:
       previous=first; 
       current =first->next;
 
-      while (current)
-      {
-
+      while (current) {
 	/* Only place a freed MH can actually be deleted */
-	current->refcount--;
-
-	if (current->refcount == 0) {
-	  /* Zero refcount -- free it */
-	  previous->next = current->next;
-	  free(current);
-
-	  /* Previous stays the same */
-	  current = previous->next;
-	}
-	else {
-	  /* Increment previous */
-	  previous = current;
-
-	  /* Increment current */
-	  current = current->next;
-	}
+	previous->next = current->next;
+	MPI_Request_free(&current->request);
+	free(current);
+	/* Previous stays the same */
+	current = previous->next;
       }
 
-      /* Now decrement myself. Note, I could be part of another ganged message */
       first = (Message_Handle_t)msgh;
-      first->refcount--;
-      if (first->refcount == 0)
-	free(first);
-      else
-	first->type = MH_empty;
+      free(first->request_array);
+      free(first);
       break;
 
     case MH_empty:
     case MH_send:
     case MH_recv:
-      /* If non-null refcount, then mark for free. Must be ganged */
-      first->refcount--;
-      if (first->refcount == 0)
-	free(first);
-      else
-	first->type = MH_empty;
+      MPI_Request_free(&first->request);
+      free(first);
       break;
 
     default:
@@ -359,19 +340,47 @@ void QMP_free_msghandle (QMP_msghandle_t msgh)
 }
 
 QMP_msghandle_t
-QMP_declare_receive_from (QMP_msgmem_t mm, int sourceNode, int priority)
+QMP_declare_receive_from (QMP_msgmem_t mmt, int sourceNode, int priority)
 {
   Message_Handle_t mh = (Message_Handle_t)MP_allocMsgHandler();
 
-  if (mh)
-  {
+  if (mh) {
+    Message_Memory_t mm = (Message_Memory_t) mmt;
     mh->type = MH_recv;
     mh->num = 1;
-    mh->mm = mm;
+    mh->mm = mmt;
     mh->dest_node = QMP_global_m->nodeid;
     mh->srce_node = sourceNode;
     mh->tag  = TAG_CHANNEL;
     mh->next = NULL;
+
+#ifdef _QMP_DEBUG
+    QMP_info ("Node %d: irecv from %d with tag=%d and %d bytes long\n",
+	      QMP_get_node_number(),
+	      mh->srce_node, mh->tag, mm->nbytes);
+#endif
+    switch(mm->type) {
+    case MM_user_buf:
+      MPI_Recv_init(mm->mem, mm->nbytes,
+		    MPI_BYTE, mh->srce_node, mh->tag,
+		    QMP_COMM_WORLD, &mh->request);
+      break;
+    case MM_strided_buf:
+      MPI_Recv_init(mm->mem, 1,
+		    mm->mpi_type,
+		    mh->srce_node, mh->tag,
+		    QMP_COMM_WORLD, &mh->request);
+      break;
+    case MM_strided_array_buf:
+      MPI_Recv_init(MPI_BOTTOM, 1,
+		    mm->mpi_type,
+		    mh->srce_node, mh->tag,
+		    QMP_COMM_WORLD, &mh->request);
+      break;
+    default:
+      QMP_FATAL("internal error: unknown memory type");
+      break;
+    }
   }
 
   return (QMP_msghandle_t)mh;
@@ -379,19 +388,51 @@ QMP_declare_receive_from (QMP_msgmem_t mm, int sourceNode, int priority)
 
 /* Remote memory write - a send */
 QMP_msghandle_t
-QMP_declare_send_to (QMP_msgmem_t mm, int remoteHost, int priority)
+QMP_declare_send_to (QMP_msgmem_t mmt, int remoteHost, int priority)
 {
   Message_Handle_t mh = (Message_Handle_t)MP_allocMsgHandler();
 
-  if (mh)
-  {
+  if (mh) {
+    Message_Memory_t mm = (Message_Memory_t) mmt;
     mh->type = MH_send;
     mh->num = 1;
-    mh->mm = mm;
+    mh->mm = mmt;
     mh->dest_node = remoteHost;
     mh->srce_node = QMP_global_m->nodeid;
     mh->tag  = TAG_CHANNEL;
     mh->next = NULL;
+
+#ifdef _QMP_DEBUG
+    QMP_info("Node %d: isend to %d with tag=%d and %d bytes long\n",
+	     QMP_get_node_number(),
+	     mh->dest_node, mh->tag, mm->nbytes);
+#endif
+    switch(mm->type) {
+    case MM_user_buf:
+      MPI_Send_init(mm->mem, mm->nbytes,
+		    MPI_BYTE, mh->dest_node, mh->tag,
+		    QMP_COMM_WORLD, &mh->request);
+      break;
+    case MM_strided_buf:
+      MPI_Send_init(mm->mem, 1,
+		    mm->mpi_type,
+		    mh->dest_node,
+		    mh->tag,
+		    QMP_COMM_WORLD,
+		    &mh->request);
+      break;
+    case MM_strided_array_buf:
+      MPI_Send_init(MPI_BOTTOM, 1,
+		    mm->mpi_type,
+		    mh->dest_node,
+		    mh->tag,
+		    QMP_COMM_WORLD,
+		    &mh->request);
+      break;
+    default:
+      QMP_FATAL("internal error: unknown memory type");
+      break;
+    }
   }
 
   return (QMP_msghandle_t)mh;
@@ -445,28 +486,53 @@ QMP_declare_multiple(QMP_msghandle_t msgh[], int nhandle)
   mmh->tag  = MPI_UNDEFINED;
   mmh0 = mmh;
 
-  /* Link the input messages to the first message */
   /* Count and make sure there are nhandle valid messages */
   for(i=0; i < nhandle; ++i) {
     Message_Handle_t mh = (Message_Handle_t)msgh[i];
-
     if (mh) {
       if(mh->type==MH_multiple) {
-	mmh->next = mh->next;
-	free(mh);
-	while(mmh->next) {
-	  mmh = mmh->next;
-	  num++;
-	}
+	num += mh->num;
       } else {
-	mmh->next = mh;
-	mmh = mmh->next;
+	if(mh->num!=1)
+	  QMP_FATAL("error: attempt to reuse message handle used in multiple");
 	num++;
       }
     } else
       QMP_FATAL("unexpectedly received a null message handle");
   }
   mmh0->num = num;
+  mmh0->request_array = (MPI_Request *) malloc(num*sizeof(MPI_Request));
+  if(!mmh0->request_array) {
+    free(mmh0);
+    QMP_SET_STATUS_CODE (QMP_NOMEM_ERR);
+    return (QMP_msghandle_t)0;
+  }
+
+  num = 0;
+  /* Link the input messages to the first message */
+  for(i=0; i < nhandle; ++i) {
+    Message_Handle_t mh = (Message_Handle_t)msgh[i];
+
+    if(mh->type==MH_multiple) {
+      mmh->next = mh->next;
+      free(mh->request_array);
+      free(mh);
+      while(mmh->next) {
+	mmh = mmh->next;
+	mmh->num = 0;
+	mmh0->request_array[num] = mmh->request;
+	num++;
+      }
+    } else {
+      mmh->next = mh;
+      mmh = mmh->next;
+      mmh->num = 0;
+      mmh0->request_array[num] = mmh->request;
+      num++;
+    }
+  }
+  if(mmh0->num!=num)
+    QMP_FATAL("unexpectedly got wrong count for number of message handles");
 
   return (QMP_msghandle_t)mmh0;
 }

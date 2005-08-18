@@ -1,3 +1,7 @@
+08/17/2005 -- James Osborn
+
+	Version 2.1.0 : Uses persistent communication requests now.
+
 06/29/2005 -- Robert Edwards
 
 	Version 2.0.4 : Removed some ANSI-99-isms. Should compile under c89

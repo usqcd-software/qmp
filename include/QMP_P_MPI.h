@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.3  2005/06/20 22:20:59  osborn
+ *   Fixed inclusion of profiling header.
+ *
  *   Revision 1.2  2004/12/16 02:44:12  osborn
  *   Changed QMP_mem_t structure, fixed strided memory and added test.
  *
@@ -68,10 +71,9 @@
 
 enum MM_type
 {
-  MM_lexico_buf,
+  MM_user_buf,
   MM_strided_buf,
-  MM_strided_array_buf,
-  MM_user_buf
+  MM_strided_array_buf
 };
 
 enum MH_type
@@ -83,7 +85,7 @@ enum MH_type
   MH_recv
 };
 
-/* Message Memory structure */
+/* aligned memory structure */
 struct QMP_mem_struct_t {
   void *aligned_ptr;
   void *allocated_ptr;
@@ -110,10 +112,10 @@ typedef struct Message_Handle
   int          dest_node;
   int          srce_node;
   int          tag;
-  QMP_msghandle_t    next;
   MPI_Request  request;
-  int          refcount;
+  MPI_Request  *request_array;
   QMP_status_t err_code;
+  QMP_msghandle_t    next;
 } Message_Handle;
 
 typedef Message_Handle * Message_Handle_t;
