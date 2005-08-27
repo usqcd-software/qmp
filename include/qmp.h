@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.4  2005/06/20 21:14:53  osborn
+ *   Moved autoconf defines into qmp_config.h to make XLC happy.
+ *
  *   Revision 1.3  2004/12/19 07:30:14  morten
  *   Added function declerations for the new profiling functions.
  *
@@ -87,7 +90,7 @@
  * Provided by autoconf.
  */
 /* not anymore.  if needed we'll add it later. */
-//#define QMP_VERSION_STR PACKAGE_VERSION
+/* #define QMP_VERSION_STR PACKAGE_VERSION */
 
 typedef int                QMP_bool_t;
 #define QMP_TRUE           ((QMP_bool_t)1)
