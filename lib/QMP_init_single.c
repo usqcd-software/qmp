@@ -8,6 +8,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.4  2005/06/29 19:44:32  edwards
+ *   Removed ANSI-99-isms. Now compiles under c89.
+ *
  *   Revision 1.3  2005/06/21 20:18:39  osborn
  *   Added -qmp-geom command line argument to force grid-like behavior.
  *
@@ -62,7 +65,7 @@ QMP_init_machine_i(int* argc, char*** argv)
   }
 
   nd = last - first;
-  if(nd>0) {
+  if(nd<=0) {
     QMP_global_m->ic_type = QMP_SWITCH;
     QMP_global_m->ndim = 0;
     QMP_global_m->geom = NULL;
