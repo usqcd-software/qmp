@@ -8,6 +8,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.5  2005/11/17 06:29:50  osborn
+ *   Fixed bug in SINGLE initialization which swapped SWITCH and MESH modes.
+ *
  *   Revision 1.4  2005/06/29 19:44:32  edwards
  *   Removed ANSI-99-isms. Now compiles under c89.
  *
@@ -38,7 +41,7 @@
 /**
  * This machine information
  */
-static struct QMP_machine par_machine = {.inited=QMP_FALSE};
+static struct QMP_machine par_machine = QMP_MACHINE_INIT;
 QMP_machine_t QMP_global_m = &par_machine;
 
 static struct QMP_logical_topology par_logical_topology;
@@ -93,6 +96,9 @@ QMP_status_t
 QMP_init_msg_passing (int* argc, char*** argv, QMP_thread_level_t required,
                       QMP_thread_level_t *provided)
 {
+  if(QMP_global_m->inited) {
+    QMP_FATAL("QMP_init_msg_passing called but QMP is already initialized!");
+  }
   QMP_global_m->num_nodes = 1;
   QMP_global_m->nodeid = 0;
   QMP_global_m->verbose = 0;

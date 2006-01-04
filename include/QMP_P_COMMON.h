@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.5  2005/06/21 20:18:39  osborn
+ *   Added -qmp-geom command line argument to force grid-like behavior.
+ *
  *   Revision 1.4  2005/06/20 22:20:59  osborn
  *   Fixed inclusion of profiling header.
  *
@@ -106,6 +109,8 @@ typedef struct QMP_machine
   QMP_status_t err_code;
 
 } *QMP_machine_t;
+#define QMP_MACHINE_INIT {QMP_SWITCH, "", QMP_FALSE, 0, 0, 0, NULL, NULL, \
+                          0, 0, QMP_SUCCESS}
 
 extern QMP_machine_t QMP_global_m;
 
