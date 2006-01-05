@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.4  2006/01/05 03:12:56  osborn
+ *   Added --enable-bgl compilation option.
+ *
  *   Revision 1.3  2005/06/21 20:18:39  osborn
  *   Added -qmp-geom command line argument to force grid-like behavior.
  *
@@ -78,7 +81,7 @@ static int *remap=NULL;
 #ifndef HAVE_BGL /* not on a BG/L */
 
 static void
-remap_axes(int ndim, int *dims)
+remap_axes(const int *dims, int ndim)
 {
   int i;
   remap = (int *) malloc(ndim*sizeof(int));
@@ -90,7 +93,7 @@ remap_axes(int ndim, int *dims)
 #include <bglpersonality.h>
 
 static void
-sort(int *index, int *key, int n)
+sort(int *index, const int *key, int n)
 {
   int i, j;
   for(i=0; i<n; i++) index[i] = i;
@@ -108,7 +111,7 @@ sort(int *index, int *key, int n)
 
 /* try to have dims[remap[i]] == bgl_dims[i] */
 static void
-remap_axes(int ndim, int *dims)
+remap_axes(const int *dims, int ndim)
 {
   int i;
   int bgl_ndim=4, bgl_dims[4], bgl_index[4];
@@ -119,7 +122,7 @@ remap_axes(int ndim, int *dims)
   bgl_dims[0] = pers.xSize;
   bgl_dims[1] = pers.ySize;
   bgl_dims[2] = pers.zSize;
-  bgl_dims[3] = (p->opFlags & BGLPERSONALITY_OPFLAGS_VIRTUALNM) ? 2 : 1;
+  bgl_dims[3] = (pers.opFlags & BGLPERSONALITY_OPFLAGS_VIRTUALNM) ? 2 : 1;
   sort(bgl_index, bgl_dims, bgl_ndim);
 
   index = (int *) malloc(ndim*sizeof(int));
@@ -127,7 +130,7 @@ remap_axes(int ndim, int *dims)
 
   remap = (int *) malloc(ndim*sizeof(int));
   for(i=0; i<ndim; i++) {
-    k = i;
+    int k = i;
     if(i<bgl_ndim) k = bgl_index[i];
     remap[k] = index[i];
   }
@@ -199,7 +202,7 @@ QMP_declare_logical_topology (const int* dims, int ndim)
     }
   }
 
-  remap_axes(ndim, dims);
+  remap_axes(dims, ndim);
 
   QMP_topo->dimension = ndim;
   QMP_topo->logical_size = (int *) malloc(ndim*sizeof(int));

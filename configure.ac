@@ -118,6 +118,7 @@ AC_ARG_ENABLE(
     [Use BG/L personality to assist logical layout.]),
   [if test "X$enableval" != "Xno"; then
     AC_DEFINE([HAVE_BGL],[],[compiling for BG/L])
+    AC_MSG_NOTICE([Using BG/L personality.])
   fi]
 )
 
