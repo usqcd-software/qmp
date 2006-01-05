@@ -111,6 +111,16 @@ AC_ARG_ENABLE(
   fi]
 )
 
+dnl --enable-bgl
+AC_ARG_ENABLE(
+  bgl,
+  AC_HELP_STRING([--enable-bgl],
+    [Use BG/L personality to assist logical layout.]),
+  [if test "X$enableval" != "Xno"; then
+    AC_DEFINE([HAVE_BGL],[],[compiling for BG/L])
+  fi]
+)
+
 AM_CONDITIONAL(QMP_SINGLE, [test "X${QMP_COMMS_TYPE}X" = "XSINGLEX"])
 AM_CONDITIONAL(QMP_MPI, [test "X${QMP_COMMS_TYPE}X" = "XMPIX"])
 

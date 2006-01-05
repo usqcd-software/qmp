@@ -1,5 +1,8 @@
-29/06/2005:	James Osborn -- Small changes to compile under C89.
-09/06/2004:	James Osborn -- Updated to API version 2 and added single node
-03/03/2003:	George Fleming -- changed 'qmp_build_env.sh' to 'qmp-config'
-12/12/2002:	George Fleming -- improved (?) automake and autoconf
-26/11/2002:	Balint Joo -- automakeified and autoconfiscated
+2006-01-04: James Osborn -- Added --enable-bgl switch.
+2006-01-04: James Osborn -- Some more C89 fixes.
+2005-08-17: James Osborn -- Uses persistent communication requests now.
+2005-06-29: James Osborn -- Small changes to compile under C89.
+2004-09-06: James Osborn -- Updated to API version 2 and added single node
+2003-03-03: George Fleming -- changed 'qmp_build_env.sh' to 'qmp-config'
+2002-12-12: George Fleming -- improved (?) automake and autoconf
+2002-11-26: Balint Joo -- automakeified and autoconfiscated

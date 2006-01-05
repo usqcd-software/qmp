@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.3  2005/06/21 20:18:39  osborn
+ *   Added -qmp-geom command line argument to force grid-like behavior.
+ *
  *   Revision 1.2  2005/06/20 22:20:59  osborn
  *   Fixed inclusion of profiling header.
  *
@@ -70,43 +73,90 @@
 
 #include "QMP_P_COMMON.h"
 
-static void 
-crtesn_coord(int ipos, int coordf[], 
-	     int latt_size[], int ndim)
-{
-  /* local */
-  unsigned i;
+static int *remap=NULL;
 
-  /* Calculate the Cartesian coordinates of the VALUE of IPOS where the 
-   * value is defined by
-   *
-   *     for i = 0 to NDIM-1  {
-   *        X_i  <- mod( IPOS, L(i) )
-   *        IPOS <- int( IPOS / L(i) )
-   *     }
-   *
-   * NOTE: here the coord(i) and IPOS have their origin at 0. 
-   */
-   for(i=0; i < ndim; ++i)
-   {
-     coordf[i] = ipos % latt_size[i];
-     ipos = ipos / latt_size[i];
-   }
+#ifndef HAVE_BGL /* not on a BG/L */
+
+static void
+remap_axes(int ndim, int *dims)
+{
+  int i;
+  remap = (int *) malloc(ndim*sizeof(int));
+  for(i=0; i<ndim; i++) remap[i] = i;
+}
+
+#else /* HAVE_BGL -- use BG/L personality */
+
+#include <bglpersonality.h>
+
+static void
+sort(int *index, int *key, int n)
+{
+  int i, j;
+  for(i=0; i<n; i++) index[i] = i;
+
+  for(i=0; i<n; i++) {
+    for(j=i+1; j<n; j++) {
+      if(key[index[i]]<key[index[j]]) {
+	int k = index[i];
+	index[i] = index[j];
+	index[j] = k;
+      }
+    }
+  }
+}
+
+/* try to have dims[remap[i]] == bgl_dims[i] */
+static void
+remap_axes(int ndim, int *dims)
+{
+  int i;
+  int bgl_ndim=4, bgl_dims[4], bgl_index[4];
+  int *index;
+  BGLPersonality pers;
+
+  rts_get_personality(&pers, sizeof(pers));
+  bgl_dims[0] = pers.xSize;
+  bgl_dims[1] = pers.ySize;
+  bgl_dims[2] = pers.zSize;
+  bgl_dims[3] = (p->opFlags & BGLPERSONALITY_OPFLAGS_VIRTUALNM) ? 2 : 1;
+  sort(bgl_index, bgl_dims, bgl_ndim);
+
+  index = (int *) malloc(ndim*sizeof(int));
+  sort(index, dims, ndim);
+
+  remap = (int *) malloc(ndim*sizeof(int));
+  for(i=0; i<ndim; i++) {
+    k = i;
+    if(i<bgl_ndim) k = bgl_index[i];
+    remap[k] = index[i];
+  }
+
+  free(index);
+}
+
+#endif /* HAVE_BGL */
+
+static void 
+crtesn_coord(int ipos, int coordf[], int latt_size[], int ndim)
+{
+  int i;
+  for(i=0; i<ndim; ++i) {
+    int ir = remap[i];
+    coordf[ir] = ipos % latt_size[ir];
+    ipos = ipos / latt_size[ir];
+  }
 }
 
 static int 
-crtesn_pos(int coordf[], int latt_size[], 
-	   int ndim)
+crtesn_pos(int coordf[], int latt_size[], int ndim)
 {
-  int k;
-  unsigned ipos;
-
+  int k, ipos;
   ipos = 0;
-  for(k=ndim-1; k >= 0; k--)
-  {
-    ipos = ipos * latt_size[k] + coordf[k]; 
+  for(k=ndim-1; k>=0; k--) {
+    int kr = remap[k];
+    ipos = ipos * latt_size[kr] + coordf[kr]; 
   }
-
   return ipos;
 }
 
@@ -148,6 +198,8 @@ QMP_declare_logical_topology (const int* dims, int ndim)
       }
     }
   }
+
+  remap_axes(ndim, dims);
 
   QMP_topo->dimension = ndim;
   QMP_topo->logical_size = (int *) malloc(ndim*sizeof(int));

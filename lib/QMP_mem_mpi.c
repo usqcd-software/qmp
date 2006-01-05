@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.4  2005/08/18 05:53:09  osborn
+ *   Changed to use persistent communication requests.
+ *
  *   Revision 1.3  2005/06/20 22:20:59  osborn
  *   Fixed inclusion of profiling header.
  *
@@ -212,8 +215,10 @@ QMP_declare_strided_array_msgmem (void* base[],
   if (mem) {
     int err_code, i;
     int tlen[2];
-    MPI_Aint tdisp[2], disp[narray];
-    MPI_Datatype tdt[2], dt[narray];
+    MPI_Aint tdisp[2], *disp;
+    MPI_Datatype tdt[2], *dt;
+    disp = (MPI_Aint *) malloc(narray*sizeof(MPI_Aint));
+    dt = (MPI_Datatype *) malloc(narray*sizeof(MPI_Datatype));
 
 #define check_error if(err_code!=MPI_SUCCESS) { \
       QMP_free_msgmem(mem);			\
@@ -248,6 +253,8 @@ QMP_declare_strided_array_msgmem (void* base[],
       check_error;
     }
 #undef check_error
+    free(dt);
+    free(disp);
   }
   else {
     QMP_SET_STATUS_CODE (QMP_NOMEM_ERR);

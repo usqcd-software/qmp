@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.4  2004/06/14 20:36:30  osborn
+ *   Updated to API version 2 and added single node target
+ *
  *   Revision 1.3  2003/02/13 16:23:04  chen
  *   qmp version 1.2
  *
@@ -61,6 +64,16 @@ get_current_time (void)
   return tv.tv_sec*1000.0 + tv.tv_usec/1000.0;
 }
 
+void
+usage(char *prog)
+{
+  if(QMP_get_node_number()==0) {
+    fprintf(stderr, "%s [-v] [num iters]\n", prog);
+    fprintf(stderr, "  -v : verify on\n");
+  }
+  QMP_abort(1);
+}
+
 int 
 main (int argc, char** argv)
 {
@@ -70,9 +83,7 @@ main (int argc, char** argv)
   int          value, result;
   double       it, ft;
   gcomm_arg_t  my_arg;
-  char         verify[32];
   QMP_thread_level_t req, prv;
-  
 
   req = QMP_THREAD_SINGLE;
   status = QMP_init_msg_passing (&argc, &argv, req, &prv);
@@ -86,28 +97,24 @@ main (int argc, char** argv)
   init_channel_table ();
 #endif
 
-  /* If this is the root node, get dimension information from key board */
-  if (QMP_is_primary_node()) {
-    QMP_fprintf (stderr, "Do you want to verify result[y/n]?\n");
-    scanf ("%s", verify);
-    if (verify[0] == 'y' || verify[0] == 'Y')
+  /* parse command line */
+  if(argc>3) usage(argv[0]);
+  my_arg.verify = QMP_FALSE;
+  my_arg.loops = 10;
+  for(i=1; i<argc; i++) {
+    if(strcmp(argv[i],"-v")==0) {
       my_arg.verify = QMP_TRUE;
-    else
-      my_arg.verify = QMP_FALSE;
-
-    QMP_fprintf (stderr, "Enter number of loops to run.\n");
-    scanf ("%d", &my_arg.loops);
+    } else {
+      my_arg.loops = atoi(argv[i]);
+      if(my_arg.loops<=0) usage(argv[0]);
+    }
   }
 
-  if (QMP_broadcast (&my_arg, sizeof(gcomm_arg_t)) != QMP_SUCCESS) 
-    QMP_abort_string (1, "Cannot do broadcast for arguments, Quit\n");
-
+  QMP_info("Running %d iterations for global sum.", my_arg.loops);
   if (my_arg.verify)
-    QMP_info ("Running %d number of loops for global sum with verification on.\n", 
-	      my_arg.loops);
+    QMP_info("Verification is on.");
   else
-    QMP_info ("Running %d number of loops for global sum with verification off.\n", 
-	      my_arg.loops);
+    QMP_info("Verification is off.");
 
   rank = QMP_get_node_number ();
   size = QMP_get_number_of_nodes ();
@@ -130,7 +137,7 @@ main (int argc, char** argv)
     
   ft = get_current_time ();
 
-  QMP_info ("Summing for a int value for %d nodes takes %lf microseconds.\n",
+  QMP_info ("Summing an int on %d nodes takes %lf microseconds.",
 	    QMP_get_number_of_nodes(), (ft - it)*1000.0/my_arg.loops);
 
   QMP_finalize_msg_passing ();

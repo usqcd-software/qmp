@@ -1,5 +1,8 @@
 /* include/qmp_config.h.in.  Generated from configure.ac by autoheader.  */
 
+/* compiling for BG/L */
+#undef HAVE_BGL
+
 /* Name of package */
 #undef PACKAGE
 

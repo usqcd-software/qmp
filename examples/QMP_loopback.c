@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.4  2004/06/14 20:36:30  osborn
+ *   Updated to API version 2 and added single node target
+ *
  *   Revision 1.3  2003/02/13 16:23:04  chen
  *   qmp version 1.2
  *
@@ -45,8 +48,10 @@ int main (int argc, char** argv)
   QMP_status_t status;
   int  rank;
   QMP_status_t err;
-  int dims[1] = {2};
+  int dims[1];
   int ndims = 1;
+  int andims;
+  int const *adims;
   QMP_thread_level_t req, prv;
 
   QMP_mem_t *rmem, *smem;
@@ -58,7 +63,7 @@ int main (int argc, char** argv)
   verbose = 0;
   if (argc > 1 && strcmp (argv[1], "-v") == 0)
     verbose = 1;
-  
+
   QMP_verbose (verbose);
   req = QMP_THREAD_SINGLE;
   status = QMP_init_msg_passing (&argc, &argv, req, &prv);
@@ -68,12 +73,24 @@ int main (int argc, char** argv)
     return -1;
   }
 
-  status = QMP_declare_logical_topology (dims, ndims);
+  andims = QMP_get_allocated_number_of_dimensions();
+  adims = QMP_get_allocated_dimensions();
+  if(QMP_get_node_number()==0) {
+    printf("allocated machine =");
+    for(i=0; i<andims; i++) printf(" %i", adims[i]);
+    printf("\n");
+  }
+  if(andims==0) {
+    dims[0] = QMP_get_number_of_nodes();
+    status = QMP_declare_logical_topology (dims, ndims);
+  } else {
+    status = QMP_declare_logical_topology (adims, andims);
+  }
 
   if (status != QMP_SUCCESS)
-    QMP_printf ("Cannot declare logical grid\n");
+    QMP_printf ("Cannot declare logical topology\n");
   else
-    QMP_printf ("Declare logical grid ok\n");
+    QMP_printf ("Declare logical topology ok\n");
 
   rank = QMP_get_node_number ();
 
