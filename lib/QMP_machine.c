@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.3  2005/06/21 20:18:39  osborn
+ *   Added -qmp-geom command line argument to force grid-like behavior.
+ *
  *   Revision 1.2  2005/06/20 22:20:59  osborn
  *   Fixed inclusion of profiling header.
  *
@@ -80,6 +83,8 @@
 QMP_ictype_t 
 QMP_get_msg_passing_type (void)
 {
+  ENTER;
+  LEAVE;
   return QMP_global_m->ic_type;
 }
 
@@ -87,6 +92,8 @@ QMP_get_msg_passing_type (void)
 int
 QMP_get_number_of_nodes(void)
 {
+  ENTER;
+  LEAVE;
   return QMP_global_m->num_nodes;
 }
 
@@ -94,6 +101,8 @@ QMP_get_number_of_nodes(void)
 int
 QMP_get_node_number(void)
 {
+  ENTER;
+  LEAVE;
   return QMP_global_m->nodeid;
 }
 
@@ -101,6 +110,8 @@ QMP_get_node_number(void)
 QMP_bool_t
 QMP_is_primary_node(void)
 {
+  ENTER;
+  LEAVE;
   return (QMP_global_m->nodeid == 0) ? QMP_TRUE : QMP_FALSE;
 }
 
@@ -108,50 +119,69 @@ QMP_is_primary_node(void)
 int
 QMP_get_allocated_number_of_dimensions(void)
 {
+  int ndim;
+  ENTER;
   if (!QMP_global_m->inited) {
     QMP_FATAL ("QMP system is not initialized.");
-    return 0;
+    ndim = 0;
+  } else {
+    ndim = QMP_global_m->ndim;
   }
-  return QMP_global_m->ndim;
+  LEAVE;
+  return ndim;
 }
 
 /* Return the physical size of the machine */
 const int *
 QMP_get_allocated_dimensions(void)
 {
+  const int *geom;
+  ENTER;
   if (!QMP_global_m->inited) {
     QMP_FATAL ("QMP system is not initialized.");
-    return 0;
+    geom = NULL;
+  } else {
+    geom = QMP_global_m->geom;
   }
-  return QMP_global_m->geom;
+  LEAVE;
+  return geom;
 }
 
 /* Return the physical coordinate of this node */
 const int *
 QMP_get_allocated_coordinates(void)
 {
+  const int *coord;
+  ENTER;
   if (!QMP_global_m->inited) {
     QMP_FATAL("QMP system is not initialized.");
-    return 0;
+    coord = NULL;
+  } else {
+    coord = QMP_global_m->coord;
   }
-  return QMP_global_m->coord;
+  LEAVE;
+  return coord;
 }
 
 /* For partitioned I/O, nodes are partitioned into subsets.  Each
    subset includes a designated I/O node.  This function maps a node
    to its I/O node. */
+/* The default partitioning scheme for switched clusters has each node
+   perform as its own I/O node, subsets have only one member. */
 int
-QMP_io_node(int node){
-  /* The default partitioning scheme for switched
-     clusters has each node perform as its own I/O node, subsets
-     have only one member */
+QMP_io_node(int node)
+{
+  ENTER;
+  LEAVE;
   return node;
 }
 
 /* For binary file I/O we designate a master I/O node for the entire
-   machine.  This global constant defines it */
-
-int 
-QMP_master_io_node(void){
+   machine.  This global constant defines it. */
+int
+QMP_master_io_node(void)
+{
+  ENTER;
+  LEAVE;
   return 0;
 }

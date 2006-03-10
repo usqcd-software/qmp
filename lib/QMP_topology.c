@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.5  2006/01/05 19:32:09  osborn
+ *   Fixes to BG/L personality code.  Ready for version 2.1.3.
+ *
  *   Revision 1.4  2006/01/05 03:12:56  osborn
  *   Added --enable-bgl compilation option.
  *
@@ -164,20 +167,24 @@ crtesn_pos(int coordf[], int latt_size[], int ndim)
 }
 
 /* This is called by all children */
-QMP_status_t  
+QMP_status_t
 QMP_declare_logical_topology (const int* dims, int ndim)
 {
   int i;
   int num_nodes = 1;
+  QMP_status_t status = QMP_SUCCESS;
+  ENTER;
 
   if (ndim < 0) {
     QMP_error ("QMP_declare_logical_topology: invalid ndim = %d\n", ndim);
-    return QMP_INVALID_ARG;
+    status = QMP_INVALID_ARG;
+    goto leave;
   }
   for(i=0; i < ndim; ++i) {
     if (dims[i] < 1) {
       QMP_error ("QMP_declare_logical_topology: invalid length\n");
-      return QMP_INVALID_ARG;
+      status = QMP_INVALID_ARG;
+      goto leave;
     }
 
     num_nodes *= dims[i];
@@ -186,18 +193,21 @@ QMP_declare_logical_topology (const int* dims, int ndim)
   if (num_nodes != QMP_global_m->num_nodes)
   {
     QMP_error ("QMP_declare_logical_topology: requested machine size not equal to number of nodes\n");
-    return QMP_INVALID_ARG;
+    status = QMP_INVALID_ARG;
+    goto leave;
   }
 
   if(QMP_global_m->ic_type!=QMP_SWITCH) {
     if(ndim!=QMP_global_m->ndim) {
       QMP_error ("QMP_declare_logical_topology: requested ndim (%d) not equal to machine ndim (%d)\n", ndim, QMP_global_m->ndim);
-      return QMP_INVALID_ARG;
+      status = QMP_INVALID_ARG;
+      goto leave;
     }
     for(i=0; i<ndim; ++i) {
       if(dims[i] != QMP_global_m->geom[i]) {
 	QMP_error ("QMP_declare_logical_topology: requested dim (%d) not equal to machine geom (%d) in direction %d\n", dims[i], QMP_global_m->geom[i], i);
-	return QMP_INVALID_ARG;
+	status = QMP_INVALID_ARG;
+	goto leave;
       }
     }
   }
@@ -233,13 +243,17 @@ QMP_declare_logical_topology (const int* dims, int ndim)
 
   QMP_topo->topology_declared = QMP_TRUE;
 
-  return QMP_SUCCESS;
+ leave:
+  LEAVE;
+  return status;
 }
 
 /* Is the logical topology declared? */
 QMP_bool_t
 QMP_logical_topology_is_declared (void)
 {
+  ENTER;
+  LEAVE;
   return  QMP_topo->topology_declared;
 }
 
@@ -247,6 +261,8 @@ QMP_logical_topology_is_declared (void)
 int
 QMP_get_logical_number_of_dimensions(void)
 {
+  ENTER;
+  LEAVE;
   return QMP_topo->dimension;
 }
 
@@ -254,6 +270,8 @@ QMP_get_logical_number_of_dimensions(void)
 const int *
 QMP_get_logical_dimensions(void)
 {
+  ENTER;
+  LEAVE;
   return QMP_topo->logical_size;
 }
 
@@ -261,6 +279,8 @@ QMP_get_logical_dimensions(void)
 const int *
 QMP_get_logical_coordinates(void)
 {
+  ENTER;
+  LEAVE;
   return QMP_topo->logical_coord;
 }
 
@@ -269,12 +289,14 @@ int *
 QMP_get_logical_coordinates_from (int node)
 {
   int* nc;
+  ENTER;
 
   nc = (int *)malloc (sizeof(int)*QMP_topo->dimension);
 
   crtesn_coord (node, nc, QMP_topo->logical_size,
 		QMP_topo->dimension);
 
+  LEAVE;
   return nc;
 }
 
@@ -285,9 +307,11 @@ int
 QMP_get_node_number_from (const int* coordinates)
 {
   int logic_node;
+  ENTER;
 
   logic_node = crtesn_pos ((int *)coordinates, QMP_topo->logical_size,
 			   QMP_topo->dimension);
 
+  LEAVE;
   return logic_node;
 }

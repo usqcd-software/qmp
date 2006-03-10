@@ -8,6 +8,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.6  2006/01/04 20:27:01  osborn
+ *   Removed C99 named initializer.
+ *
  *   Revision 1.5  2005/11/17 06:29:50  osborn
  *   Fixed bug in SINGLE initialization which swapped SWITCH and MESH modes.
  *
@@ -54,6 +57,8 @@ QMP_logical_topology_t QMP_topo = &par_logical_topology;
 static void
 QMP_init_machine_i(int* argc, char*** argv)
 {
+  ENTER;
+
   /* get host name of this machine */
   gethostname (QMP_global_m->host, sizeof (QMP_global_m->host));
 
@@ -89,6 +94,7 @@ QMP_init_machine_i(int* argc, char*** argv)
     for(i=last+1; i<*argc; i++) (*argv)[i-nd-1] = (*argv)[i];
     *argc -= nd + 1;
   }
+  LEAVE;
 }
 
 /* Initialize QMP */
@@ -96,6 +102,7 @@ QMP_status_t
 QMP_init_msg_passing (int* argc, char*** argv, QMP_thread_level_t required,
                       QMP_thread_level_t *provided)
 {
+  ENTER;
   if(QMP_global_m->inited) {
     QMP_FATAL("QMP_init_msg_passing called but QMP is already initialized!");
   }
@@ -110,6 +117,7 @@ QMP_init_msg_passing (int* argc, char*** argv, QMP_thread_level_t required,
 
   QMP_init_machine_i(argc, argv);
 
+  LEAVE;
   return QMP_global_m->err_code;
 }
 
@@ -117,26 +125,32 @@ QMP_init_msg_passing (int* argc, char*** argv, QMP_thread_level_t required,
 void
 QMP_finalize_msg_passing(void)
 {
+  ENTER;
   if(!QMP_global_m->inited) {
     QMP_FATAL("QMP_finalize_msg_passing called but QMP is not initialized!");
   }
   QMP_global_m->inited = QMP_FALSE;
+  LEAVE;
 }
 
 /* Abort the program */
 void 
 QMP_abort(int error_code)
 {
+  ENTER;
   fprintf(stderr, "node 0/1: QMP Aborted!\n");
   exit(error_code);
+  LEAVE;
 }
 
 /* Print string and abort the program */
 void
 QMP_abort_string(int error_code, char *message)
 {
+  ENTER;
   fprintf(stderr, message);
   fprintf(stderr, "\n");
   fprintf(stderr, "node 0/1: QMP Aborted!\n");
   exit(error_code);
+  LEAVE;
 }

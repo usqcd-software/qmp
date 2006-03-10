@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.7  2006/01/04 20:27:01  osborn
+ *   Removed C99 named initializer.
+ *
  *   Revision 1.6  2005/08/18 05:53:09  osborn
  *   Changed to use persistent communication requests.
  *
@@ -102,6 +105,8 @@ QMP_logical_topology_t QMP_topo = &par_logical_topology;
 static void
 QMP_init_machine_i(int* argc, char*** argv)
 {
+  ENTER_INIT;
+
   /* get host name of this machine */
   gethostname (QMP_global_m->host, sizeof (QMP_global_m->host));
 
@@ -138,6 +143,7 @@ QMP_init_machine_i(int* argc, char*** argv)
     *argc -= nd + 1;
   }
   /* QMP_printf("allocated dimensions = %i\n", QMP_global_m->ndim); */
+  LEAVE_INIT;
 }
 
 /* This is called by the parent */
@@ -148,6 +154,7 @@ QMP_init_msg_passing (int* argc, char*** argv, QMP_thread_level_t required,
  /* Basic variables containing number of nodes and which node this process is */
   int PAR_num_nodes;
   int PAR_node_rank;
+  ENTER_INIT;
 
   if(QMP_global_m->inited) {
     QMP_FATAL("QMP_init_msg_passing called but QMP is already initialized!");
@@ -178,11 +185,14 @@ QMP_init_msg_passing (int* argc, char*** argv, QMP_thread_level_t required,
   QMP_global_m->proflevel = 0;
   QMP_global_m->inited = QMP_TRUE;
   QMP_global_m->err_code = QMP_SUCCESS;
+  QMP_global_m->total_qmp_time = 0.0;
+  QMP_global_m->timer_started = 0;
 
   QMP_topo->topology_declared = QMP_FALSE;
 
   QMP_init_machine_i(argc, argv);
 
+  LEAVE_INIT;
   return QMP_global_m->err_code;
 }
 
@@ -190,22 +200,30 @@ QMP_init_msg_passing (int* argc, char*** argv, QMP_thread_level_t required,
 void
 QMP_finalize_msg_passing(void)
 {
+  ENTER_INIT;
   MPI_Finalize();
   QMP_global_m->inited = QMP_FALSE;
+  LEAVE_INIT;
 }
 
 /* Abort the program */
 void 
 QMP_abort(int error_code)
 {
+  ENTER_INIT;
   MPI_Abort(QMP_COMM_WORLD, error_code);
+  QMP_global_m->inited = QMP_FALSE;
+  LEAVE_INIT;
 }
 
 /* Print string and abort the program */
 void
 QMP_abort_string(int error_code, char *message)
 {
+  ENTER_INIT;
   fprintf(stderr, message);
   fprintf(stderr, "\n");
   MPI_Abort(QMP_COMM_WORLD, error_code);
+  QMP_global_m->inited = QMP_FALSE;
+  LEAVE_INIT;
 }

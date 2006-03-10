@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(qmp, 2.1.3, josborn@physics.bu.edu)
+AC_INIT(qmp, 2.1.4, josborn@physics.bu.edu)
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_SRCDIR([lib/QMP_grid.c])
 AC_CONFIG_SRCDIR([examples/QMP_test.c])
@@ -108,6 +108,16 @@ AC_ARG_ENABLE(
     [build QMP with weak linkage allowing profiling library to be inserted]),
   [if test "X$enableval" != "Xno"; then
     AC_DEFINE([QMP_BUILD_PROFILING],[],[build QMP to allow profiling])
+  fi]
+)
+
+dnl --enable-timing
+AC_ARG_ENABLE(
+  timing,
+  AC_HELP_STRING([--enable-timing],
+    [turn on timing of all QMP functions]),
+  [if test "X$enableval" != "Xno"; then
+    AC_DEFINE([QMP_BUILD_TIMING],[],[build QMP with function timing])
   fi]
 )
 

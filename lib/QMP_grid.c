@@ -24,6 +24,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.4  2005/06/21 20:18:39  osborn
+ *   Added -qmp-geom command line argument to force grid-like behavior.
+ *
  *   Revision 1.3  2005/06/20 22:20:59  osborn
  *   Fixed inclusion of profiling header.
  *
@@ -111,6 +114,8 @@ QMP_layout_grid (const int *dims, int ndim)
 {
   int squaresize[ndim], nsquares[ndim];
   int i;
+  QMP_status_t status = QMP_SUCCESS;
+  ENTER;
 
   if(QMP_global_m->ic_type!=QMP_SWITCH) {
     QMP_declare_logical_topology(QMP_global_m->geom, QMP_global_m->ndim);
@@ -119,7 +124,6 @@ QMP_layout_grid (const int *dims, int ndim)
   /* If logical topology not set, this machine allows configuration of size */
   if (! QMP_logical_topology_is_declared()) {
     int j, k, n;
-    QMP_status_t status;
 
     /* Initialize subgrid and machine size */
     for(i=0; i<ndim; ++i) {
@@ -152,7 +156,8 @@ QMP_layout_grid (const int *dims, int ndim)
       /* This can fail if we run out of prime factors in the dimensions */
       if(j<0) {
 	QMP_error("Not enough prime factors for QMP_layout_grid\n");
-	return QMP_ERROR;
+	status = QMP_ERROR;
+	goto leave;
       }
 
       /* do the surgery */
@@ -165,14 +170,15 @@ QMP_layout_grid (const int *dims, int ndim)
     status = QMP_declare_logical_topology(nsquares, ndim);
     if (status != QMP_SUCCESS) {
       QMP_error("QMP_layout_grid: error creating logical topology\n");
-      return status;
+      goto leave;
     }
 
   } else {  /* Logical topology is already declared */
 
     if(ndim < QMP_topo->dimension) {
       QMP_error("grid dimension is less than logical dimension\n");
-      return QMP_ERROR;
+      status = QMP_ERROR;
+      goto leave;
     }
 
     /* copy logical size and pad with ones */
@@ -185,7 +191,8 @@ QMP_layout_grid (const int *dims, int ndim)
     for(i=0; i<ndim; i++) {
       if(dims[i]%nsquares[i] != 0) {
 	QMP_error("grid size does not fit on logical topology\n");
-	return QMP_ERROR;
+	status = QMP_ERROR;
+	goto leave;
       }
       squaresize[i] = dims[i]/nsquares[i];
     }
@@ -201,13 +208,17 @@ QMP_layout_grid (const int *dims, int ndim)
     subgrid.vol *= squaresize[i];
   }
 
-  return QMP_SUCCESS;
+ leave:
+  LEAVE;
+  return status;
 }
 
 /* Return the logical subgrid size on each node */
 const int *
 QMP_get_subgrid_dimensions (void)
 {
+  ENTER;
+  LEAVE;
   return (const int *) subgrid.length;
 }
 
@@ -215,5 +226,7 @@ QMP_get_subgrid_dimensions (void)
 int
 QMP_get_number_of_subgrid_sites (void)
 {
+  ENTER;
+  LEAVE;
   return subgrid.vol;
 }

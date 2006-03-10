@@ -8,6 +8,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.2  2005/06/20 22:20:59  osborn
+ *   Fixed inclusion of profiling header.
+ *
  *   Revision 1.1  2004/10/08 04:49:34  osborn
  *   Split src directory into include and lib.
  *
@@ -64,15 +67,21 @@ const char*
 QMP_error_string (QMP_status_t code)
 {
   static char errstr[256];
+  const char *retval;
+  ENTER;
 
-  if (code == QMP_SUCCESS)
-    return QMP_error_strings[code];
-
-  if (code < QMP_MAX_STATUS && code >= QMP_ERROR)
-    return QMP_error_strings[code - QMP_ERROR + 1];
-
-  snprintf (errstr, sizeof (errstr), "unknown error code %d", code);
-  return (const char *)&errstr;
+  if (code == QMP_SUCCESS) {
+    retval = QMP_error_strings[code];
+  }
+  else if (code < QMP_MAX_STATUS && code >= QMP_ERROR) {
+    retval = QMP_error_strings[code - QMP_ERROR + 1];
+  }
+  else {
+    snprintf (errstr, sizeof (errstr), "unknown error code %d", code);
+    retval = &errstr;
+  }
+  LEAVE;
+  return retval;
 }
 
 /**
@@ -86,8 +95,10 @@ QMP_error_string (QMP_status_t code)
 QMP_status_t
 QMP_get_error_number (QMP_msghandle_t mh)
 {
+  ENTER;
   QMP_error("QMP_start: passed QMP_msghandle_t not allocated\n");
   QMP_abort(1);
+  LEAVE;
   return QMP_ERROR;
 }
 
@@ -102,7 +113,9 @@ QMP_get_error_number (QMP_msghandle_t mh)
 const char*
 QMP_get_error_string (QMP_msghandle_t mh)
 {
+  ENTER;
   QMP_error("QMP_start: passed QMP_msghandle_t not allocated\n");
   QMP_abort(1);
+  LEAVE;
   return (const char *)0;
 }

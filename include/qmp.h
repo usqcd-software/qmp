@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.5  2005/08/27 19:49:16  osborn
+ *   Removed a '//' to make people who don't want to use C99 happy.
+ *
  *   Revision 1.4  2005/06/20 21:14:53  osborn
  *   Moved autoconf defines into qmp_config.h to make XLC happy.
  *
@@ -785,10 +788,11 @@ extern int   QMP_info               (const char *format, ...);
 extern int   QMP_error              (const char *format, ...);
 
 /**
- *Profiling fuunction declarations
+ *  Profiling function declarations
  */
 
-extern void  QMP_reset_total_qmp_time(void);
+extern double QMP_time(void);
+extern void   QMP_reset_total_qmp_time(void);
 extern double QMP_get_total_qmp_time(void);
 
 #ifdef __cplusplus

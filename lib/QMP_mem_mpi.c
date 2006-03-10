@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.5  2006/01/05 03:12:56  osborn
+ *   Added --enable-bgl compilation option.
+ *
  *   Revision 1.4  2005/08/18 05:53:09  osborn
  *   Changed to use persistent communication requests.
  *
@@ -76,8 +79,14 @@
 QMP_mem_t *
 QMP_allocate_memory (size_t nbytes)
 {
-  return
+  QMP_mem_t *mem;
+  ENTER;
+
+  mem =
     QMP_allocate_aligned_memory(nbytes, QMP_ALIGN_DEFAULT, QMP_MEM_DEFAULT);
+
+  LEAVE;
+  return mem;
 }
 
 /**
@@ -87,6 +96,7 @@ QMP_mem_t *
 QMP_allocate_aligned_memory (size_t nbytes, size_t alignment, int flags)
 {
   QMP_mem_t *mem;
+  ENTER;
 
   mem = (QMP_mem_t *) malloc(sizeof(QMP_mem_t));
   if(mem) {
@@ -103,6 +113,8 @@ QMP_allocate_aligned_memory (size_t nbytes, size_t alignment, int flags)
       mem = NULL;
     }
   }
+
+  LEAVE;
   return mem;
 }
 
@@ -112,6 +124,8 @@ QMP_allocate_aligned_memory (size_t nbytes, size_t alignment, int flags)
 void *
 QMP_get_memory_pointer (QMP_mem_t* mem)
 {
+  ENTER;
+  LEAVE;
   return mem->aligned_ptr;
 }
 
@@ -121,24 +135,32 @@ QMP_get_memory_pointer (QMP_mem_t* mem)
 void
 QMP_free_memory (QMP_mem_t* mem)
 {
+  ENTER;
   if(mem) {
     free(mem->allocated_ptr);
     free(mem);
   }
+  LEAVE;
 }
 
 /* Alloc message handler */
 static QMP_msgmem_t MP_allocMsgMem(void)
 {
-  return (QMP_msgmem_t)malloc(sizeof(Message_Memory));
+  QMP_msgmem_t mem;
+  ENTER;
+  mem = (QMP_msgmem_t)malloc(sizeof(Message_Memory));
+  LEAVE;
+  return mem;
 }
 
 /* Basic buffer constructor */
 QMP_msgmem_t
 QMP_declare_msgmem(const void *buf, size_t nbytes)
 {
-  Message_Memory_t mem = (Message_Memory_t)MP_allocMsgMem();
+  Message_Memory_t mem;
+  ENTER;
 
+  mem = (Message_Memory_t)MP_allocMsgMem();
   if (mem)
   {
     mem->type = MM_user_buf;
@@ -149,6 +171,7 @@ QMP_declare_msgmem(const void *buf, size_t nbytes)
   else
     QMP_SET_STATUS_CODE (QMP_NOMEM_ERR);
 
+  LEAVE;
   return (QMP_msgmem_t)mem;
 }
 
@@ -158,8 +181,10 @@ QMP_declare_strided_msgmem (void* base,
 			    int nblocks,
 			    ptrdiff_t stride)
 {
-  Message_Memory_t mem = (Message_Memory_t)MP_allocMsgMem();
+  Message_Memory_t mem;
+  ENTER;
 
+  mem = (Message_Memory_t)MP_allocMsgMem();
   if (mem) {
     int err_code;
 
@@ -170,7 +195,6 @@ QMP_declare_strided_msgmem (void* base,
       mem->type = MM_user_buf;
       mem->nbytes = blksize*nblocks;
       mem->mpi_type = MPI_BYTE;
-      return(QMP_msgmem_t)mem;
     } else {
       mem->type = MM_strided_buf;
       /* Really strided */
@@ -181,23 +205,26 @@ QMP_declare_strided_msgmem (void* base,
       if( err_code != MPI_SUCCESS) {
 	QMP_free_msgmem(mem);
 	QMP_SET_STATUS_CODE (QMP_ERROR);
-	return(QMP_msgmem_t)0;
+	mem = NULL;
+	goto leave;
       }
 
       err_code = MPI_Type_commit(&(mem->mpi_type));
       if( err_code != MPI_SUCCESS) { 
 	QMP_free_msgmem(mem);
 	QMP_SET_STATUS_CODE(QMP_ERROR);
-        return(QMP_msgmem_t)0;
+	mem = NULL;
+	goto leave;
       }
-      /* It succeeded */
-      return (QMP_msgmem_t)mem;
     }
 
   } else {
     QMP_SET_STATUS_CODE (QMP_NOMEM_ERR);
-    return(QMP_msgmem_t)0;
   }
+
+ leave:
+  LEAVE;
+  return (QMP_msgmem_t)mem;
 }
 
 /**
@@ -210,8 +237,10 @@ QMP_declare_strided_array_msgmem (void* base[],
 				  ptrdiff_t stride[],
 				  int narray)
 {
-  Message_Memory_t mem = (Message_Memory_t)MP_allocMsgMem();
+  Message_Memory_t mem;
+  ENTER;
 
+  mem = (Message_Memory_t)MP_allocMsgMem();
   if (mem) {
     int err_code, i;
     int tlen[2];
@@ -223,7 +252,8 @@ QMP_declare_strided_array_msgmem (void* base[],
 #define check_error if(err_code!=MPI_SUCCESS) { \
       QMP_free_msgmem(mem);			\
       QMP_SET_STATUS_CODE (QMP_ERROR);		\
-      return(QMP_msgmem_t)0;			\
+      mem = NULL;				\
+      goto leave;				\
     }
 
     mem->type = MM_strided_array_buf;
@@ -259,23 +289,30 @@ QMP_declare_strided_array_msgmem (void* base[],
   else {
     QMP_SET_STATUS_CODE (QMP_NOMEM_ERR);
   }
+
+ leave:
+  LEAVE;
   return (QMP_msgmem_t)mem;
 }
 
 /* Basic buffer destructor */
-void QMP_free_msgmem(QMP_msgmem_t mm)
+void
+QMP_free_msgmem(QMP_msgmem_t mm)
 {
-  struct Message_Memory* mem = (struct Message_Memory *)mm;
+  ENTER;
 
-  if (!mem)
-    return;
+  if (mm) {
+    struct Message_Memory* mem = (struct Message_Memory *)mm;
 
-  if ( (mem->type == MM_strided_buf) ||
-       (mem->type == MM_strided_array_buf) ) {
-    MPI_Type_free(&(mem->mpi_type));
+    if ( (mem->type == MM_strided_buf) ||
+	 (mem->type == MM_strided_array_buf) ) {
+      MPI_Type_free(&(mem->mpi_type));
+    }
+
+    free(mem);
   }
 
-  free(mem);
+  LEAVE;
 }
 
 
@@ -283,8 +320,10 @@ void QMP_free_msgmem(QMP_msgmem_t mm)
 static QMP_msghandle_t 
 MP_allocMsgHandler(void)
 {
-  Message_Handle_t mh = (Message_Handle_t)malloc(sizeof(Message_Handle));
+  Message_Handle_t mh;
+  ENTER;
 
+  mh = (Message_Handle_t)malloc(sizeof(Message_Handle));
   if (mh)
   {
     mh->type = MH_empty;
@@ -299,15 +338,18 @@ MP_allocMsgHandler(void)
     mh->err_code = QMP_SUCCESS;
   }
 
+  LEAVE;
   return (QMP_msghandle_t)mh;
 }
 
 /* Basic handler destructor */
-void QMP_free_msghandle (QMP_msghandle_t msgh)
+void
+QMP_free_msghandle (QMP_msghandle_t msgh)
 {
   Message_Handle_t first = (Message_Handle_t)msgh;
   Message_Handle_t current;
   Message_Handle_t previous;
+  ENTER;
 
   if (first) {
     if(first->num==0) 
@@ -344,13 +386,16 @@ void QMP_free_msghandle (QMP_msghandle_t msgh)
       break;
     }
   }
+  LEAVE;
 }
 
 QMP_msghandle_t
 QMP_declare_receive_from (QMP_msgmem_t mmt, int sourceNode, int priority)
 {
-  Message_Handle_t mh = (Message_Handle_t)MP_allocMsgHandler();
+  Message_Handle_t mh;
+  ENTER;
 
+  mh = (Message_Handle_t)MP_allocMsgHandler();
   if (mh) {
     Message_Memory_t mm = (Message_Memory_t) mmt;
     mh->type = MH_recv;
@@ -390,6 +435,7 @@ QMP_declare_receive_from (QMP_msgmem_t mmt, int sourceNode, int priority)
     }
   }
 
+  LEAVE;
   return (QMP_msghandle_t)mh;
 }
 
@@ -397,8 +443,10 @@ QMP_declare_receive_from (QMP_msgmem_t mmt, int sourceNode, int priority)
 QMP_msghandle_t
 QMP_declare_send_to (QMP_msgmem_t mmt, int remoteHost, int priority)
 {
-  Message_Handle_t mh = (Message_Handle_t)MP_allocMsgHandler();
+  Message_Handle_t mh;
+  ENTER;
 
+  mh = (Message_Handle_t)MP_allocMsgHandler();
   if (mh) {
     Message_Memory_t mm = (Message_Memory_t) mmt;
     mh->type = MH_send;
@@ -442,6 +490,7 @@ QMP_declare_send_to (QMP_msgmem_t mmt, int remoteHost, int priority)
     }
   }
 
+  LEAVE;
   return (QMP_msghandle_t)mh;
 }
 
@@ -456,18 +505,30 @@ QMP_msghandle_t
 QMP_declare_receive_relative(QMP_msgmem_t mm, int dir, int isign,
 			     int priority)
 {
-  int ii = (isign > 0) ? 1 : 0;
+  int ii;
+  QMP_msghandle_t mh;
+  ENTER;
 
-  return QMP_declare_receive_from (mm, QMP_topo->neigh[ii][dir], priority);
+  ii = (isign > 0) ? 1 : 0;
+  mh = QMP_declare_receive_from (mm, QMP_topo->neigh[ii][dir], priority);
+
+  LEAVE;
+  return mh;
 }
 
 QMP_msghandle_t
 QMP_declare_send_relative (QMP_msgmem_t mm, int dir, int isign,
 			   int priority)
 {
-  int ii = (isign > 0) ? 1 : 0;
+  int ii;
+  QMP_msghandle_t mh;
+  ENTER;
 
-  return QMP_declare_send_to(mm, QMP_topo->neigh[ii][dir], priority);
+  ii = (isign > 0) ? 1 : 0;
+  mh = QMP_declare_send_to(mm, QMP_topo->neigh[ii][dir], priority);
+
+  LEAVE;
+  return mh;
 }
 
 /* Declare multiple messages */
@@ -476,22 +537,21 @@ QMP_declare_send_relative (QMP_msgmem_t mm, int dir, int isign,
 QMP_msghandle_t
 QMP_declare_multiple(QMP_msghandle_t msgh[], int nhandle)
 {
-  Message_Handle_t mmh = (Message_Handle_t)MP_allocMsgHandler();
   Message_Handle_t mmh0;
+  Message_Handle_t mmh;
   int num=0;
   int i;
 
-  if (! mmh)
-    return mmh;
+  mmh0 = (Message_Handle_t)MP_allocMsgHandler();
+  if (!mmh0) goto leave;
 
   /* The first handle is a indicator it is a placeholder */
-  mmh->type = MH_multiple;
-  mmh->mm = NULL;
-  /* mmh->num = nhandle;  fill this in later */
-  mmh->dest_node = MPI_UNDEFINED;
-  mmh->srce_node = MPI_UNDEFINED;
-  mmh->tag  = MPI_UNDEFINED;
-  mmh0 = mmh;
+  mmh0->type = MH_multiple;
+  mmh0->mm = NULL;
+  /* mmh0->num = nhandle;  fill this in later */
+  mmh0->dest_node = MPI_UNDEFINED;
+  mmh0->srce_node = MPI_UNDEFINED;
+  mmh0->tag  = MPI_UNDEFINED;
 
   /* Count and make sure there are nhandle valid messages */
   for(i=0; i < nhandle; ++i) {
@@ -512,9 +572,11 @@ QMP_declare_multiple(QMP_msghandle_t msgh[], int nhandle)
   if(!mmh0->request_array) {
     free(mmh0);
     QMP_SET_STATUS_CODE (QMP_NOMEM_ERR);
-    return (QMP_msghandle_t)0;
+    mmh0 = NULL;
+    goto leave;
   }
 
+  mmh = mmh0;
   num = 0;
   /* Link the input messages to the first message */
   for(i=0; i < nhandle; ++i) {
@@ -541,5 +603,7 @@ QMP_declare_multiple(QMP_msghandle_t msgh[], int nhandle)
   if(mmh0->num!=num)
     QMP_FATAL("unexpectedly got wrong count for number of message handles");
 
+ leave:
+  LEAVE;
   return (QMP_msghandle_t)mmh0;
 }

@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.5  2005/08/18 05:53:09  osborn
+ *   Changed to use persistent communication requests.
+ *
  *   Revision 1.4  2005/06/20 22:20:59  osborn
  *   Fixed inclusion of profiling header.
  *
@@ -81,43 +84,41 @@ QMP_start (QMP_msghandle_t msgh)
 {
   Message_Handle_t mh = (Message_Handle_t)msgh;
   int err = QMP_SUCCESS;
+  ENTER;
 
-#ifdef _QMP_DEBUG
-  QMP_info ("starting QMP_start: id=%d\n", QMP_get_node_number());
-#endif
+  if(!mh) {
 
-  if (!mh) {
+    err = QMP_INVALID_ARG;
     QMP_SET_STATUS_CODE(QMP_INVALID_ARG);
-    return QMP_INVALID_ARG;
+
+  } else {
+
+    switch (mh->type) {
+    case MH_multiple:
+      MPI_Startall(mh->num, mh->request_array);
+      mh->activeP = 1;
+      break;
+
+    case MH_send:
+    case MH_recv:
+      MPI_Start(&mh->request);
+      mh->activeP = 1;
+      break;
+
+    case MH_freed:
+    case MH_empty:
+      err = QMP_INVALID_OP;
+      QMP_SET_STATUS_CODE (QMP_INVALID_OP);
+      break;
+
+    default:
+      QMP_FATAL("internal error: unknown message type");
+      break;
+    }
+
   }
 
-  switch (mh->type) {
-  case MH_multiple:
-    MPI_Startall(mh->num, mh->request_array);
-    mh->activeP = 1;
-    break;
-
-  case MH_send:
-  case MH_recv:
-    MPI_Start(&mh->request);
-    mh->activeP = 1;
-    break;
-
-  case MH_freed:
-  case MH_empty:
-    err = QMP_INVALID_OP;
-    QMP_SET_STATUS_CODE (QMP_INVALID_OP);
-    break;
-
-  default:
-    QMP_FATAL("internal error: unknown message type");
-    break;
-  }
-
-#ifdef _QMP_DEBUG
-  QMP_info ("Finished QMP_start: id=%d\n",QMP_get_node_number());
-#endif
-
+  LEAVE;
   return err;
 }
 
@@ -128,10 +129,7 @@ QMP_wait_send_receive(QMP_msghandle_t msgh)
 {
   Message_Handle_t mh = (Message_Handle_t)msgh;
   int flag = QMP_SUCCESS;
-
-#ifdef _QMP_DEBUG
-  QMP_info ("Calling QMP_wait, id=%d\n",QMP_get_node_number());
-#endif
+  ENTER;
 
   switch (mh->type) {
 
@@ -172,10 +170,7 @@ QMP_wait_send_receive(QMP_msghandle_t msgh)
 
   }
 
-#ifdef _QMP_DEBUG
-  QMP_info ("Finished waitForSend, id=%d\n",QMP_get_node_number());
-#endif
-
+  LEAVE;
   return flag;
 }
 
@@ -186,10 +181,7 @@ QMP_is_complete(QMP_msghandle_t msgh)
   Message_Handle_t mh = (Message_Handle_t)msgh;
   int flag, callst;
   QMP_bool_t done = QMP_FALSE;
-
-#ifdef _QMP_DEBUG
-  QMP_info ("Calling QMP_is_complete, id=%d\n", QMP_get_node_number());
-#endif
+  ENTER;
 
   switch (mh->type) {
 
@@ -235,10 +227,7 @@ QMP_is_complete(QMP_msghandle_t msgh)
 
   }
 
-#ifdef _QMP_DEBUG
-  QMP_info ("Finished QMP_is_complete, id=%d\n", QMP_get_node_number());
-#endif
-
+  LEAVE;
   return done;
 }
 
@@ -248,19 +237,13 @@ QMP_status_t
 QMP_wait(QMP_msghandle_t msgh)
 {
   int err = QMP_SUCCESS;
-
-#ifdef _QMP_DEBUG
-  QMP_info ("Starting QMP_wait, id=%d\n",QMP_get_node_number());
-#endif
+  ENTER;
 
   /* if (!QMP_is_complete(msgh)) */
   if (QMP_wait_send_receive(msgh))
     QMP_FATAL("some error in QMP_wait_send_receive");
 
-#ifdef _QMP_DEBUG
-  QMP_info ("Finished QMP_wait, id=%d\n",QMP_get_node_number());
-#endif
-
+  LEAVE;
   return err;
 }
 
@@ -271,10 +254,7 @@ QMP_wait_all(QMP_msghandle_t msgh[], int num)
 {
   QMP_status_t err=QMP_SUCCESS;
   int i;
-
-#ifdef _QMP_DEBUG
-  QMP_info ("Starting QMP_wait_all, id=%d\n",QMP_get_node_number());
-#endif
+  ENTER;
 
   for(i=0; i<num; i++) {
     /* if(!QMP_is_complete(msgh[i])) { */
@@ -286,10 +266,7 @@ QMP_wait_all(QMP_msghandle_t msgh[], int num)
     /*}*/
   }
 
-#ifdef _QMP_DEBUG
-  QMP_info ("Finished QMP_wait, id=%d\n",QMP_get_node_number());
-#endif
-
+  LEAVE;
   return err;
 }
 
@@ -299,14 +276,26 @@ QMP_wait_all(QMP_msghandle_t msgh[], int num)
 QMP_status_t
 QMP_barrier(void)
 {
-  return MPI_Barrier(QMP_COMM_WORLD);
+  int err;
+  ENTER;
+
+  err = MPI_Barrier(QMP_COMM_WORLD);
+
+  LEAVE;
+  return err;
 }
 
 /* Broadcast via interface specific routines */
 QMP_status_t
 QMP_broadcast(void *send_buf, size_t count)
 {
-  return MPI_Bcast(send_buf, count, MPI_BYTE, 0, QMP_COMM_WORLD);
+  int err;
+  ENTER;
+
+  err = MPI_Bcast(send_buf, count, MPI_BYTE, 0, QMP_COMM_WORLD);
+
+  LEAVE;
+  return err;
 }
 
 /* Global sums */
@@ -315,12 +304,14 @@ QMP_sum_int (int *value)
 {
   QMP_status_t status;
   int dest;
+  ENTER;
 
   status = MPI_Allreduce((void *)value, (void *)&dest, 1,
 			 MPI_INT, MPI_SUM, QMP_COMM_WORLD);
   if (status == MPI_SUCCESS)
     *value = dest;
 
+  LEAVE;
   return status;
 }
 
@@ -329,13 +320,15 @@ QMP_sum_float(float *value)
 {
   QMP_status_t status;
   float  dest;
+  ENTER;
 
   status = MPI_Allreduce((void *)value, (void *)&dest, 1,
 			 MPI_FLOAT, MPI_SUM, QMP_COMM_WORLD);
 
   if (status == MPI_SUCCESS)
     *value = dest;
-  
+
+  LEAVE;
   return status;
 }
 
@@ -344,6 +337,7 @@ QMP_sum_double (double *value)
 {
   QMP_status_t status;
   double dest;
+  ENTER;
 
   status = MPI_Allreduce((void *)value, (void *)&dest, 1,
 			 MPI_DOUBLE, MPI_SUM, QMP_COMM_WORLD);
@@ -351,6 +345,7 @@ QMP_sum_double (double *value)
   if (status == MPI_SUCCESS)
     *value = dest;
 
+  LEAVE;
   return status;
 }
 
@@ -359,6 +354,7 @@ QMP_sum_double_extended (double *value)
 {
   QMP_status_t status;
   double dest;
+  ENTER;
 
   status = MPI_Allreduce((void *)value, (void *)&dest, 1,
 			 MPI_DOUBLE, MPI_SUM, QMP_COMM_WORLD);
@@ -366,6 +362,7 @@ QMP_sum_double_extended (double *value)
   if (status == MPI_SUCCESS)
     *value = dest;
 
+  LEAVE;
   return status;
 }
 
@@ -374,48 +371,53 @@ QMP_sum_float_array (float value[], int count)
 {
   QMP_status_t status;
   float* dest;
-  int          i;
+  int i;
+  ENTER;
 
   dest = (float *) malloc (count * sizeof (float));
 
   if (!dest) {
     QMP_error ("cannot allocate receiving memory in QMP_sum_float_array.");
-    return QMP_NOMEM_ERR;
-  }
-  status = MPI_Allreduce((void *)value, (void *)dest, count,
-			 MPI_FLOAT, MPI_SUM, QMP_COMM_WORLD);
-  if (status == MPI_SUCCESS) {
-    for (i = 0; i < count; i++)
-      value[i] = dest[i];
+    status = QMP_NOMEM_ERR;
+  } else {
+    status = MPI_Allreduce((void *)value, (void *)dest, count,
+			   MPI_FLOAT, MPI_SUM, QMP_COMM_WORLD);
+    if (status == MPI_SUCCESS) {
+      for (i = 0; i < count; i++)
+	value[i] = dest[i];
+    }
+    free (dest);
   }
   
-  free (dest);
+  LEAVE;
   return status;
 }
-
 
 QMP_status_t
 QMP_sum_double_array (double value[], int count)
 {
   QMP_status_t status;
   double* dest;
-  int          i;
+  int i;
+  ENTER;
 
   dest = (double *) malloc (count * sizeof (double));
 
   if (!dest) {
     QMP_error ("cannot allocate receiving memory in QMP_sum_double_array.");
-    return QMP_NOMEM_ERR;
+    status = QMP_NOMEM_ERR;
+  } else {
+    status = MPI_Allreduce((void *)value, (void *)dest, count,
+			   MPI_DOUBLE, MPI_SUM, QMP_COMM_WORLD);
+
+    if (status == MPI_SUCCESS) {
+      for (i = 0; i < count; i++)
+	value[i] = dest[i];
+    }
+    free (dest);
   }
-  status = MPI_Allreduce((void *)value, (void *)dest, count,
-			 MPI_DOUBLE, MPI_SUM, QMP_COMM_WORLD);
-  
-  if (status == MPI_SUCCESS) {
-    for (i = 0; i < count; i++)
-      value[i] = dest[i];
-  }
-  
-  free (dest);
+
+  LEAVE;
   return status;
 }
 
@@ -443,38 +445,44 @@ QMP_binary_reduction (void *lbuffer, size_t count, QMP_binary_func bfunc)
 {
   void*        rbuffer;
   QMP_status_t status;
+  ENTER;
 
   /* first check whether there is a binary reduction is in session */
   if (qmp_user_bfunc_) 
     QMP_FATAL ("Another binary reduction is in progress.");
 
   rbuffer = malloc(count);
-  if (!rbuffer)
-    return QMP_NOMEM_ERR;
+  if (!rbuffer) {
+    status = QMP_NOMEM_ERR;
+  } else {
+    /* set up user binary reduction pointer */
+    qmp_user_bfunc_ = bfunc;
 
-  /* set up user binary reduction pointer */
-  qmp_user_bfunc_ = bfunc;
-
-  if(!op_inited) {
-    if ((status = MPI_Op_create (qmp_MPI_bfunc_i, 1, &bop)) != MPI_SUCCESS) {
-      QMP_error ("Cannot create MPI operator for binary reduction.\n");
-      return status;
+    if(!op_inited) {
+      status = MPI_Op_create (qmp_MPI_bfunc_i, 1, &bop);
+      if (status != MPI_SUCCESS) {
+	QMP_error ("Cannot create MPI operator for binary reduction.\n");
+	goto leave;
+      }
+      op_inited = 1;
     }
-    op_inited = 1;
+
+    status =
+      MPI_Allreduce(lbuffer,rbuffer,count, MPI_BYTE, bop, QMP_COMM_WORLD);
+
+    if (status == MPI_SUCCESS) 
+      memcpy (lbuffer, rbuffer, count);
+    free(rbuffer);
+
+    /* free binary operator */
+    /* MPI_Op_free (&bop); */
+
+    /* signal end of the binary reduction session */
+    qmp_user_bfunc_ = 0;
   }
 
-  status = MPI_Allreduce(lbuffer,rbuffer,count, MPI_BYTE, bop, QMP_COMM_WORLD);
-
-  if (status == QMP_SUCCESS) 
-    memcpy (lbuffer, rbuffer, count);
-  free(rbuffer);
-
-  /* free binary operator */
-  /* MPI_Op_free (&bop); */
-
-  /* signal end of the binary reduction session */
-  qmp_user_bfunc_ = 0;
-
+ leave:
+  LEAVE;
   return QMP_SUCCESS;
 }
 
@@ -484,6 +492,7 @@ QMP_max_float(float* value)
 {
   float dest;
   QMP_status_t status;
+  ENTER;
 
   status = MPI_Allreduce((void *)value, (void *)&dest, 1,
 			 MPI_FLOAT, MPI_MAX, QMP_COMM_WORLD);
@@ -491,6 +500,7 @@ QMP_max_float(float* value)
   if (status == MPI_SUCCESS)
     *value = dest;
 
+  LEAVE;
   return status;
 }
 
@@ -499,6 +509,7 @@ QMP_min_float(float* value)
 {
   float dest;
   QMP_status_t status;
+  ENTER;
 
   status = MPI_Allreduce((void *)value, (void *)&dest, 1,
 			 MPI_FLOAT, MPI_MIN, QMP_COMM_WORLD);
@@ -506,6 +517,7 @@ QMP_min_float(float* value)
   if (status == MPI_SUCCESS)
     *value = dest;
 
+  LEAVE;
   return status;
 }  
 
@@ -514,6 +526,7 @@ QMP_max_double(double* value)
 {
   double dest;
   QMP_status_t status;
+  ENTER;
 
   status = MPI_Allreduce((void *)value, (void *)&dest, 1,
 			 MPI_DOUBLE, MPI_MAX, QMP_COMM_WORLD);
@@ -521,6 +534,7 @@ QMP_max_double(double* value)
   if (status == MPI_SUCCESS)
     *value = dest;
 
+  LEAVE;
   return status;
 }
 
@@ -529,6 +543,7 @@ QMP_min_double(double *value)
 {
   double dest;
   QMP_status_t status;
+  ENTER;
 
   status = MPI_Allreduce((void *)value, (void *)&dest, 1,
 			 MPI_DOUBLE, MPI_MIN, QMP_COMM_WORLD);
@@ -536,6 +551,7 @@ QMP_min_double(double *value)
   if (status == MPI_SUCCESS)
     *value = dest;
 
+  LEAVE;
   return status;
 }
 
@@ -544,6 +560,7 @@ QMP_xor_ulong(unsigned long* value)
 {
   unsigned long dest;
   QMP_status_t status;
+  ENTER;
 
   status = MPI_Allreduce((void *)value, (void *)&dest, 1,
 			 MPI_UNSIGNED_LONG, MPI_BXOR, QMP_COMM_WORLD);
@@ -551,5 +568,13 @@ QMP_xor_ulong(unsigned long* value)
   if (status == MPI_SUCCESS)
     *value = dest;
 
+  LEAVE;
   return status;
+}
+
+/* don't time or debug this function */
+double
+QMP_time(void)
+{
+  return MPI_Wtime();
 }

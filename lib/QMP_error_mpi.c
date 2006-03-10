@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.2  2005/06/20 22:20:59  osborn
+ *   Fixed inclusion of profiling header.
+ *
  *   Revision 1.1  2004/10/08 04:49:34  osborn
  *   Split src directory into include and lib.
  *
@@ -97,22 +100,30 @@ QMP_error_string (QMP_status_t code)
 {
   static char errstr[256];
   int    errlen = 255;
+  const char *retval;
+  ENTER;
 
-  if (code == QMP_SUCCESS)
-    return QMP_error_strings[code];
-
-  if (code < QMP_MAX_STATUS && code >= QMP_ERROR)
-    return QMP_error_strings[code - QMP_ERROR + 1];
+  if (code == QMP_SUCCESS) {
+    retval = QMP_error_strings[code];
+  }
+  else if (code < QMP_MAX_STATUS && code >= QMP_ERROR) {
+    retval = QMP_error_strings[code - QMP_ERROR + 1];
+  }
 
 #if ! defined(_AIX)
-  if (code <= MPI_ERR_WIN && code >= MPI_ERR_BUFFER) {
+  else if (code <= MPI_ERR_WIN && code >= MPI_ERR_BUFFER) {
     MPI_Error_string (code, errstr, &errlen);
-    return (const char *)&errstr;
+    retval = (const char *)&errstr;
   }
 #endif
 
-  snprintf (errstr, sizeof (errstr), "unknown error code %d", code);
-  return (const char *)&errstr;
+  else {
+    snprintf (errstr, sizeof (errstr), "unknown error code %d", code);
+    retval = (const char *)&errstr;
+  }
+
+  LEAVE;
+  return retval;
 }
 
 /**
@@ -126,13 +137,17 @@ QMP_error_string (QMP_status_t code)
 QMP_status_t
 QMP_get_error_number (QMP_msghandle_t mh)
 {
+  QMP_status_t err;
+  ENTER;
   if (!mh)
-    return QMP_global_m->err_code;
+    err = QMP_global_m->err_code;
   else {
     Message_Handle* rmh;
     rmh = (Message_Handle *)mh;
-    return rmh->err_code;
+    err = rmh->err_code;
   }
+  LEAVE;
+  return err;
 }
 
 /**
@@ -146,11 +161,15 @@ QMP_get_error_number (QMP_msghandle_t mh)
 const char*
 QMP_get_error_string (QMP_msghandle_t mh)
 {
+  const char *errstr;
+  ENTER;
   if (!mh)
-    return QMP_error_string (QMP_global_m->err_code);
+    errstr = QMP_error_string (QMP_global_m->err_code);
   else {
     Message_Handle* rmh;
     rmh = (Message_Handle *)mh;
-    return QMP_error_string (rmh->err_code);
+    errstr = QMP_error_string (rmh->err_code);
   }
+  LEAVE;
+  return errstr;
 }

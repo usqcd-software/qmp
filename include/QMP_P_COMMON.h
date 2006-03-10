@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.6  2006/01/04 20:27:01  osborn
+ *   Removed C99 named initializer.
+ *
  *   Revision 1.5  2005/06/21 20:18:39  osborn
  *   Added -qmp-geom command line argument to force grid-like behavior.
  *
@@ -75,6 +78,9 @@
  */
 typedef struct QMP_machine
 {
+  double total_qmp_time;
+  int timer_started;
+
   /* interconnection type for this machine.                  */
   QMP_ictype_t ic_type;
 
@@ -109,8 +115,8 @@ typedef struct QMP_machine
   QMP_status_t err_code;
 
 } *QMP_machine_t;
-#define QMP_MACHINE_INIT {QMP_SWITCH, "", QMP_FALSE, 0, 0, 0, NULL, NULL, \
-                          0, 0, QMP_SUCCESS}
+#define QMP_MACHINE_INIT {0.0, 0, QMP_SWITCH, "", QMP_FALSE, 0, 0, 0,	\
+	                  NULL, NULL, 0, 0, QMP_SUCCESS}
 
 extern QMP_machine_t QMP_global_m;
 
@@ -168,5 +174,48 @@ extern QMP_logical_topology_t QMP_topo;
   QMP_error(string); \
   QMP_abort(1); \
 }
- 
+
+
+/**
+ *  entry and exit to init and final functions
+ */
+#define ENTER_INIT START_DEBUG
+#define LEAVE_INIT END_DEBUG
+
+/**
+ *  entry and exit to all other functions
+ */
+#define ENTER START_DEBUG START_TIMING
+#define LEAVE END_DEBUG   END_TIMING
+
+/**
+ *  turn on function debugging
+ */
+#ifdef _QMP_DEBUG
+#define START_DEBUG { QMP_info("Starting %s", __func__); }
+#define END_DEBUG   { QMP_info("Finished %s", __func__); }
+#else
+#define START_DEBUG
+#define END_DEBUG
+#endif
+
+/**
+ *  turn on function timing
+ */
+#ifdef QMP_BUILD_TIMING
+#define START_TIMING					\
+  { if(QMP_global_m->inited) {				\
+      if(QMP_global_m->timer_started==0)		\
+	QMP_global_m->total_qmp_time -= QMP_time();	\
+      QMP_global_m->timer_started++; } }
+#define END_TIMING					\
+  { if(QMP_global_m->inited) {				\
+      QMP_global_m->timer_started--;			\
+      if(QMP_global_m->timer_started==0)		\
+	QMP_global_m->total_qmp_time += QMP_time(); } }
+#else
+#define START_TIMING
+#define END_TIMING
+#endif
+
 #endif /* _QMP_P_COMMON_H */

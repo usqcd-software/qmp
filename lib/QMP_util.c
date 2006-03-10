@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.3  2005/06/20 22:20:59  osborn
+ *   Fixed inclusion of profiling header.
+ *
  *   Revision 1.2  2004/12/19 07:33:11  morten
  *   Added dummy functions for the new profiling functions,
  *   QMP_get_total_qmp_time(void)
@@ -71,6 +74,8 @@
 QMP_bool_t
 QMP_is_initialized(void)
 {
+  ENTER;
+  LEAVE;
   return QMP_global_m->inited;
 }
 
@@ -95,16 +100,20 @@ QMP_profcontrol (int level)
   QMP_global_m->proflevel = level;
   return old;
 }
+
 /**
- *Dummy functions for QMP_profiling
+ *  functions for profiling
  */
 void  
-QMP_reset_total_qmp_time(void){
-   
+QMP_reset_total_qmp_time(void)
+{
+  QMP_global_m->total_qmp_time = 0.0;
 }
+
 double 
-QMP_get_total_qmp_time(void){
-   return 0;
+QMP_get_total_qmp_time(void)
+{
+  return QMP_global_m->total_qmp_time;
 }
 
 /**
