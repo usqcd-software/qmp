@@ -8,6 +8,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.3  2006/03/10 08:38:07  osborn
+ *   Added timing routines.
+ *
  *   Revision 1.2  2005/06/20 22:20:59  osborn
  *   Fixed inclusion of profiling header.
  *
@@ -78,7 +81,7 @@ QMP_error_string (QMP_status_t code)
   }
   else {
     snprintf (errstr, sizeof (errstr), "unknown error code %d", code);
-    retval = &errstr;
+    retval = (const char *)&errstr;
   }
   LEAVE;
   return retval;
