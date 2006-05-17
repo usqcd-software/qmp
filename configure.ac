@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(qmp, 2.1.4, [josborn at physics.bu.edu])
+AC_INIT(qmp, 2.1.5, [josborn at physics.bu.edu])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_SRCDIR([lib/QMP_grid.c])
 AC_CONFIG_SRCDIR([examples/QMP_test.c])

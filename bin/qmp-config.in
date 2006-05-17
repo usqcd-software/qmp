@@ -22,6 +22,8 @@ qmp_copts="@CFLAGS@"
 qmp_cflags="-I@includedir@"
 qmp_ldflags="-L@libdir@ @QMP_COMMS_LDFLAGS@"
 qmp_libs="-lqmp @QMP_COMMS_LIBS@"
+qmp_ranlib="@RANLIB@"
+qmp_ar="@AR@"
 
 usage()
 {
@@ -37,7 +39,8 @@ Options:
   [--cflags]
   [--ldflags]
   [--libs]
-
+  [--ranlib]
+  [--ar]
 EOF
   exit $1
 }
@@ -100,7 +103,12 @@ while test $# -gt 0; do
     --libs)
       echo_libs=yes
       ;;
-
+    --ranlib)
+      echo $qmp_ranlib
+      ;;
+    --ar)
+      echo $qmp_ar
+      ;;
     *)
       usage 1 1>&2
       ;;
