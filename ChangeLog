@@ -1,3 +1,8 @@
+2006-05-22 13:28  detar
+
+	* lib/QMP_init_single.c: Trivial: Move two declarations for
+	  compatibility with pre-C90 syntax.
+
 2006-05-17 14:54  tag qmp2-1-5
 
 2006-05-17 14:54  bjoo
