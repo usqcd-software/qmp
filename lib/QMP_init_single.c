@@ -8,6 +8,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.7  2006/03/10 08:38:07  osborn
+ *   Added timing routines.
+ *
  *   Revision 1.6  2006/01/04 20:27:01  osborn
  *   Removed C99 named initializer.
  *
@@ -57,13 +60,15 @@ QMP_logical_topology_t QMP_topo = &par_logical_topology;
 static void
 QMP_init_machine_i(int* argc, char*** argv)
 {
+
+  int first=-1, last=-1;
+  int i, nd, n;
+
   ENTER;
 
   /* get host name of this machine */
   gethostname (QMP_global_m->host, sizeof (QMP_global_m->host));
 
-  int first=-1, last=-1;
-  int i, nd, n;
   for(i=0; i<*argc; i++) {
     if(strcmp((*argv)[i], "-qmp-geom")==0) {
       first = i;
