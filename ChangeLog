@@ -1,3 +1,13 @@
+2006-05-25 17:09  edwards
+
+	* lib/QMP_comm_single.c: Changed error string to match function
+	  name.
+
+2006-05-25 17:08  edwards
+
+	* lib/QMP_error_single.c: Changed error strings to match function
+	  name.
+
 2006-05-22 13:28  detar
 
 	* lib/QMP_init_single.c: Trivial: Move two declarations for
