@@ -8,6 +8,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.4  2006/03/10 18:15:57  osborn
+ *   Fixed warning about types.
+ *
  *   Revision 1.3  2006/03/10 08:38:07  osborn
  *   Added timing routines.
  *
@@ -99,7 +102,7 @@ QMP_status_t
 QMP_get_error_number (QMP_msghandle_t mh)
 {
   ENTER;
-  QMP_error("QMP_start: passed QMP_msghandle_t not allocated\n");
+  QMP_error("QMP_get_error_number: passed QMP_msghandle_t not allocated\n");
   QMP_abort(1);
   LEAVE;
   return QMP_ERROR;
@@ -117,7 +120,7 @@ const char*
 QMP_get_error_string (QMP_msghandle_t mh)
 {
   ENTER;
-  QMP_error("QMP_start: passed QMP_msghandle_t not allocated\n");
+  QMP_error("QMP_get_error_string: passed QMP_msghandle_t not allocated\n");
   QMP_abort(1);
   LEAVE;
   return (const char *)0;
