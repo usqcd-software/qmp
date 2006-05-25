@@ -8,6 +8,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.5  2006/03/10 08:38:07  osborn
+ *   Added timing routines.
+ *
  *   Revision 1.4  2005/06/20 22:20:59  osborn
  *   Fixed inclusion of profiling header.
  *
@@ -50,7 +53,7 @@ QMP_bool_t
 QMP_is_complete(QMP_msghandle_t msgh)
 {
   ENTER;
-  QMP_error("QMP_start: passed QMP_msghandle_t not allocated\n");
+  QMP_error("QMP_is_complete: passed QMP_msghandle_t not allocated\n");
   QMP_abort(1);
   LEAVE;
   return QMP_FALSE;
@@ -60,7 +63,7 @@ QMP_status_t
 QMP_wait(QMP_msghandle_t msgh)
 {
   ENTER;
-  QMP_error("QMP_start: passed QMP_msghandle_t not allocated\n");
+  QMP_error("QMP_wait: passed QMP_msghandle_t not allocated\n");
   QMP_abort(1);
   LEAVE;
   return QMP_ERROR;
@@ -70,7 +73,7 @@ QMP_status_t
 QMP_wait_all(QMP_msghandle_t msgh[], int num)
 {
   ENTER;
-  QMP_error("QMP_start: passed QMP_msghandle_t not allocated\n");
+  QMP_error("QMP_wait_all: passed QMP_msghandle_t not allocated\n");
   QMP_abort(1);
   LEAVE;
   return QMP_ERROR;
