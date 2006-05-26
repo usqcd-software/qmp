@@ -1,3 +1,19 @@
+2006-05-26 00:40  edwards
+
+	* NEWS: Info on 2.1.6
+
+2006-05-26 00:39  edwards
+
+	* configure: Induced changes
+
+2006-05-26 00:37  edwards
+
+	* aclocal.m4: Induced changes.
+
+2006-05-26 00:37  edwards
+
+	* configure.ac: Changed to 2.1.6
+
 2006-05-25 17:09  edwards
 
 	* lib/QMP_comm_single.c: Changed error string to match function
