@@ -1,3 +1,8 @@
+05/25/2006 -- Robert Edwards
+
+	Version 2.1.6 : Minutae - fixed error string output names in single node
+        codes.
+
 08/17/2005 -- James Osborn
 
 	Version 2.1.0 : Uses persistent communication requests now.
