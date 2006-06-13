@@ -1,3 +1,8 @@
+2006-06-13 13:43  bjoo
+
+	* lib/: QMP_comm_mpi.c, QMP_grid.c, QMP_topology.c: Removed some
+	  c99isms. Code  compiles on Cray at ORNL using pgcc
+
 2006-05-26 00:40  tag qmp2-1-6
 
 2006-05-26 00:40  edwards
