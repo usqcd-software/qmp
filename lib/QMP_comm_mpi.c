@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.6  2006/03/10 08:38:07  osborn
+ *   Added timing routines.
+ *
  *   Revision 1.5  2005/08/18 05:53:09  osborn
  *   Changed to use persistent communication requests.
  *
@@ -135,13 +138,18 @@ QMP_wait_send_receive(QMP_msghandle_t msgh)
 
   case MH_multiple:
     if(mh->activeP) {
-      MPI_Status status[mh->num];
+      /* MPI_Status status[mh->num]; */
+      MPI_Status *status = malloc(mh->num * sizeof(MPI_Status));
+      if( status == (MPI_Status *)NULL ) { 
+	QMP_FATAL("Cannot get memory for MPI_Status handles\n");
+      }
       flag = MPI_Waitall(mh->num, mh->request_array, status);
       if (flag != MPI_SUCCESS) {
 	QMP_fprintf (stderr, "Wait all Flag is %d\n", flag);
 	QMP_FATAL("test unexpectedly failed");
       }
       mh->activeP = 0;
+      free(status);
     }
     break;
 
@@ -187,7 +195,12 @@ QMP_is_complete(QMP_msghandle_t msgh)
 
   case MH_multiple:
     if(mh->activeP) {
-      MPI_Status status[mh->num];
+      /* MPI_Status status[mh->num]; */
+      MPI_Status *status = malloc(mh->num * sizeof(MPI_Status));
+      if( status == (MPI_Status *)NULL ) {
+        QMP_FATAL("Cannot get memory for MPI_Status handles\n");
+      }
+
       callst = MPI_Testall(mh->num, mh->request_array, &flag, status);
       if (callst != MPI_SUCCESS) {
 	QMP_fprintf (stderr, "Testall return value is %d\n", callst);
@@ -197,6 +210,7 @@ QMP_is_complete(QMP_msghandle_t msgh)
 	done = QMP_TRUE;
 	mh->activeP = 0;
       }
+     free(status);
     }
     break;
 

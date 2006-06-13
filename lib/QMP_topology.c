@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.6  2006/03/10 08:38:07  osborn
+ *   Added timing routines.
+ *
  *   Revision 1.5  2006/01/05 19:32:09  osborn
  *   Fixes to BG/L personality code.  Ready for version 2.1.3.
  *
@@ -172,6 +175,7 @@ QMP_declare_logical_topology (const int* dims, int ndim)
 {
   int i;
   int num_nodes = 1;
+  int *coord;
   QMP_status_t status = QMP_SUCCESS;
   ENTER;
 
@@ -226,8 +230,12 @@ QMP_declare_logical_topology (const int* dims, int ndim)
   QMP_topo->neigh[1] = QMP_topo->neigh[0] + ndim;
   for(i=0; i < ndim; ++i)
   {
-    int coord[ndim];
     int m;
+
+    coord = (int *)malloc(ndim*sizeof(int));
+    if(coord == NULL) { 
+      QMP_FATAL("Couldnt alloc coord\n");
+    }
 
     for(m=0; m < ndim; ++m)
       coord[m] = QMP_topo->logical_coord[m];
@@ -239,6 +247,8 @@ QMP_declare_logical_topology (const int* dims, int ndim)
     coord[i] = (QMP_topo->logical_coord[i] + 1) % dims[i];
     QMP_topo->neigh[1][i] =
       crtesn_pos(coord, QMP_topo->logical_size, ndim);
+  
+    free(coord);
   }
 
   QMP_topo->topology_declared = QMP_TRUE;

@@ -24,6 +24,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.5  2006/03/10 08:38:07  osborn
+ *   Added timing routines.
+ *
  *   Revision 1.4  2005/06/21 20:18:39  osborn
  *   Added -qmp-geom command line argument to force grid-like behavior.
  *
@@ -112,10 +115,18 @@ is_factor(unsigned a, unsigned b)
 QMP_status_t
 QMP_layout_grid (const int *dims, int ndim)
 {
-  int squaresize[ndim], nsquares[ndim];
+  /* int squaresize[ndim], nsquares[ndim]; */
   int i;
   QMP_status_t status = QMP_SUCCESS;
+  int *squaresize;
+  int *nsquares;
   ENTER;
+
+  squaresize=(int *)malloc(ndim * sizeof(int));
+  nsquares  =(int *)malloc(ndim * sizeof(int));
+  if(nsquares == NULL || squaresize == NULL) {
+     QMP_FATAL("Unable to malloc in QMP_layout_grid");
+  }
 
   if(QMP_global_m->ic_type!=QMP_SWITCH) {
     QMP_declare_logical_topology(QMP_global_m->geom, QMP_global_m->ndim);
@@ -209,6 +220,8 @@ QMP_layout_grid (const int *dims, int ndim)
   }
 
  leave:
+  free(squaresize);
+  free(nsquares);
   LEAVE;
   return status;
 }
