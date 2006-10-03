@@ -17,4 +17,4 @@ check_PROGRAMS = QMP_test          \
 ## need to know where to find the underlying libraries to resolve symbols.
 AM_CFLAGS  = -I@top_srcdir@/include
 AM_LDFLAGS = -L../lib @QMP_COMMS_LDFLAGS@
-LDADD      = -lqmp @QMP_COMMS_LIBS@
+LDADD      = -lqmp @QMP_COMMS_LIBS@ -lm

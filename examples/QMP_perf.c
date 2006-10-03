@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.4  2004/06/14 20:36:30  osborn
+ *   Updated to API version 2 and added single node target
+ *
  *   Revision 1.3  2003/02/13 16:23:04  chen
  *   qmp version 1.2
  *
@@ -66,23 +69,31 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <sys/time.h>
+/*#include <sys/time.h>*/
+#include <math.h>
 
 #include <qmp.h>
 
-#define TEST_SIMUL 0
-#define TEST_PINGPONG 1
-#define TEST_ONEWAY 2
+#define TEST_SIMUL 1
+#define TEST_PINGPONG 2
+#define TEST_ONEWAY 4
+#define TEST_ALL 7
 
 struct perf_argv
 {
   int size;
+  int minsize;
+  int maxsize;
+  int facsize;
   int loops;
   int verify;
   int option;
   int sender;
   int num_channels;
+  int ndims;
 };
+
+int strided_send, strided_recv, strided_array_send;
 
 /**
  * Get current time in milli seconds.
@@ -90,11 +101,12 @@ struct perf_argv
 static double
 get_current_time (void)
 {
+#if 0
   struct timeval tv;
-
   gettimeofday (&tv, 0);
-
   return tv.tv_sec*1000.0 + tv.tv_usec/1000.0;
+#endif
+  return 1000*QMP_time();
 }
 
 static void
@@ -107,6 +119,9 @@ usage (char* prog)
   printf (" -oneway:         oneway test (no) \n");
   printf ("   -size:         transfer data size in 4 byte word (1024)\n");
   printf ("  -loops:         number of loops to run (10000)\n");
+  printf ("-strided-send:    use strided messages of given length for send\n");
+  printf ("-strided-recv:    use strided messages of given length for recv\n");
+  printf ("-strided-array-send: use strided array messages of given length for send\n");
 }
 
 static int
@@ -115,11 +130,14 @@ parse_options (int argc, char** argv, struct perf_argv* pargv)
   int i;
 
   /* set pargv to default values */
-  pargv->size = 1024;
+  pargv->size = 0;
   pargv->loops = 5000;
   pargv->verify = 0;
-  pargv->option = TEST_SIMUL;
+  pargv->option = TEST_ALL;
   pargv->num_channels = 1;
+  strided_send = 0;
+  strided_recv = 0;
+  strided_array_send = 0;
 
   i = 1;
 
@@ -160,8 +178,48 @@ parse_options (int argc, char** argv, struct perf_argv* pargv)
 	return -1;
       }
     }
+    else if (strcmp (argv[i], "-strided-send") == 0) {
+      if (++i >= argc) {
+	fprintf (stderr, "-strided-send needs an argument.\n");
+	return -1;
+      }
+      if (sscanf (argv[i], "%i", &strided_send) < 1) {
+	fprintf (stderr, "-strided-send needs a numerical argument.\n");
+	return -1;
+      }
+    }
+    else if (strcmp (argv[i], "-strided-recv") == 0) {
+      if (++i >= argc) {
+	fprintf (stderr, "-strided-recv needs an argument.\n");
+	return -1;
+      }
+      if (sscanf (argv[i], "%i", &strided_recv) < 1) {
+	fprintf (stderr, "-strided-recv needs a numerical argument.\n");
+	return -1;
+      }
+    }
+    else if (strcmp (argv[i], "-strided-array-send") == 0) {
+      if (++i >= argc) {
+	fprintf (stderr, "-strided-array-send needs an argument.\n");
+	return -1;
+      }
+      if (sscanf (argv[i], "%i", &strided_array_send) < 1) {
+	fprintf (stderr, "-strided-array-send needs a numerical argument.\n");
+	return -1;
+      }
+    }
     i++;
   }
+
+  if(pargv->size==0) {
+    pargv->minsize = 12;
+    pargv->maxsize = 65536;
+    pargv->size = pargv->maxsize;
+  } else {
+    pargv->minsize = pargv->size;
+    pargv->maxsize = pargv->size;
+  }
+  pargv->facsize = 2;
 
   return 0;
 }
@@ -179,7 +237,7 @@ test_pingpong_verify (int** smem,
   double it, ft, dt, bwval;
   int    i, j, k;
   QMP_status_t err;
-  int nc;
+  int nc, ndims;
   int nloops;
   int dsize;
   QMP_bool_t sender;
@@ -188,7 +246,9 @@ test_pingpong_verify (int** smem,
   nloops = pargv->loops;
   dsize = pargv->size;
   sender = pargv->sender;
+  ndims = pargv->ndims;
 
+  QMP_barrier();
   it = get_current_time ();
 
   for (i = 0; i < nloops; i++) {
@@ -245,7 +305,7 @@ test_pingpong_verify (int** smem,
 	  QMP_printf ("Error in sending %d\n", j );
       }
     }
-    
+
     /* verify memory */
     for (j = 0; j < nc; j++) {
       for (k = 0; k < dsize; k++)
@@ -259,12 +319,12 @@ test_pingpong_verify (int** smem,
 
   dt = (ft - it); /* actual send time milli seconds */
 
-  bwval = dsize/(double)1000.0 * 4 * nloops*nc/dt;
+  bwval = 2 * dsize/(double)1000.0 * 4 * nloops*nc*ndims/dt;
 
-  QMP_printf ("Ping Pong Bandwidth for datasize %d is %lf (MB/s)\n", 
+  QMP_printf ("Ping Pong Bandwidth for datasize %d is %g (MB/s)", 
 	      dsize * 4, bwval);
-      
-  QMP_printf ("RTT/2 is %lf micro seconds\n", dt*1000.0/nloops/2);
+
+  QMP_printf ("RTT/2 is %lf micro seconds", dt*1000.0/nloops/2);
 }
 
 /**
@@ -281,7 +341,7 @@ test_pingpong (int** smem,
   double it, ft, dt, bwval;
   int    i, j;
   QMP_status_t err;
-  int nc;
+  int nc, ndims;
   int nloops;
   int dsize;
   QMP_bool_t sender;
@@ -290,7 +350,9 @@ test_pingpong (int** smem,
   nloops = pargv->loops;
   dsize = pargv->size;
   sender = pargv->sender;
+  ndims = pargv->ndims;
 
+  QMP_barrier();
   if (sender) {
     it = get_current_time ();
     for (i = 0; i < nloops; i++) {
@@ -320,12 +382,14 @@ test_pingpong (int** smem,
 
     dt = (ft - it); /* actual send time milli seconds */
 
-    bwval = dsize/(double)1000.0 * 4 * nloops*nc/dt;
+    bwval = 2 * dsize/(double)1000.0 * 4 * nloops*nc*ndims/dt;
 
-    QMP_printf ("Ping Pong Bandwidth for datasize %d is %lf (MB/s)\n", 
-	    dsize * 4, bwval);
-      
-    QMP_printf ("RTT/2 is %lf micro seconds\n", dt*1000.0/nloops/2);
+    if(QMP_get_node_number()==0) {
+      QMP_printf ("Ping Pong Bandwidth for datasize %d is %g (MB/s)", 
+		  dsize * 4, bwval);
+      QMP_printf ("RTT/2 is %lf micro seconds", dt*1000.0/nloops/2);
+      fflush(stdout);
+    }
   }
   else { 
     for (i = 0; i < nloops; i++) {
@@ -351,7 +415,8 @@ test_pingpong (int** smem,
 	  QMP_printf ("Error in sending %d\n", j );
       }
     }
-  }    
+  }
+  QMP_barrier();
 }
 
 /**
@@ -367,7 +432,7 @@ test_oneway (int** smem,
   double it, ft, dt, bwval;
   int    i, j;
   QMP_status_t err;
-  int nc;
+  int nc, ndims;
   int nloops;
   int dsize;
   QMP_bool_t sender;
@@ -376,7 +441,9 @@ test_oneway (int** smem,
   nloops = pargv->loops;
   dsize = pargv->size;
   sender = pargv->sender;
+  ndims = pargv->ndims;
 
+  QMP_barrier();
   if (sender) {
     it = get_current_time ();
     for (i = 0; i < nloops; i++) {
@@ -395,12 +462,15 @@ test_oneway (int** smem,
 
     dt = (ft - it); /* actual send time milli seconds */
 
-    bwval = dsize/(double)1000.0 * 4 * nloops*nc/dt;
+    bwval = dsize/(double)1000.0 * 4 * nloops*nc*ndims/dt;
 
-    QMP_printf ("Oneway Bandwidth for datasize %d is %lf (MB/s)\n", 
-	    dsize * 4, bwval);
-      
-    QMP_printf ("RTT/2 is %lf micro seconds\n", dt*1000.0/nloops/2);
+    if(QMP_get_node_number()==0) {
+      QMP_printf ("Oneway Bandwidth for datasize %d is %g (MB/s)", 
+		  dsize * 4, bwval);
+      QMP_printf ("time is %lf micro seconds", dt*1000.0/nloops);
+      fflush(stdout);
+    }
+    QMP_barrier();
   }
   else { 
     it = get_current_time ();
@@ -420,13 +490,17 @@ test_oneway (int** smem,
 
     dt = (ft - it); /* actual send time milli seconds */
 
-    bwval = dsize/(double)1000.0 * 4 * nloops*nc/dt;
+    bwval = dsize/(double)1000.0 * 4 * nloops*nc*ndims/dt;
 
-    QMP_printf ("Oneway Bandwidth for datasize %d is %lf (MB/s)\n", 
-	    dsize * 4, bwval);
-      
-    QMP_printf ("RTT/2 is %lf micro seconds\n", dt*1000.0/nloops/2);
-  }    
+    QMP_barrier();
+    if(QMP_get_node_number()==1) {
+      QMP_printf ("Oneway Bandwidth for datasize %d is %g (MB/s)", 
+		  dsize * 4, bwval);
+      QMP_printf ("time is %lf micro seconds", dt*1000.0/nloops);
+      fflush(stdout);
+    }
+  }
+  QMP_barrier();
 }
 
 static void
@@ -439,7 +513,7 @@ test_simultaneous_send (int** smem,
   double it, ft, dt, bwval;
   int    i, j;
   QMP_status_t err;
-  int nc;
+  int nc, ndims;
   int nloops;
   int dsize;
   QMP_bool_t sender;
@@ -448,10 +522,18 @@ test_simultaneous_send (int** smem,
   nloops = pargv->loops;
   dsize = pargv->size;
   sender = pargv->sender;
+  ndims = pargv->ndims;
 
   /* do a test for nloops */
+  QMP_barrier();
   it = get_current_time ();
   for (i = 0; i < nloops; i++) {
+    for (j = 0; j < nc; j++) {
+      /* receive operation */
+      if ((err = QMP_start (recvh[j])) != QMP_SUCCESS)
+	QMP_printf ("Start receiving failed: %s\n", QMP_error_string(err));
+    }
+
     for (j = 0; j < nc; j++) {
       /* Send operation */
       if ((err = QMP_start (sendh[j])) != QMP_SUCCESS)
@@ -459,41 +541,286 @@ test_simultaneous_send (int** smem,
     }
 
     for (j = 0; j < nc; j++) {
-      /* receive operation */
-      if ((err = QMP_start (recvh[j])) != QMP_SUCCESS)
-	QMP_printf ("Start receiving failed: %s\n", QMP_error_string(err));
+      if (QMP_wait (sendh[j]) != QMP_SUCCESS)
+	QMP_printf ("Error in sending %d\n", j );
     }
-
 
     for (j = 0; j < nc; j++) {
       if (QMP_wait (recvh[j]) != QMP_SUCCESS)
 	QMP_printf ("Error in receiving %d\n", j);
     }
 
-    for (j = 0; j < nc; j++) {
-      if (QMP_wait (sendh[j]) != QMP_SUCCESS)
-	QMP_printf ("Error in sending %d\n", j );
-    }
-
   }
   ft = get_current_time ();
 
-  if (sender) {
+  if(QMP_get_node_number()==0) {
     dt = (ft - it); /* in milli seconds */
 
-    bwval = dsize/(double)1000.0 * 4.0 * nloops * nc/dt;
-    
-    QMP_printf ("Simultaneous send bandwidth for %d channels with datasize %d is %lf (MB/s)\n", nc, dsize * 4, bwval);
-    
-    QMP_printf ("Time difference is %lf micro seconds\n", dt*1000.0/nloops);
+    bwval = dsize/(double)1000.0 * 4.0 * nloops * nc*ndims/dt;
+
+    QMP_printf ("Simultaneous send B/W for datasize %d is %g (MB/s)", dsize * 4, bwval);
+
+    QMP_printf ("Time difference is %lf micro seconds", dt*1000.0/nloops);
+  }
+  QMP_barrier();
+}
+
+#define NAMAX 32
+void
+create_msgs(int **smem, int **rmem,
+	    QMP_msgmem_t *sendmem, QMP_msgmem_t *recvmem,
+	    QMP_msghandle_t *sendh, QMP_msghandle_t *recvh,
+	    int ndims, int nc, int size)
+{
+  int i, j, n;
+
+  for (i = 0; i < nc; i++) {
+
+    if(strided_array_send) {
+      void *base[NAMAX];
+      size_t bsize[NAMAX];
+      int nblocks[NAMAX];
+      ptrdiff_t stride[NAMAX];
+      int tsize, skip;
+      int na, k, bs, nb, nbt, ab, as, st;
+
+      bs = strided_array_send;
+      nbt = size/bs;
+      na = sqrt(nbt);
+      if(na<2) na = nbt;
+      if(na>NAMAX) na = NAMAX;
+      nb = nbt/na;
+      st = 2*bs;
+      skip = 3*bs;
+      ab = bs*nb;
+      as = st*nb+skip;
+
+      tsize = 0;
+      for(k=0; k<na; k++) {
+	bsize[k] = bs*sizeof(int);
+	stride[k] = st*sizeof(int);
+	nblocks[k] = nb;
+	if(k==na-1) nblocks[k] = nbt - nb*(na-1);
+	tsize += skip + st * nblocks[k];
+      }
+
+      smem[i] = (int *)malloc(ndims*tsize*sizeof(int));
+      for(n=0; n<ndims; n++) {
+	for (j = 0; j < tsize; j++) { smem[i][n*tsize+j] = 0; }
+	for (j = 0; j < size; j++) {
+	  int ai, ak;
+	  ak = j/ab;
+	  if(ak>=na) ak = na-1;
+	  ai = j-(ab*ak);
+	  k = (as*ak) + st*(ai/bs) + (ai%bs);
+	  smem[i][n*tsize+k] = i+j+1;
+	}
+	for(k=0; k<na; k++) {
+	  base[k] = (void *)&(smem[i][n*tsize+as*k]);
+	}
+	sendmem[n*nc+i] =
+	  QMP_declare_strided_array_msgmem(base, bsize, nblocks, stride, na);
+	if(!sendmem[n*nc+i]) {
+	  QMP_printf("error in declare strided msgmem\n");
+	  QMP_abort(1);
+	}
+      }
+    } else
+    if(strided_send) {
+      int tsize, bsize, stride, nblocks;
+
+      bsize = strided_send;
+      stride = 2*bsize;
+      nblocks = size/bsize;
+      tsize = stride * nblocks;
+
+      smem[i] = (int *)malloc(ndims*tsize*sizeof (int));
+      for(n=0; n<ndims; n++) {
+	for (j = 0; j < tsize; j++) { smem[i][n*tsize+j] = 0; }
+	for (j = 0; j < size; j++) {
+	  int k = stride*(j/bsize) + (j%bsize);
+	  smem[i][n*tsize+k] = i+j+1;
+	}
+	sendmem[n*nc+i] = QMP_declare_strided_msgmem(smem[i]+(n*tsize),
+						     bsize*sizeof(int),
+						     nblocks,
+						     stride*sizeof(int));
+	if(!sendmem[n*nc+i]) {
+	  QMP_printf("error in declare strided msgmem\n");
+	  QMP_abort(1);
+	}
+      }
+
+    } else {
+
+      smem[i] = (int *)malloc(ndims*size*sizeof(int));
+      for(n=0; n<ndims; n++) {
+	for (j = 0; j < size; j++) {
+	  smem[i][n*size+j] = i+j+1;
+	}
+	sendmem[n*nc+i] = QMP_declare_msgmem(smem[i]+(n*size),
+					     size*sizeof(int));
+	if(!sendmem[n*nc+i]) {
+	  QMP_printf("error in declare msgmem\n");
+	  QMP_abort(1);
+	}
+      }
+
+    }
+
+    if(strided_recv) {
+      int tsize, bsize, stride, nblocks;
+
+      bsize = strided_recv;
+      stride = 2*bsize;
+      nblocks = size/bsize;
+      tsize = stride * nblocks;
+
+      rmem[i] = (int *)malloc(ndims*tsize*sizeof (int));
+      for(n=0; n<ndims; n++) {
+	for (j = 0; j < tsize; j++) {
+	  rmem[i][n*tsize+j] = 0;
+	}
+	recvmem[n*nc+i] = QMP_declare_strided_msgmem(rmem[i]+(n*tsize),
+						     bsize*sizeof(int),
+						     nblocks,
+						     stride*sizeof(int));
+	if(!recvmem[n*nc+i]) {
+	  QMP_printf("error in declare strided msgmem\n");
+	  QMP_abort(1);
+	}
+      }
+
+    } else {
+
+      rmem[i] = (int *)malloc(ndims*size*sizeof (int));
+      for(n=0; n<ndims; n++) {
+	for (j = 0; j < size; j++) {
+	  rmem[i][n*size+j] = 0;
+	}
+	recvmem[n*nc+i] = QMP_declare_msgmem (rmem[i]+(n*size),
+					      size*sizeof(int));
+	if(!recvmem[n*nc+i]) {
+	  QMP_printf("error in declare msgmem\n");
+	  QMP_abort(1);
+	}
+      }
+
+    }
+
+    if(ndims>1) {
+      QMP_msghandle_t *tsend, *trecv;
+      tsend = (QMP_msghandle_t *)malloc(ndims*sizeof(QMP_msghandle_t));
+      trecv = (QMP_msghandle_t *)malloc(ndims*sizeof(QMP_msghandle_t));
+      for(n=0; n<ndims; n++) {
+	trecv[n] = QMP_declare_receive_relative (recvmem[n*nc+i], n, 1, 0);
+	if (!trecv[n]) {
+	  QMP_printf ("Recv Handle Error: %s\n", QMP_get_error_string(0));
+	  exit (1);
+	}
+	tsend[n] = QMP_declare_send_relative (sendmem[n*nc+i], n, -1, 0);
+	if (!tsend[n]) {
+	  QMP_printf ("Send Handle Error: %s\n", QMP_get_error_string(0));
+	  exit (1);
+	}
+      }
+      recvh[i] = QMP_declare_multiple(trecv, ndims);
+      if (!recvh[i]) {
+	QMP_printf ("Recv Handle Error: %s\n", QMP_get_error_string(0));
+	exit (1);
+      }
+      sendh[i] = QMP_declare_multiple(tsend, ndims);
+      if (!sendh[i]) {
+	QMP_printf ("Send Handle Error: %s\n", QMP_get_error_string(0));
+	exit (1);
+      }
+      free(tsend);
+      free(trecv);
+    } else {
+      recvh[i] = QMP_declare_receive_relative (recvmem[i], 0, 1, 0);
+      if (!recvh[i]) {
+	QMP_printf ("Recv Handle Error: %s\n", QMP_get_error_string(0));
+	exit (1);
+      }
+      sendh[i] = QMP_declare_send_relative (sendmem[i], 0, -1, 0);
+      if (!sendh[i]) {
+	QMP_printf ("Send Handle Error: %s\n", QMP_get_error_string(0));
+	exit (1);
+      }
+    }
+
   }
 }
-    
-int main (int argc, char** argv)
+
+void
+free_msgs(int **smem, int **rmem,
+	  QMP_msgmem_t *sendmem, QMP_msgmem_t *recvmem,
+	  QMP_msghandle_t *sendh, QMP_msghandle_t *recvh,
+	  int ndims, int nc)
 {
-  int             i, j, nc;
+  int j, n;
+
+  for (j = 0; j < nc; j++) {
+    QMP_free_msghandle (recvh[j]);
+    QMP_free_msghandle (sendh[j]);
+
+    for(n=0; n<ndims; n++) {
+      QMP_free_msgmem (recvmem[n*nc+j]);
+      QMP_free_msgmem (sendmem[n*nc+j]);
+    }
+
+    free (smem[j]);
+    free (rmem[j]);
+  }
+}
+
+void
+check_mem(int **rmem, int ndims, int nc, int size)
+{
+  int i, j, n;
+  int tsize, bsize, stride, nblocks;
+
+  if(strided_recv) {
+    bsize = strided_recv;
+    stride = 2*bsize;
+    nblocks = size/bsize;
+    tsize = stride * nblocks;
+  } else {
+    bsize = 0;
+    stride = 0;
+    nblocks = 0;
+    tsize = size;
+  }
+  //fprintf(stderr,"%i %i\n", size, tsize);
+  //return;
+
+  for (i = 0; i < nc; i++) {
+    for(n=0; n<ndims; n++) {
+      for (j = 0; j < tsize; j++) {
+	int k;
+	if(strided_recv) {
+	  if((j%stride)<bsize) {
+	    k = i + 1 + bsize*(j/stride) + (j%stride);
+	  } else {
+	    k = 0;
+	  }
+	} else {
+	  k = i+j+1;
+	}
+	if (rmem[i][n*tsize+j] != k)
+	  QMP_printf ("Receiving memory error: rmem[%i][%i] = %i =/= %i", 
+		      i, j, rmem[i][n*tsize+j], k);
+      }
+    }
+  }
+}
+
+int
+main (int argc, char** argv)
+{
+  int             i, nc;
   QMP_status_t      status;
-  int       rank, dsize;
+  int       rank;
   int       **smem, **rmem;
   QMP_msgmem_t    *recvmem;
   QMP_msghandle_t *recvh;
@@ -505,23 +832,48 @@ int main (int argc, char** argv)
   /** 
    * Simple point to point topology 
    */
-  int dims[1] = {2};
+  int dims[4] = {2,2,2,2};
   int ndims = 1;
-  
+
+  //if(QMP_get_node_number()==0)
+  //printf("starting init\n"); fflush(stdout);
+  req = QMP_THREAD_SINGLE;
+  status = QMP_init_msg_passing (&argc, &argv, req, &prv);
+  if (status != QMP_SUCCESS) {
+    fprintf (stderr, "QMP_init failed\n");
+    return -1;
+  }
+  if(QMP_get_node_number()==0)
+    printf("finished init\n"); fflush(stdout);
+
   if (parse_options (argc, argv, &pargv) == -1) {
     usage (argv[0]);
     exit (1);
   }
 
-  req = QMP_THREAD_SINGLE;
-  status = QMP_init_msg_passing (&argc, &argv, req, &prv);
-
-  if (status != QMP_SUCCESS) {
-    fprintf (stderr, "QMP_init failed\n");
-    return -1;
+  {
+    int maxdims = 4;
+    int k=0;
+    int nodes = QMP_get_number_of_nodes();
+    ndims = 0;
+    while( (nodes&1) == 0 ) {
+      if(ndims<maxdims) ndims++;
+      else {
+	dims[k] *= 2;
+	k++;
+	if(k>=maxdims) k = 0;
+      }
+      nodes /= 2;
+    }
+    if(nodes != 1) {
+      QMP_error("invalid number of nodes %i", QMP_get_number_of_nodes());
+      QMP_error(" must power of 2");
+      QMP_abort(1);
+    }
+    pargv.ndims = ndims;
   }
-  status = QMP_declare_logical_topology (dims, ndims);
 
+  status = QMP_declare_logical_topology (dims, ndims);
   if (status != QMP_SUCCESS) {
     fprintf (stderr, "Cannot declare logical grid\n");
     return -1;
@@ -534,78 +886,82 @@ int main (int argc, char** argv)
   }
 
   rank = QMP_get_node_number ();
-  if (rank == 0) 
-    pargv.sender = 1;
-  else
-    pargv.sender = 0;
+  {
+    int k=1;
+    const int *lc = QMP_get_logical_coordinates();
+    for(i=0; i<ndims; i++) k += lc[i];
+    pargv.sender = k&1;
+  }
 
-  QMP_fprintf (stderr, "%s options: num_channels [%d] verify [%d] option [%d] datasize [%d] numloops [%d] sender[%d]\n",
-	      argv[0], pargv.num_channels, pargv.verify, 
-	      pargv.option, pargv.size, pargv.loops, pargv.sender);
+  QMP_printf("%s options: num_channels[%d] verify[%d] option[%d] datasize[%d] numloops[%d] sender[%d] strided_send[%i] strided_recv[%i] strided_array_send[%i] ",
+	     argv[0], pargv.num_channels, pargv.verify, 
+	     pargv.option, pargv.size, pargv.loops, pargv.sender,
+	     strided_send, strided_recv, strided_array_send);
+  fflush(stdout);
 
 
   /**
    * Create memory
    */
   nc = pargv.num_channels;
-  dsize = pargv.size;
   smem = (int **)malloc(nc*sizeof (int *));
   rmem = (int **)malloc(nc*sizeof (int *));
-  sendmem = (QMP_msgmem_t *)malloc(nc*sizeof (QMP_msgmem_t *));
-  recvmem = (QMP_msgmem_t *)malloc(nc*sizeof (QMP_msgmem_t *));
-  sendh = (QMP_msghandle_t *)malloc(nc*sizeof (QMP_msghandle_t *));
-  recvh = (QMP_msghandle_t *)malloc(nc*sizeof (QMP_msghandle_t *));
-  
-  for (i = 0; i < nc; i++) {
-    smem[i] = (int *)malloc(dsize*sizeof (int));
-    rmem[i] = (int *)malloc(dsize*sizeof (int));
-    for (j = 0; j < dsize; j++) {
-      rmem[i][j] = 0;
-      smem[i][j] = j;
+  sendmem = (QMP_msgmem_t *)malloc(ndims*nc*sizeof (QMP_msgmem_t));
+  recvmem = (QMP_msgmem_t *)malloc(ndims*nc*sizeof (QMP_msgmem_t));
+  sendh = (QMP_msghandle_t *)malloc(nc*sizeof (QMP_msghandle_t));
+  recvh = (QMP_msghandle_t *)malloc(nc*sizeof (QMP_msghandle_t));
+
+  QMP_barrier();
+  if(QMP_get_node_number()==0) printf("\n"); fflush(stdout);
+  if(pargv.option & TEST_SIMUL) {
+    if(QMP_get_node_number()==0)
+      QMP_printf("starting simultaneous sends"); fflush(stdout);
+    for(i=pargv.minsize; i<=pargv.maxsize; i*=pargv.facsize) {
+      pargv.size = i;
+      create_msgs(smem, rmem, sendmem, recvmem, sendh, recvh, ndims, nc, i);
+      test_simultaneous_send (smem, rmem, sendh, recvh, &pargv);
+      check_mem(rmem, ndims, nc, i);
+      free_msgs(smem, rmem, sendmem, recvmem, sendh, recvh, ndims, nc);
     }
-
-    sendmem[i] = QMP_declare_msgmem (smem[i], dsize*sizeof (int));
-    recvmem[i] = QMP_declare_msgmem (rmem[i], dsize*sizeof (int));
-
-    recvh[i] = QMP_declare_receive_relative (recvmem[i], 0, 1, 0);
-    if (!recvh[i]) {
-      QMP_printf ("Recv Handle Error: %s\n", QMP_get_error_string(0));      
-      exit (1);
-    }
-
-    sendh[i] = QMP_declare_send_relative (sendmem[i], 0, -1, 0);
-    
-    if (!sendh[i]) {
-      QMP_printf ("Send Handle Error: %s\n", QMP_get_error_string(0));
-      exit (1);
-    }
-
+    if(QMP_get_node_number()==0)
+      QMP_printf("finished simultaneous sends\n"); fflush(stdout);
   }
 
-  if (pargv.option == TEST_PINGPONG && pargv.verify) 
-    test_pingpong_verify(smem, rmem, sendh, recvh, &pargv);
-  else if (pargv.option == TEST_PINGPONG)
-    test_pingpong(smem, rmem, sendh, recvh, &pargv);
-  else if (pargv.option == TEST_ONEWAY)
-    test_oneway (smem, rmem, sendh, recvh, &pargv);
-  else
-    test_simultaneous_send (smem, rmem, sendh, recvh, &pargv);
+  if(pargv.option & TEST_PINGPONG) {
+    if(QMP_get_node_number()==0)
+      QMP_printf("starting ping pong sends"); fflush(stdout);
+    for(i=pargv.minsize; i<=pargv.maxsize; i*=pargv.facsize) {
+      pargv.size = i;
+      create_msgs(smem, rmem, sendmem, recvmem, sendh, recvh, ndims, nc, i);
+      if(pargv.verify)
+	test_pingpong_verify(smem, rmem, sendh, recvh, &pargv);
+      else
+	test_pingpong(smem, rmem, sendh, recvh, &pargv);
+      check_mem(rmem, ndims, nc, i);
+      free_msgs(smem, rmem, sendmem, recvmem, sendh, recvh, ndims, nc);
+    }
+    if(QMP_get_node_number()==0)
+      QMP_printf("finished ping pong sends\n"); fflush(stdout);
+  }
+
+  if(pargv.option & TEST_ONEWAY) {
+    if(QMP_get_node_number()==0)
+      QMP_printf("starting one way sends"); fflush(stdout);
+    for(i=pargv.minsize; i<=pargv.maxsize; i*=pargv.facsize) {
+      pargv.size = i;
+      create_msgs(smem, rmem, sendmem, recvmem, sendh, recvh, ndims, nc, i);
+      test_oneway (smem, rmem, sendh, recvh, &pargv);
+      if(!pargv.sender) check_mem(rmem, ndims, nc, i);
+      free_msgs(smem, rmem, sendmem, recvmem, sendh, recvh, ndims, nc);
+    }
+    if(QMP_get_node_number()==0)
+      QMP_printf("finished one way sends"); fflush(stdout);
+  }
 
 
   /**
    * Free memory 
    */
-  for (j = 0; j < nc; j++) {
-    QMP_free_msghandle (recvh[j]);
-    QMP_free_msghandle (sendh[j]);
-
-    QMP_free_msgmem (recvmem[j]);
-    QMP_free_msgmem (sendmem[j]);
-
-    free (smem[j]);
-    free (rmem[j]);
-  }
-
   free (smem);
   free (rmem);
 
@@ -619,5 +975,3 @@ int main (int argc, char** argv)
 
   return 0;
 }
-    
-  

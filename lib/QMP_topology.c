@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.7  2006/06/13 17:43:09  bjoo
+ *   Removed some c99isms. Code  compiles on Cray at ORNL using pgcc
+ *
  *   Revision 1.6  2006/03/10 08:38:07  osborn
  *   Added timing routines.
  *
@@ -81,22 +84,11 @@
 #include <stdarg.h>
 
 #include "QMP_P_COMMON.h"
+#ifdef HAVE_BGL
+#include <rts.h>
+#endif
 
 static int *remap=NULL;
-
-#ifndef HAVE_BGL /* not on a BG/L */
-
-static void
-remap_axes(const int *dims, int ndim)
-{
-  int i;
-  remap = (int *) malloc(ndim*sizeof(int));
-  for(i=0; i<ndim; i++) remap[i] = i;
-}
-
-#else /* HAVE_BGL -- use BG/L personality */
-
-#include <bglpersonality.h>
 
 static void
 sort(int *index, const int *key, int n)
@@ -115,9 +107,21 @@ sort(int *index, const int *key, int n)
   }
 }
 
+#ifndef HAVE_BGL /* not on a BG/L */
+
+static void
+remap_switch(const int *dims, int ndim)
+{
+  int i;
+  remap = (int *) malloc(ndim*sizeof(int));
+  for(i=0; i<ndim; i++) remap[i] = i;
+}
+
+#else /* HAVE_BGL -- use BG/L personality */
+
 /* try to have dims[remap[i]] == bgl_dims[i] */
 static void
-remap_axes(const int *dims, int ndim)
+remap_switch(const int *dims, int ndim)
 {
   int i;
   int bgl_ndim=4, bgl_dims[4], bgl_index[4];
@@ -145,6 +149,63 @@ remap_axes(const int *dims, int ndim)
 }
 
 #endif /* HAVE_BGL */
+
+static void
+remap_grid(const int *dims, int ndim)
+{
+  int i;
+  int alloc_ndim, *alloc_dims, *alloc_index;
+  int *index;
+
+  alloc_ndim = QMP_global_m->ndim;
+  alloc_dims = QMP_global_m->geom;
+  alloc_index = (int *) malloc(alloc_ndim*sizeof(int));
+  sort(alloc_index, alloc_dims, alloc_ndim);
+
+  index = (int *) malloc(ndim*sizeof(int));
+  sort(index, dims, ndim);
+
+  remap = (int *) malloc(ndim*sizeof(int));
+  for(i=0; i<ndim; i++) {
+    int k = i;
+    if(i<alloc_ndim) {
+      k = alloc_index[i];
+      if(alloc_dims[k]!=dims[index[i]]) {
+	int j;
+	QMP_error("QMP_declare_logical_topology: requested topology not compatible with machine\n");
+	QMP_error("allocated machine:");
+	for(j=0; j<alloc_ndim; j++) {
+	  fprintf(stderr, "\t%i", alloc_dims[j]);
+	}
+	fprintf(stderr, "\n");
+	QMP_error("logical topology:");
+	for(j=0; j<ndim; j++) {
+	  fprintf(stderr, "\t%i", dims[j]);
+	}
+	fprintf(stderr, "\n");
+      }
+    } else {
+      if(dims[index[i]]!=1) {
+	int j;
+	QMP_error("QMP_declare_logical_topology: requested topology not compatible with machine\n");
+	QMP_error("allocated machine:");
+	for(j=0; j<alloc_ndim; j++) {
+	  fprintf(stderr, "\t%i", alloc_dims[j]);
+	}
+	fprintf(stderr, "\n");
+	QMP_error("logical topology:");
+	for(j=0; j<ndim; j++) {
+	  fprintf(stderr, "\t%i", dims[j]);
+	}
+	fprintf(stderr, "\n");
+      }
+    }
+    remap[k] = index[i];
+  }
+
+  free(index);
+  free(alloc_index);
+}
 
 static void 
 crtesn_coord(int ipos, int coordf[], int latt_size[], int ndim)
@@ -201,6 +262,7 @@ QMP_declare_logical_topology (const int* dims, int ndim)
     goto leave;
   }
 
+#if 0
   if(QMP_global_m->ic_type!=QMP_SWITCH) {
     if(ndim!=QMP_global_m->ndim) {
       QMP_error ("QMP_declare_logical_topology: requested ndim (%d) not equal to machine ndim (%d)\n", ndim, QMP_global_m->ndim);
@@ -215,8 +277,13 @@ QMP_declare_logical_topology (const int* dims, int ndim)
       }
     }
   }
+#endif
 
-  remap_axes(dims, ndim);
+  if(QMP_global_m->ic_type!=QMP_SWITCH) {
+    remap_grid(dims, ndim);
+  } else {
+    remap_switch(dims, ndim);
+  }
 
   QMP_topo->dimension = ndim;
   QMP_topo->logical_size = (int *) malloc(ndim*sizeof(int));

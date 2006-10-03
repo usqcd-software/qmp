@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.8  2006/03/10 08:38:07  osborn
+ *   Added timing routines.
+ *
  *   Revision 1.7  2006/01/04 20:27:01  osborn
  *   Removed C99 named initializer.
  *
@@ -81,10 +84,15 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <stdarg.h>
+#ifndef __USE_UNIX98
 #define __USE_UNIX98 /* needed to get gethostname from GNU unistd.h */
+#endif
 #include <unistd.h>
 
 #include "QMP_P_MPI.h"
+#ifdef HAVE_BGL
+#include <rts.h>
+#endif
 
 /* global communicator */
 MPI_Comm QMP_COMM_WORLD;
@@ -115,8 +123,11 @@ QMP_init_machine_i(int* argc, char*** argv)
   for(i=0; i<*argc; i++) {
     if(strcmp((*argv)[i], "-qmp-geom")==0) {
       first = i;
-      while( (++i<*argc) && (isdigit((*argv)[i][0])) );
-      last = i-1;
+      if( ((i+1)<*argc) && (strcmp((*argv)[i+1], "native")==0) ) last = i+1;
+      else {
+	while( (++i<*argc) && (isdigit((*argv)[i][0])) );
+	last = i-1;
+      }
     }
   }
 
@@ -128,16 +139,44 @@ QMP_init_machine_i(int* argc, char*** argv)
     QMP_global_m->coord = NULL;
   } else { /* act like a mesh */
     QMP_global_m->ic_type = QMP_MESH;
-    QMP_global_m->ndim = nd;
-    QMP_global_m->geom = (int *) malloc(nd*sizeof(int));
-    QMP_global_m->coord = (int *) malloc(nd*sizeof(int));
-    n = QMP_global_m->nodeid;
-    for(i=0; i<nd; i++) {
-      QMP_global_m->geom[i] = atoi((*argv)[i+first+1]);
-      QMP_global_m->coord[i] = n % QMP_global_m->geom[i];
-      n /= QMP_global_m->geom[i];
+    if(strcmp((*argv)[last], "native")==0) {
+#ifdef HAVE_BGL
+      BGLPersonality pers;
+      rts_get_personality(&pers, sizeof(pers));
+      if(BGLPersonality_virtualNodeMode(&pers)) nd = 4;
+      else nd = 3;
+      QMP_global_m->ndim = nd;
+      QMP_global_m->geom = (int *) malloc(nd*sizeof(int));
+      QMP_global_m->coord = (int *) malloc(nd*sizeof(int));
+      QMP_global_m->geom[0] = pers.xSize;
+      QMP_global_m->geom[1] = pers.ySize;
+      QMP_global_m->geom[2] = pers.zSize;
+      QMP_global_m->coord[0] = pers.xCoord;
+      QMP_global_m->coord[1] = pers.yCoord;
+      QMP_global_m->coord[2] = pers.zCoord;
+      if(nd==4) {
+	QMP_global_m->geom[3] = 2;
+	QMP_global_m->coord[3] = rts_get_processor_id();
+      }
+#else  /* native only supported on BG/L */
+      QMP_global_m->ic_type = QMP_SWITCH;
+      QMP_global_m->ndim = 0;
+      QMP_global_m->geom = NULL;
+      QMP_global_m->coord = NULL;
+#endif
+    } else {
+      QMP_global_m->ndim = nd;
+      QMP_global_m->geom = (int *) malloc(nd*sizeof(int));
+      QMP_global_m->coord = (int *) malloc(nd*sizeof(int));
+      n = QMP_global_m->nodeid;
+      for(i=0; i<nd; i++) {
+	QMP_global_m->geom[i] = atoi((*argv)[i+first+1]);
+	QMP_global_m->coord[i] = n % QMP_global_m->geom[i];
+	n /= QMP_global_m->geom[i];
+      }
     }
   }
+  nd = last - first;
   if(first>=0) {  /* remove from arguments */
     for(i=last+1; i<*argc; i++) (*argv)[i-nd-1] = (*argv)[i];
     *argc -= nd + 1;
