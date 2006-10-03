@@ -1,3 +1,11 @@
+2006-10-03 17:31  tag qmp2-1-7
+
+2006-10-03 17:31  osborn
+
+	* aclocal.m4, configure, configure.ac, examples/Makefile.am,
+	  examples/QMP_perf.c, lib/QMP_init_mpi.c, lib/QMP_topology.c:
+	  Added "-qmp-geom native" command line option for BG/L.
+
 2006-06-13 13:43  bjoo
 
 	* lib/: QMP_comm_mpi.c, QMP_grid.c, QMP_topology.c: Removed some
