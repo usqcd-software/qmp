@@ -305,6 +305,15 @@
 	  doc/QMPdoxyfile.in: Changed doc handling so QMP now passes a make
 	  distcheck.
 
+2004-10-08 01:05  osborn
+
+	* src/: Makefile.am, QMP_P_COMMON.h, QMP_P_MPI.h, QMP_P_SINGLE.h,
+	  QMP_comm_mpi.c, QMP_comm_single.c, QMP_error_mpi.c,
+	  QMP_error_single.c, QMP_grid.c, QMP_init_mpi.c,
+	  QMP_init_single.c, QMP_machine.c, QMP_mem_mpi.c,
+	  QMP_mem_single.c, QMP_topology.c, QMP_util.c, qmp.h, qmp.hpp:
+	  Removed old files in src.
+
 2004-10-08 00:49  osborn
 
 	* AUTHORS, INSTALL, Makefile.am, aclocal.m4, configure,
@@ -318,12 +327,17 @@
 	  lib/QMP_mem_mpi.c, lib/QMP_mem_single.c, lib/QMP_topology.c,
 	  lib/QMP_util.c: Split src directory into include and lib.
 
+2004-09-03 23:33  edwards
+
+	* src/: QMP_grid.c, qmp.h: Changed QMP_layout_grid to take a const
+	  qualifier on args.
+
 2004-09-01 17:16  tag qmp2-0-beta3
 
 2004-09-01 17:16  osborn
 
-	* aclocal.m4, configure, configure.ac, doc/QMPdoxyfile: Added
-	  QMP_is_initialized().
+	* aclocal.m4, configure, configure.ac, doc/QMPdoxyfile,
+	  src/QMP_util.c, src/qmp.h: Added QMP_is_initialized().
 
 2004-08-31 18:56  tag qmp2-0-beta2
 
@@ -341,10 +355,15 @@
 
 	* aclocal.m4: Induced changes.
 
+2004-08-26 17:32  detar
+
+	* src/: QMP_machine.c, qmp.h: Change QMP_master_io_node to function
+	  -CD
+
 2004-08-26 14:14  detar
 
-	* aclocal.m4, doc/QMPdoxyfile: Added QMP_io_node and
-	  QMP_master_io_node for compatibility with qio-1.0  -CD
+	* aclocal.m4, doc/QMPdoxyfile, src/QMP_machine.c: Added QMP_io_node
+	  and QMP_master_io_node for compatibility with qio-1.0  -CD
 
 2004-08-19 15:34  edwards
 
@@ -357,6 +376,15 @@
 	* install-scripts/NERSC/configure_qmp.sh: Added AIX configure
 	  script in install-scripts
 
+2004-06-25 14:08  bjoo
+
+	* src/: QMP_comm_mpi.c, QMP_mem_mpi.c: DONT USE C++ COMMENTS IN C
+	  CODElsls!
+
+2004-06-17 17:37  osborn
+
+	* src/QMP_error_mpi.c: added file QMP_error_mpi.c
+
 2004-06-14 16:36  tag qmp2-0-beta1
 
 2004-06-14 16:36  osborn
@@ -366,8 +394,16 @@
 	  examples/QMP_broadcast.c, examples/QMP_gcomm_perf.c,
 	  examples/QMP_grid_test.c, examples/QMP_loopback.c,
 	  examples/QMP_msg.c, examples/QMP_perf.c, examples/QMP_qcd_test.c,
-	  examples/QMP_test.c, examples/gm_loop.c: Updated to API version 2
-	  and added single node target
+	  examples/QMP_test.c, examples/gm_loop.c, src/Makefile.am,
+	  src/QMP_P_COMMON.h, src/QMP_P_GM.h, src/QMP_P_MPI.h,
+	  src/QMP_P_SINGLE.h, src/QMP_comm_gm.c, src/QMP_comm_mpi.c,
+	  src/QMP_comm_single.c, src/QMP_error_single.c, src/QMP_genutil.c,
+	  src/QMP_grid.c, src/QMP_init_gm.c, src/QMP_init_mpi.c,
+	  src/QMP_init_single.c, src/QMP_machine.c, src/QMP_mem_gm.c,
+	  src/QMP_mem_mpi.c, src/QMP_mem_single.c, src/QMP_run,
+	  src/QMP_topology.c, src/QMP_topology_gm.c, src/QMP_util.c,
+	  src/QMP_util_gm.c, src/QMP_util_mpi.c, src/qmp.h: Updated to API
+	  version 2 and added single node target
 
 2004-04-23 14:58  tag qmp1-2-7
 
@@ -407,25 +443,77 @@
 
 	* configure.ac: versioning
 
+2004-04-08 05:00  bjoo
+
+	* src/: QMP_P_MPI.h, QMP_comm_mpi.c, QMP_mem_mpi.c, qmp.h: Added
+	  experimental support for strided msgmem
+
 2004-04-07 11:26  edwards
 
 	* NEWS: Info on 1.2.8
+
+2004-02-04 21:33  edwards
+
+	* src/QMP_init_mpi.c: Removed a debugging statement.
+
+2004-02-04 21:28  edwards
+
+	* src/QMP_grid.c: Blanked out debugging section.
 
 2003-12-23 11:58  edwards
 
 	* NEWS: News on 1.2.7
 
+2003-12-23 11:57  edwards
+
+	* src/QMP_genutil.c: Fixed up debugging.
+
+2003-12-23 11:54  edwards
+
+	* src/QMP_genutil.c: Added trace macro to this top level code.
+
 2003-12-18 23:54  edwards
 
 	* NEWS: Info on 1.2.6.
+
+2003-12-18 23:51  edwards
+
+	* src/qmp.h: Added prototype for QMP_route.
+
+2003-12-18 23:46  edwards
+
+	* src/QMP_genutil.c: Added return of status.
+
+2003-12-18 23:45  edwards
+
+	* src/QMP_genutil.c: Small bug fix.
 
 2003-12-18 23:43  edwards
 
 	* configure: Induced changes.
 
+2003-12-18 23:43  edwards
+
+	* src/QMP_genutil.c: First version of generic routines.
+
 2003-12-18 23:39  edwards
 
 	* aclocal.m4: Induced changes.
+
+2003-12-18 23:39  edwards
+
+	* src/Makefile.am: Added QMP_genutil.c
+
+2003-11-03 21:14  edwards
+
+	* src/QMP_init_mpi.c: Bug fix. The malloc in
+	  QMP_get_logical_coordinates_from had an invalid argument.
+
+2003-11-03 20:04  edwards
+
+	* src/: QMP_init_mpi.c, QMP_topology_gm.c, qmp.h: Changed
+	  QMP_get_logical_coordinates_from to not have const modifier.
+	  Now, user must explicitly call "free".
 
 2003-11-03 20:03  edwards
 
@@ -438,6 +526,28 @@
 2003-09-09 12:36  edwards
 
 	* Makefile.am: Split off docs from always being made.
+
+2003-07-29 11:23  chen
+
+	* src/qmp.h: remove not used decleration
+
+2003-07-21 22:17  edwards
+
+	* src/QMP_mem_mpi.c: Yet another change/hack of QMP_memalign. Use
+	  the obsolete valloc.
+
+2003-07-21 17:07  edwards
+
+	* src/QMP_mem_mpi.c: Changed around QMP_memalign.
+
+2003-07-21 16:57  edwards
+
+	* src/QMP_mem_mpi.c: Changed QMP_allocated_align_memory to use
+	  QMP_memalign instead of memalign directly.
+
+2003-07-20 22:19  edwards
+
+	* src/QMP_grid.c: Cleaned up some int* to unsigned int*.
 
 2003-06-13 23:31  edwards
 
@@ -463,6 +573,11 @@
 
 2003-06-04 15:19  edwards
 
+	* src/: QMP_init_gm.c, QMP_init_mpi.c, QMP_util_mpi.c, qmp.h: Added
+	  a QMP_abort() function.
+
+2003-06-04 15:19  edwards
+
 	* doc/QMP_API.html: Added QMP_abort function.
 
 2003-06-04 15:16  edwards
@@ -473,7 +588,48 @@
 
 	* NEWS: News about 1.2.3.
 
-2003-02-13 13:50  tag qmp1-2-2
+2003-05-23 10:11  bjoo
+
+	* src/QMP_mem_mpi.c: Fixed memory leak in QMP_free_msghandle
+
+2003-04-23 00:59  edwards
+
+	* src/QMP_util_mpi.c: Ifdef protected check of MPI_ERR_WIN. Doesn't
+	  seem to be defined on IBM's.
+
+2003-02-19 15:37  chen
+
+	* src/: QMP_P_GM.h, QMP_P_MPI.h, QMP_comm_gm.c, QMP_comm_mpi.c:
+	  Make QMP_is_complete a polling function
+
+2003-02-18 13:16  chen
+
+	* src/QMP_comm_mpi.c: Fix a minor bug for is_complete
+
+2003-02-13 22:22  flemingg
+
+	* src/: Makefile.am, qmp.h: src/qmp.hpp is no longer #include-d by
+	  src/qmp.h #ifdef __cplusplus.  Also, since qmp.hpp doesn't need
+	  to end up in $prefix/include anymore, moved it back to EXTRA_DIST
+	  in src/Makefile.am
+
+2003-02-13 14:39  tag qmp1-2-2
+
+2003-02-13 14:39  flemingg
+
+	* src/Makefile.am: Fixed a mistake in src/Makefile.am:	I had moved
+	  'qmp.h' from a _HEADERS primary to a _SOURCES primary so that
+	  libqmp.a would depend on it, but then it wasn't installed
+	  properly.  Now it appears both in libqmp_a_SOURCES and
+	  include_HEADERS.  This seems to do the right thing.
+
+2003-02-13 14:05  flemingg
+
+	* src/Makefile.am: A bit of reorganizing plus added a target to
+	  ensure 'qmp.hpp' is included in the dist from 'make dist' even
+	  though it may not be useful?	I don't think it gets installed by
+	  'make install'.  I'll check it later and if it does, then I'll
+	  modify Makefile.am so that it doesn't.
 
 2003-02-13 13:50  flemingg
 
@@ -496,9 +652,21 @@
 	* README, doc/QMP-1-0.doc, doc/QMP_API.html: Document change for
 	  QMP 1.2
 
-2003-02-13 11:23  chen
+2003-02-13 11:41  chen
 
-	* doc/QMPdoxyfile.in, examples/Makefile.am,
+	* src/qmp.hpp: minor change
+
+2003-02-13 11:37  chen
+
+	* src/: qmp.h, qmp.hh, qmp.hpp: add qmp.hpp remove qmp.hh
+
+2003-02-13 11:22  chen
+
+	* src/Makefile.am, src/QMP.h, src/QMP_P_GM.h, src/QMP_comm_gm.c,
+	  src/QMP_comm_mpi.c, src/QMP_grid.c, src/QMP_init_gm.c,
+	  src/QMP_init_mpi.c, src/QMP_mem_gm.c, src/QMP_mem_mpi.c,
+	  src/QMP_topology_gm.c, src/QMP_util_gm.c, src/QMP_util_mpi.c,
+	  src/qmp.h, src/qmp.hh, doc/QMPdoxyfile.in, examples/Makefile.am,
 	  examples/QMP_MILC_test.c, examples/QMP_gcomm_perf.c,
 	  examples/QMP_grid_test.c, examples/QMP_loopback.c,
 	  examples/QMP_msg.c, examples/QMP_perf.c, examples/QMP_qcd_test.c,
@@ -533,9 +701,12 @@
 	  examples/Makefile.am, examples/QMP_MILC_test.c,
 	  examples/QMP_gcomm_perf.c, examples/QMP_grid_test.c,
 	  examples/QMP_loopback.c, examples/QMP_msg.c, examples/QMP_perf.c,
-	  examples/QMP_qcd_test.c, examples/QMP_test.c: GTF: Update of
-	  automake and autoconf files to use qmp-config in lieu      of
-	  qmp_build_env.sh
+	  examples/QMP_qcd_test.c, examples/QMP_test.c, src/Makefile.am,
+	  src/QMP.h, src/QMP_P_GM.h, src/QMP_P_MPI.h, src/QMP_comm_gm.c,
+	  src/QMP_grid.c, src/QMP_init_gm.c, src/QMP_init_mpi.c,
+	  src/QMP_topology_gm.c, src/QMP_util_gm.c, src/QMP_util_mpi.c:
+	  GTF: Update of automake and autoconf files to use qmp-config in
+	  lieu	    of qmp_build_env.sh
 
 2003-01-27 14:31  tag qmp1-1-0
 
@@ -547,13 +718,18 @@
 	  acinclude.m4, aclocal.m4, configure, configure.ac,
 	  qmp_build_env.sh.in, doc/Makefile.am, doc/MessageAPI.htm,
 	  doc/QMPdoxyfile.in, doc/boy6.gif, doc/constru3.gif, doc/id2.gif,
-	  doc/note02.gif, config/compile, config/depcomp,
-	  config/install-sh, config/missing, config/mkinstalldirs,
-	  doc/QMP-1-0.doc, doc/QMP_API.html, examples/Makefile.am,
-	  examples/QMP_MILC_test.c, examples/QMP_gcomm_perf.c,
-	  examples/QMP_grid_test.c, examples/QMP_loopback.c,
-	  examples/QMP_msg.c, examples/QMP_perf.c, examples/QMP_qcd_test.c,
-	  examples/QMP_test.c, examples/gm_loop.c: Initial revision
+	  doc/note02.gif, src/Makefile.am, src/QMP.h, src/QMP_P_GM.h,
+	  src/QMP_P_MPI.h, src/QMP_comm_gm.c, src/QMP_comm_mpi.c,
+	  src/QMP_grid.c, src/QMP_init_gm.c, src/QMP_init_mpi.c,
+	  src/QMP_mem_gm.c, src/QMP_mem_mpi.c, src/QMP_run,
+	  src/QMP_topology_gm.c, src/QMP_util_gm.c, src/QMP_util_mpi.c,
+	  config/compile, config/depcomp, config/install-sh,
+	  config/missing, config/mkinstalldirs, doc/QMP-1-0.doc,
+	  doc/QMP_API.html, examples/Makefile.am, examples/QMP_MILC_test.c,
+	  examples/QMP_gcomm_perf.c, examples/QMP_grid_test.c,
+	  examples/QMP_loopback.c, examples/QMP_msg.c, examples/QMP_perf.c,
+	  examples/QMP_qcd_test.c, examples/QMP_test.c, examples/gm_loop.c:
+	  Initial revision
 
 2003-01-27 14:31  chen
 
@@ -561,11 +737,16 @@
 	  acinclude.m4, aclocal.m4, configure, configure.ac,
 	  qmp_build_env.sh.in, doc/Makefile.am, doc/MessageAPI.htm,
 	  doc/QMPdoxyfile.in, doc/boy6.gif, doc/constru3.gif, doc/id2.gif,
-	  doc/note02.gif, config/compile, config/depcomp,
-	  config/install-sh, config/missing, config/mkinstalldirs,
-	  doc/QMP-1-0.doc, doc/QMP_API.html, examples/Makefile.am,
-	  examples/QMP_MILC_test.c, examples/QMP_gcomm_perf.c,
-	  examples/QMP_grid_test.c, examples/QMP_loopback.c,
-	  examples/QMP_msg.c, examples/QMP_perf.c, examples/QMP_qcd_test.c,
-	  examples/QMP_test.c, examples/gm_loop.c: check into lattice group
+	  doc/note02.gif, src/Makefile.am, src/QMP.h, src/QMP_P_GM.h,
+	  src/QMP_P_MPI.h, src/QMP_comm_gm.c, src/QMP_comm_mpi.c,
+	  src/QMP_grid.c, src/QMP_init_gm.c, src/QMP_init_mpi.c,
+	  src/QMP_mem_gm.c, src/QMP_mem_mpi.c, src/QMP_run,
+	  src/QMP_topology_gm.c, src/QMP_util_gm.c, src/QMP_util_mpi.c,
+	  config/compile, config/depcomp, config/install-sh,
+	  config/missing, config/mkinstalldirs, doc/QMP-1-0.doc,
+	  doc/QMP_API.html, examples/Makefile.am, examples/QMP_MILC_test.c,
+	  examples/QMP_gcomm_perf.c, examples/QMP_grid_test.c,
+	  examples/QMP_loopback.c, examples/QMP_msg.c, examples/QMP_perf.c,
+	  examples/QMP_qcd_test.c, examples/QMP_test.c, examples/gm_loop.c:
+	  check into lattice group
 
