@@ -1,0 +1,571 @@
+2006-10-03 17:31  tag qmp2-1-7
+
+2006-10-03 17:31  osborn
+
+	* aclocal.m4, configure, configure.ac, examples/Makefile.am,
+	  examples/QMP_perf.c, lib/QMP_init_mpi.c, lib/QMP_topology.c:
+	  Added "-qmp-geom native" command line option for BG/L.
+
+2006-06-13 13:43  bjoo
+
+	* lib/: QMP_comm_mpi.c, QMP_grid.c, QMP_topology.c: Removed some
+	  c99isms. Code  compiles on Cray at ORNL using pgcc
+
+2006-05-26 00:40  tag qmp2-1-6
+
+2006-05-26 00:40  edwards
+
+	* NEWS: Info on 2.1.6
+
+2006-05-26 00:39  edwards
+
+	* configure: Induced changes
+
+2006-05-26 00:37  edwards
+
+	* aclocal.m4: Induced changes.
+
+2006-05-26 00:37  edwards
+
+	* configure.ac: Changed to 2.1.6
+
+2006-05-25 17:09  edwards
+
+	* lib/QMP_comm_single.c: Changed error string to match function
+	  name.
+
+2006-05-25 17:08  edwards
+
+	* lib/QMP_error_single.c: Changed error strings to match function
+	  name.
+
+2006-05-22 13:28  detar
+
+	* lib/QMP_init_single.c: Trivial: Move two declarations for
+	  compatibility with pre-C90 syntax.
+
+2006-05-17 14:54  tag qmp2-1-5
+
+2006-05-17 14:54  bjoo
+
+	* bin/qmp-config.in, aclocal.m4, configure.ac, configure: Added
+	  ranlib and ar options to qmp-config
+
+2006-05-09 16:26  morten
+
+	* include/QMP_profiling.h: Changed weak bindings from using pragma
+	  to using attribute
+
+2006-04-04 17:25  bjoo
+
+	* aclocal.m4, configure: Now clean after themselves
+
+2006-03-11 02:25  osborn
+
+	* AUTHORS, configure, configure.ac: Changed email address.
+
+2006-03-10 13:15  osborn
+
+	* lib/QMP_error_single.c: Fixed warning about types.
+
+2006-03-10 03:38  tag qmp2-1-4
+
+2006-03-10 03:38  osborn
+
+	* aclocal.m4, configure, configure.ac, include/QMP_P_COMMON.h,
+	  include/qmp.h, include/qmp_config.h.in, lib/QMP_comm_mpi.c,
+	  lib/QMP_comm_single.c, lib/QMP_error_mpi.c,
+	  lib/QMP_error_single.c, lib/QMP_grid.c, lib/QMP_init_mpi.c,
+	  lib/QMP_init_single.c, lib/QMP_machine.c, lib/QMP_mem_mpi.c,
+	  lib/QMP_mem_single.c, lib/QMP_topology.c, lib/QMP_util.c: Added
+	  timing routines.
+
+2006-01-05 14:32  tag qmp2-1-3
+
+2006-01-05 14:32  osborn
+
+	* aclocal.m4, configure, configure.ac, lib/QMP_topology.c: Fixes to
+	  BG/L personality code.  Ready for version 2.1.3.
+
+2006-01-04 22:12  osborn
+
+	* configure, configure.ac, examples/QMP_gcomm_perf.c,
+	  examples/QMP_grid_test.c, examples/QMP_loopback.c,
+	  include/qmp_config.h.in, lib/QMP_mem_mpi.c, lib/QMP_topology.c:
+	  Added --enable-bgl compilation option.
+
+2006-01-04 15:27  osborn
+
+	* configure, configure.ac, include/QMP_P_COMMON.h,
+	  lib/QMP_init_mpi.c, lib/QMP_init_single.c: Removed C99 named
+	  initializer.
+
+2005-12-19 15:30  edwards
+
+	* install-scripts/cygwin/configure_qmp-single.sh: Single node
+	  configure script
+
+2005-11-17 01:29  tag qmp2-1-2
+
+2005-11-17 01:29  osborn
+
+	* configure, configure.ac, lib/QMP_init_single.c: Fixed bug in
+	  SINGLE initialization which swapped SWITCH and MESH modes.
+
+2005-08-27 15:49  tag qmp2-1-0
+
+2005-08-27 15:49  tag qmp2-1-1
+
+2005-08-27 15:49  osborn
+
+	* aclocal.m4, configure, configure.ac, include/qmp.h: Removed a
+	  '//' to make people who don't want to use C99 happy.
+
+2005-08-18 01:53  osborn
+
+	* NEWS, aclocal.m4, configure, configure.ac, include/QMP_P_MPI.h,
+	  lib/QMP_comm_mpi.c, lib/QMP_init_mpi.c, lib/QMP_mem_mpi.c:
+	  Changed to use persistent communication requests.
+
+2005-06-29 15:47  tag qmp2-0-4
+
+2005-06-29 15:47  edwards
+
+	* NEWS: Info on 2.0.4
+
+2005-06-29 15:46  edwards
+
+	* aclocal.m4, configure: Induced changes.
+
+2005-06-29 15:45  edwards
+
+	* configure.ac: Changed to version 2.0.4
+
+2005-06-29 15:44  edwards
+
+	* lib/: QMP_init_mpi.c, QMP_init_single.c: Removed ANSI-99-isms.
+	  Now compiles under c89.
+
+2005-06-29 12:41  bjoo
+
+	* aclocal.m4, bin/qmp-config.in: Took out skipping of duplicate
+	  libs. Sometimes libs need to be duplicated
+
+2005-06-21 17:10  osborn
+
+	* Makefile.am, configure, configure.ac: Fixed distcheck target.
+
+2005-06-21 16:18  osborn
+
+	* configure, configure.ac, include/QMP_P_COMMON.h,
+	  include/qmp_config.h.in, lib/QMP_grid.c, lib/QMP_init_mpi.c,
+	  lib/QMP_init_single.c, lib/QMP_machine.c, lib/QMP_topology.c:
+	  Added -qmp-geom command line argument to force grid-like
+	  behavior.
+
+2005-06-20 18:20  tag qmp2-0-2
+
+2005-06-20 18:20  osborn
+
+	* include/Makefile.am, include/QMP_P_COMMON.h, include/QMP_P_MPI.h,
+	  include/QMP_P_SINGLE.h, lib/QMP_comm_mpi.c,
+	  lib/QMP_comm_single.c, lib/QMP_error_mpi.c,
+	  lib/QMP_error_single.c, lib/QMP_grid.c, lib/QMP_init_mpi.c,
+	  lib/QMP_init_single.c, lib/QMP_machine.c, lib/QMP_mem_mpi.c,
+	  lib/QMP_mem_single.c, lib/QMP_topology.c, lib/QMP_util.c: Fixed
+	  inclusion of profiling header.
+
+2005-06-20 17:35  osborn
+
+	* configure, configure.ac: Fixed error in configure.ac.
+
+2005-06-20 17:15  osborn
+
+	* include/qmp_config.h.in: Added qmp_config.h.in.
+
+2005-06-20 17:14  osborn
+
+	* configure, configure.ac, include/QMP_P_COMMON.h, include/qmp.h:
+	  Moved autoconf defines into qmp_config.h to make XLC happy.
+
+2005-05-24 21:25  tag qmp2-0-1
+
+2005-05-24 21:25  edwards
+
+	* NEWS: Info on 2.0.1
+
+2005-05-24 21:22  edwards
+
+	* install-scripts/jlab/: configure_qmp.sh,
+	  configure_qmp_mpich-gm.sh, configure_qmp_mpich-p4.sh: Renamed
+	  configure scripts to be more specific to system. New p4 script.
+
+2005-03-02 13:21  morten
+
+	* lib/QMP_comm_mpi.c: Minor bug fix for QMP_wait_all which always
+	  returned QMP_ERROR
+
+2004-12-19 02:33  morten
+
+	* lib/QMP_util.c: Added dummy functions for the new profiling
+	  functions, QMP_get_total_qmp_time(void)
+	  QMP_get_total_qmp_time(void)
+
+2004-12-19 02:30  morten
+
+	* include/qmp.h: Added function declerations for the new profiling
+	  functions.
+
+2004-12-19 02:28  morten
+
+	* include/QMP_P_COMMON.h: Added the include statement for
+	  QMP_profiling.h
+
+2004-12-19 02:24  morten
+
+	* include/QMP_profiling.h: [no log message]
+
+2004-12-15 21:45  osborn
+
+	* examples/QMP_stride_test.c: Really add QMP_stride_test.c.
+
+2004-12-15 21:44  osborn
+
+	* aclocal.m4, configure, configure.ac, examples/Makefile.am,
+	  examples/QMP_broadcast.c, examples/QMP_msg.c,
+	  examples/QMP_qcd_test.c, include/QMP_P_MPI.h,
+	  include/QMP_P_SINGLE.h, lib/QMP_comm_mpi.c, lib/QMP_grid.c,
+	  lib/QMP_init_mpi.c, lib/QMP_mem_mpi.c, lib/QMP_mem_single.c:
+	  Changed QMP_mem_t structure, fixed strided memory and added test.
+
+2004-11-22 20:43  tag qmp2-0-0
+
+2004-11-22 20:43  edwards
+
+	* aclocal.m4, configure: Induced changes.
+
+2004-11-22 20:42  edwards
+
+	* configure.ac: Changed to 2.0.0
+
+2004-11-22 20:42  edwards
+
+	* aclocal.m4: Induced changes
+
+2004-11-22 20:41  edwards
+
+	* NEWS: Info on 2.0.0
+
+2004-10-31 23:46  osborn
+
+	* Makefile.am, configure, configure.ac, qmp-config.in,
+	  bin/Makefile.am, bin/qmp-config.in: Moved qmp-config.in into bin
+	  directory.
+
+2004-10-31 18:21  osborn
+
+	* NEWS, acinclude.m4, aclocal.m4, configure, configure.ac,
+	  qmp-config.in, include/QMP_P_SINGLE.h, include/qmp.h,
+	  lib/QMP_comm_single.c, lib/QMP_mem_single.c: Restored proper
+	  behavior of msghandle operations in single node version.  Added
+	  CFLAGS to qmp-config script.	Changed QMP_status_code_t to
+	  QMP_status_t in qmp.h.
+
+2004-10-18 21:01  edwards
+
+	* install-scripts/cygwin/configure_qmp.sh: Added cygwin scripts
+
+2004-10-18 16:33  edwards
+
+	* install-scripts/jlab/configure_qmp.sh: Changed install dir
+
+2004-10-18 14:40  tag qmp2-0-beta4
+
+2004-10-18 14:40  edwards
+
+	* install-scripts/jlab/configure_qmp.sh: JLab configure script
+
+2004-10-18 14:19  edwards
+
+	* NEWS: Fixed info on 2.0.beta4
+
+2004-10-18 14:17  edwards
+
+	* aclocal.m4, configure: Induced changes.
+
+2004-10-18 14:17  edwards
+
+	* NEWS, include/QMP_P_SINGLE.h, lib/QMP_comm_single.c,
+	  lib/QMP_mem_single.c: Added support for calling msghandle
+	  functions.
+
+2004-10-08 02:15  osborn
+
+	* Makefile.am, doc/Makefile.am, doc/QMPdoxyfile,
+	  doc/QMPdoxyfile.in: Changed doc handling so QMP now passes a make
+	  distcheck.
+
+2004-10-08 00:49  osborn
+
+	* AUTHORS, INSTALL, Makefile.am, aclocal.m4, configure,
+	  configure.ac, config/compile, config/depcomp, config/install-sh,
+	  config/missing, config/mkinstalldirs, examples/Makefile.am,
+	  include/Makefile.am, include/QMP_P_COMMON.h, include/QMP_P_MPI.h,
+	  include/QMP_P_SINGLE.h, include/qmp.h, include/qmp.hpp,
+	  lib/Makefile.am, lib/QMP_comm_mpi.c, lib/QMP_comm_single.c,
+	  lib/QMP_error_mpi.c, lib/QMP_error_single.c, lib/QMP_grid.c,
+	  lib/QMP_init_mpi.c, lib/QMP_init_single.c, lib/QMP_machine.c,
+	  lib/QMP_mem_mpi.c, lib/QMP_mem_single.c, lib/QMP_topology.c,
+	  lib/QMP_util.c: Split src directory into include and lib.
+
+2004-09-01 17:16  tag qmp2-0-beta3
+
+2004-09-01 17:16  osborn
+
+	* aclocal.m4, configure, configure.ac, doc/QMPdoxyfile: Added
+	  QMP_is_initialized().
+
+2004-08-31 18:56  tag qmp2-0-beta2
+
+2004-08-31 18:56  detar
+
+	* configure, configure.ac: Corrected release number and
+	  reautoconfed -CD  CVS:
+	  ----------------------------------------------------------------------
+
+2004-08-27 10:19  edwards
+
+	* configure: Induced changes.
+
+2004-08-27 10:15  edwards
+
+	* aclocal.m4: Induced changes.
+
+2004-08-26 14:14  detar
+
+	* aclocal.m4, doc/QMPdoxyfile: Added QMP_io_node and
+	  QMP_master_io_node for compatibility with qio-1.0  -CD
+
+2004-08-19 15:34  edwards
+
+	* doc/QMPdoxyfile: A fixed doxygen file.
+
+2004-08-10 09:47  tag qmp1-3-1
+
+2004-08-10 09:47  bjoo
+
+	* install-scripts/NERSC/configure_qmp.sh: Added AIX configure
+	  script in install-scripts
+
+2004-06-14 16:36  tag qmp2-0-beta1
+
+2004-06-14 16:36  osborn
+
+	* AUTHORS, INSTALL, Makefile.am, NEWS, README, configure,
+	  configure.ac, examples/Makefile.am, examples/QMP_MILC_test.c,
+	  examples/QMP_broadcast.c, examples/QMP_gcomm_perf.c,
+	  examples/QMP_grid_test.c, examples/QMP_loopback.c,
+	  examples/QMP_msg.c, examples/QMP_perf.c, examples/QMP_qcd_test.c,
+	  examples/QMP_test.c, examples/gm_loop.c: Updated to API version 2
+	  and added single node target
+
+2004-04-23 14:58  tag qmp1-2-7
+
+2004-04-23 14:58  tag qmp1-2-8
+
+2004-04-23 14:58  tag qmp1-3-0
+
+2004-04-23 14:58  flemingg
+
+	* configure: versioning
+
+2004-04-23 14:47  tag qmp1-2-6
+
+2004-04-23 14:47  flemingg
+
+	* configure: versioning
+
+2004-04-23 14:44  flemingg
+
+	* configure.ac: versioning
+
+2004-04-23 14:25  flemingg
+
+	* configure.ac: versioning
+
+2004-04-23 14:21  tag qmp1-2-4
+
+2004-04-23 14:21  tag qmp1-2-5
+
+2004-04-23 14:21  flemingg
+
+	* configure.ac: versioning
+
+2004-04-23 12:44  tag qmp1-2-3
+
+2004-04-23 12:44  flemingg
+
+	* configure.ac: versioning
+
+2004-04-07 11:26  edwards
+
+	* NEWS: Info on 1.2.8
+
+2003-12-23 11:58  edwards
+
+	* NEWS: News on 1.2.7
+
+2003-12-18 23:54  edwards
+
+	* NEWS: Info on 1.2.6.
+
+2003-12-18 23:43  edwards
+
+	* configure: Induced changes.
+
+2003-12-18 23:39  edwards
+
+	* aclocal.m4: Induced changes.
+
+2003-11-03 20:03  edwards
+
+	* NEWS: Info on 1.2.5
+
+2003-09-09 12:36  edwards
+
+	* configure: Induced changes.
+
+2003-09-09 12:36  edwards
+
+	* Makefile.am: Split off docs from always being made.
+
+2003-06-13 23:31  edwards
+
+	* examples/QMP_broadcast.c: Added another example of a broadcast.
+	  This also shows the MPICH memory problem.
+
+2003-06-13 14:50  edwards
+
+	* examples/QMP_broadcast.c: Test program for broadcasts. Under
+	  MPICH, I see the primary node consume a huge amount of memory.
+
+2003-06-13 14:48  edwards
+
+	* aclocal.m4, configure: Induced changes.
+
+2003-06-13 14:46  edwards
+
+	* examples/Makefile.am: Added QMP_broadcast.c .
+
+2003-06-04 15:20  edwards
+
+	* NEWS: News about 1.2.4.
+
+2003-06-04 15:19  edwards
+
+	* doc/QMP_API.html: Added QMP_abort function.
+
+2003-06-04 15:16  edwards
+
+	* doc/: MessageAPI.htm, QMP-1-0.doc: Added QMP_abort()
+
+2003-06-04 15:07  edwards
+
+	* NEWS: News about 1.2.3.
+
+2003-02-13 13:50  tag qmp1-2-2
+
+2003-02-13 13:50  flemingg
+
+	* qmp-config.in: Added '--cc' flag so end user can determine which
+	  C compiler was used to build QMP.
+
+2003-02-13 13:48  flemingg
+
+	* aclocal.m4, configure, configure.ac: Updated version in
+	  configure.ac in preparation for new release tag
+
+2003-02-13 13:05  tag qmp-1-2-Re
+
+2003-02-13 13:05  chen
+
+	* doc/MessageAPI.htm: version 1.2
+
+2003-02-13 12:27  chen
+
+	* README, doc/QMP-1-0.doc, doc/QMP_API.html: Document change for
+	  QMP 1.2
+
+2003-02-13 11:23  chen
+
+	* doc/QMPdoxyfile.in, examples/Makefile.am,
+	  examples/QMP_MILC_test.c, examples/QMP_gcomm_perf.c,
+	  examples/QMP_grid_test.c, examples/QMP_loopback.c,
+	  examples/QMP_msg.c, examples/QMP_perf.c, examples/QMP_qcd_test.c,
+	  examples/QMP_test.c: qmp version 1.2
+
+2003-02-12 23:17  edwards
+
+	* configure: Induced changes.
+
+2003-02-12 23:04  edwards
+
+	* aclocal.m4: Induced changes.
+
+2003-02-11 17:28  tag qmp1-2-1
+
+2003-02-11 17:28  flemingg
+
+	* configure.ac: Changed version number in configure.ac to be
+	  consistent with next release tag.
+
+2003-02-11 17:27  flemingg
+
+	* qmp-config.in: Fixed qmp-config.in to strip more things out of
+	  cflags, like -O -g -W etc.
+
+2003-02-10 22:39  tag qmp1-2-0
+
+2003-02-10 22:39  flemingg
+
+	* AUTHORS, Makefile.am, aclocal.m4, configure, configure.ac,
+	  qmp-config.in, qmp_build_env.sh.in, doc/Makefile.am,
+	  examples/Makefile.am, examples/QMP_MILC_test.c,
+	  examples/QMP_gcomm_perf.c, examples/QMP_grid_test.c,
+	  examples/QMP_loopback.c, examples/QMP_msg.c, examples/QMP_perf.c,
+	  examples/QMP_qcd_test.c, examples/QMP_test.c: GTF: Update of
+	  automake and autoconf files to use qmp-config in lieu      of
+	  qmp_build_env.sh
+
+2003-01-27 14:31  tag qmp1-1-0
+
+2003-01-27 14:31  tag start
+
+2003-01-27 14:31  chen
+
+	* AUTHORS, COPYING, INSTALL, Makefile.am, NEWS, README,
+	  acinclude.m4, aclocal.m4, configure, configure.ac,
+	  qmp_build_env.sh.in, doc/Makefile.am, doc/MessageAPI.htm,
+	  doc/QMPdoxyfile.in, doc/boy6.gif, doc/constru3.gif, doc/id2.gif,
+	  doc/note02.gif, config/compile, config/depcomp,
+	  config/install-sh, config/missing, config/mkinstalldirs,
+	  doc/QMP-1-0.doc, doc/QMP_API.html, examples/Makefile.am,
+	  examples/QMP_MILC_test.c, examples/QMP_gcomm_perf.c,
+	  examples/QMP_grid_test.c, examples/QMP_loopback.c,
+	  examples/QMP_msg.c, examples/QMP_perf.c, examples/QMP_qcd_test.c,
+	  examples/QMP_test.c, examples/gm_loop.c: Initial revision
+
+2003-01-27 14:31  chen
+
+	* AUTHORS, COPYING, INSTALL, Makefile.am, NEWS, README,
+	  acinclude.m4, aclocal.m4, configure, configure.ac,
+	  qmp_build_env.sh.in, doc/Makefile.am, doc/MessageAPI.htm,
+	  doc/QMPdoxyfile.in, doc/boy6.gif, doc/constru3.gif, doc/id2.gif,
+	  doc/note02.gif, config/compile, config/depcomp,
+	  config/install-sh, config/missing, config/mkinstalldirs,
+	  doc/QMP-1-0.doc, doc/QMP_API.html, examples/Makefile.am,
+	  examples/QMP_MILC_test.c, examples/QMP_gcomm_perf.c,
+	  examples/QMP_grid_test.c, examples/QMP_loopback.c,
+	  examples/QMP_msg.c, examples/QMP_perf.c, examples/QMP_qcd_test.c,
+	  examples/QMP_test.c, examples/gm_loop.c: check into lattice group
+
