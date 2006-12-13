@@ -875,6 +875,49 @@ doc/QMPdoxyfile.in
 </tr>
 
 <tr>
+<td>05:05
+<td>osborn
+<td>
+src/Makefile.am
+1.9<br>
+src/QMP_P_COMMON.h
+1.2<br>
+src/QMP_P_MPI.h
+1.6<br>
+src/QMP_P_SINGLE.h
+1.2<br>
+src/QMP_comm_mpi.c
+1.8<br>
+src/QMP_comm_single.c
+1.2<br>
+src/QMP_error_mpi.c
+1.2<br>
+src/QMP_error_single.c
+1.2<br>
+src/QMP_grid.c
+1.8<br>
+src/QMP_init_mpi.c
+1.9<br>
+src/QMP_init_single.c
+1.2<br>
+src/QMP_machine.c
+1.4<br>
+src/QMP_mem_mpi.c
+1.10<br>
+src/QMP_mem_single.c
+1.2<br>
+src/QMP_topology.c
+1.2<br>
+src/QMP_util.c
+1.3<br>
+src/qmp.h
+1.13<br>
+src/qmp.hpp
+1.3<br>
+<td>Removed old files in src.
+</tr>
+
+<tr bgcolor=lightgrey>
 <td>04:49
 <td>osborn
 <td>
@@ -943,6 +986,19 @@ lib/QMP_util.c
 <td>Split src directory into include and lib.
 </tr>
 
+<tr>
+<td colspan=4 bgcolor=lightblue><b>2004-09-04</b>
+<tr>
+<td>03:33
+<td>edwards
+<td>
+src/QMP_grid.c
+1.7<br>
+src/qmp.h
+1.12<br>
+<td>Changed QMP_layout_grid to take a const qualifier on args.
+</tr>
+
 <tr bgcolor=lightgreen>
 <td>21:16
 <td><td>
@@ -962,6 +1018,10 @@ configure.ac
 1.14<br>
 doc/QMPdoxyfile
 1.3<br>
+src/QMP_util.c
+1.2<br>
+src/qmp.h
+1.11<br>
 <td>Added QMP_is_initialized().
 </tr>
 
@@ -1007,6 +1067,17 @@ aclocal.m4
 <tr>
 <td colspan=4 bgcolor=lightblue><b>2004-08-26</b>
 <tr bgcolor=lightgrey>
+<td>21:32
+<td>detar
+<td>
+src/QMP_machine.c
+1.3<br>
+src/qmp.h
+1.10<br>
+<td>Change QMP_master_io_node to function -CD
+</tr>
+
+<tr>
 <td>18:14
 <td>detar
 <td>
@@ -1014,12 +1085,14 @@ aclocal.m4
 1.7<br>
 doc/QMPdoxyfile
 1.2<br>
+src/QMP_machine.c
+1.2<br>
 <td>Added QMP_io_node and QMP_master_io_node for compatibility with qio-1.0  -CD
 </tr>
 
 <tr>
 <td colspan=4 bgcolor=lightblue><b>2004-08-19</b>
-<tr>
+<tr bgcolor=lightgrey>
 <td>19:34
 <td>edwards
 <td>
@@ -1035,13 +1108,37 @@ doc/QMPdoxyfile
 </tr>
 <tr>
 <td colspan=4 bgcolor=lightblue><b>2004-08-10</b>
-<tr bgcolor=lightgrey>
+<tr>
 <td>13:47
 <td>bjoo
 <td>
 install-scripts/NERSC/configure_qmp.sh
 1.1<br>
 <td>Added AIX configure script in install-scripts
+</tr>
+
+<tr>
+<td colspan=4 bgcolor=lightblue><b>2004-06-25</b>
+<tr bgcolor=lightgrey>
+<td>18:08
+<td>bjoo
+<td>
+src/QMP_comm_mpi.c
+1.7<br>
+src/QMP_mem_mpi.c
+1.9<br>
+<td>DONT USE C++ COMMENTS IN C CODElsls!
+</tr>
+
+<tr>
+<td colspan=4 bgcolor=lightblue><b>2004-06-17</b>
+<tr>
+<td>21:37
+<td>osborn
+<td>
+src/QMP_error_mpi.c
+1.1<br>
+<td>added file QMP_error_mpi.c
 </tr>
 
 <tr bgcolor=lightgreen>
@@ -1051,7 +1148,7 @@ install-scripts/NERSC/configure_qmp.sh
 </tr>
 <tr>
 <td colspan=4 bgcolor=lightblue><b>2004-06-14</b>
-<tr>
+<tr bgcolor=lightgrey>
 <td>20:36
 <td>osborn
 <td>
@@ -1091,6 +1188,56 @@ examples/QMP_test.c
 1.4<br>
 examples/gm_loop.c
 1.2<br>
+src/Makefile.am
+1.8<br>
+src/QMP_P_COMMON.h
+1.1<br>
+src/QMP_P_GM.h
+1.5<br>
+src/QMP_P_MPI.h
+1.5<br>
+src/QMP_P_SINGLE.h
+1.1<br>
+src/QMP_comm_gm.c
+1.5<br>
+src/QMP_comm_mpi.c
+1.6<br>
+src/QMP_comm_single.c
+1.1<br>
+src/QMP_error_single.c
+1.1<br>
+src/QMP_genutil.c
+1.6<br>
+src/QMP_grid.c
+1.6<br>
+src/QMP_init_gm.c
+1.5<br>
+src/QMP_init_mpi.c
+1.8<br>
+src/QMP_init_single.c
+1.1<br>
+src/QMP_machine.c
+1.1<br>
+src/QMP_mem_gm.c
+1.3<br>
+src/QMP_mem_mpi.c
+1.8<br>
+src/QMP_mem_single.c
+1.1<br>
+src/QMP_run
+1.2<br>
+src/QMP_topology.c
+1.1<br>
+src/QMP_topology_gm.c
+1.5<br>
+src/QMP_util.c
+1.1<br>
+src/QMP_util_gm.c
+1.4<br>
+src/QMP_util_mpi.c
+1.6<br>
+src/qmp.h
+1.9<br>
 <td>Updated to API version 2 and added single node target
 </tr>
 
@@ -1111,7 +1258,7 @@ examples/gm_loop.c
 </tr>
 <tr>
 <td colspan=4 bgcolor=lightblue><b>2004-04-23</b>
-<tr bgcolor=lightgrey>
+<tr>
 <td>18:58
 <td>flemingg
 <td>
@@ -1129,7 +1276,7 @@ configure
 <td><td>
 <td>tag <b>qmp1-2-6</b> added
 </tr>
-<tr>
+<tr bgcolor=lightgrey>
 <td>18:47
 <td>flemingg
 <td>
@@ -1138,7 +1285,7 @@ configure
 <td>versioning
 </tr>
 
-<tr bgcolor=lightgrey>
+<tr>
 <td>18:44
 <td>flemingg
 <td>
@@ -1147,7 +1294,7 @@ configure.ac
 <td>versioning
 </tr>
 
-<tr>
+<tr bgcolor=lightgrey>
 <td>18:25
 <td>flemingg
 <td>
@@ -1168,7 +1315,7 @@ configure.ac
 <td><td>
 <td>tag <b>qmp1-2-5</b> added
 </tr>
-<tr bgcolor=lightgrey>
+<tr>
 <td>18:21
 <td>flemingg
 <td>
@@ -1186,13 +1333,30 @@ configure.ac
 <td><td>
 <td>tag <b>qmp1-2-3</b> added
 </tr>
-<tr>
+<tr bgcolor=lightgrey>
 <td>16:44
 <td>flemingg
 <td>
 configure.ac
 1.5<br>
 <td>versioning
+</tr>
+
+<tr>
+<td colspan=4 bgcolor=lightblue><b>2004-04-08</b>
+<tr>
+<td>09:00
+<td>bjoo
+<td>
+src/QMP_P_MPI.h
+1.4<br>
+src/QMP_comm_mpi.c
+1.5<br>
+src/QMP_mem_mpi.c
+1.7<br>
+src/qmp.h
+1.8<br>
+<td>Added experimental support for strided msgmem
 </tr>
 
 <tr>
@@ -1207,6 +1371,26 @@ NEWS
 </tr>
 
 <tr>
+<td colspan=4 bgcolor=lightblue><b>2004-02-05</b>
+<tr>
+<td>02:33
+<td>edwards
+<td>
+src/QMP_init_mpi.c
+1.7<br>
+<td>Removed a debugging statement.
+</tr>
+
+<tr bgcolor=lightgrey>
+<td>02:28
+<td>edwards
+<td>
+src/QMP_grid.c
+1.5<br>
+<td>Blanked out debugging section.
+</tr>
+
+<tr>
 <td colspan=4 bgcolor=lightblue><b>2003-12-23</b>
 <tr>
 <td>16:58
@@ -1215,6 +1399,24 @@ NEWS
 NEWS
 1.6<br>
 <td>News on 1.2.7
+</tr>
+
+<tr bgcolor=lightgrey>
+<td>16:57
+<td>edwards
+<td>
+src/QMP_genutil.c
+1.5<br>
+<td>Fixed up debugging.
+</tr>
+
+<tr>
+<td>16:54
+<td>edwards
+<td>
+src/QMP_genutil.c
+1.4<br>
+<td>Added trace macro to this top level code.
 </tr>
 
 <tr>
@@ -1229,12 +1431,48 @@ NEWS
 </tr>
 
 <tr>
+<td>04:51
+<td>edwards
+<td>
+src/qmp.h
+1.7<br>
+<td>Added prototype for QMP_route.
+</tr>
+
+<tr bgcolor=lightgrey>
+<td>04:46
+<td>edwards
+<td>
+src/QMP_genutil.c
+1.3<br>
+<td>Added return of status.
+</tr>
+
+<tr>
+<td>04:45
+<td>edwards
+<td>
+src/QMP_genutil.c
+1.2<br>
+<td>Small bug fix.
+</tr>
+
+<tr bgcolor=lightgrey>
 <td>04:43
 <td>edwards
 <td>
 configure
 1.7<br>
 <td>Induced changes.
+</tr>
+
+<tr>
+<td>04:43
+<td>edwards
+<td>
+src/QMP_genutil.c
+1.1<br>
+<td>First version of generic routines.
 </tr>
 
 <tr bgcolor=lightgrey>
@@ -1247,8 +1485,41 @@ aclocal.m4
 </tr>
 
 <tr>
-<td colspan=4 bgcolor=lightblue><b>2003-11-04</b>
+<td>04:39
+<td>edwards
+<td>
+src/Makefile.am
+1.7<br>
+<td>Added QMP_genutil.c
+</tr>
+
 <tr>
+<td colspan=4 bgcolor=lightblue><b>2003-11-04</b>
+<tr bgcolor=lightgrey>
+<td>02:14
+<td>edwards
+<td>
+src/QMP_init_mpi.c
+1.6<br>
+<td>Bug fix. The malloc in QMP_get_logical_coordinates_from had
+an invalid argument.
+</tr>
+
+<tr>
+<td>01:04
+<td>edwards
+<td>
+src/QMP_init_mpi.c
+1.5<br>
+src/QMP_topology_gm.c
+1.4<br>
+src/qmp.h
+1.6<br>
+<td>Changed QMP_get_logical_coordinates_from to not have const modifier.
+Now, user must explicitly call "free".
+</tr>
+
+<tr bgcolor=lightgrey>
 <td>01:03
 <td>edwards
 <td>
@@ -1259,7 +1530,7 @@ NEWS
 
 <tr>
 <td colspan=4 bgcolor=lightblue><b>2003-09-09</b>
-<tr bgcolor=lightgrey>
+<tr>
 <td>16:36
 <td>edwards
 <td>
@@ -1268,13 +1539,65 @@ configure
 <td>Induced changes.
 </tr>
 
-<tr>
+<tr bgcolor=lightgrey>
 <td>16:36
 <td>edwards
 <td>
 Makefile.am
 1.3<br>
 <td>Split off docs from always being made.
+</tr>
+
+<tr>
+<td colspan=4 bgcolor=lightblue><b>2003-07-29</b>
+<tr>
+<td>15:23
+<td>chen
+<td>
+src/qmp.h
+1.5<br>
+<td>remove not used decleration
+</tr>
+
+<tr>
+<td colspan=4 bgcolor=lightblue><b>2003-07-22</b>
+<tr bgcolor=lightgrey>
+<td>02:17
+<td>edwards
+<td>
+src/QMP_mem_mpi.c
+1.6<br>
+<td>Yet another change/hack of QMP_memalign. Use the obsolete valloc.
+</tr>
+
+<tr>
+<td colspan=4 bgcolor=lightblue><b>2003-07-21</b>
+<tr>
+<td>21:07
+<td>edwards
+<td>
+src/QMP_mem_mpi.c
+1.5<br>
+<td>Changed around QMP_memalign.
+</tr>
+
+<tr bgcolor=lightgrey>
+<td>20:57
+<td>edwards
+<td>
+src/QMP_mem_mpi.c
+1.4<br>
+<td>Changed QMP_allocated_align_memory to use QMP_memalign instead of
+memalign directly.
+</tr>
+
+<tr>
+<td>02:19
+<td>edwards
+<td>
+src/QMP_grid.c
+1.4<br>
+<td>Cleaned up some int* to unsigned int*.
 </tr>
 
 <tr>
@@ -1335,12 +1658,27 @@ NEWS
 <td>19:19
 <td>edwards
 <td>
+src/QMP_init_gm.c
+1.4<br>
+src/QMP_init_mpi.c
+1.4<br>
+src/QMP_util_mpi.c
+1.5<br>
+src/qmp.h
+1.4<br>
+<td>Added a QMP_abort() function.
+</tr>
+
+<tr bgcolor=lightgrey>
+<td>19:19
+<td>edwards
+<td>
 doc/QMP_API.html
 1.3<br>
 <td>Added QMP_abort function.
 </tr>
 
-<tr bgcolor=lightgrey>
+<tr>
 <td>19:16
 <td>edwards
 <td>
@@ -1351,7 +1689,7 @@ doc/QMP-1-0.doc
 <td>Added QMP_abort()
 </tr>
 
-<tr>
+<tr bgcolor=lightgrey>
 <td>19:07
 <td>edwards
 <td>
@@ -1360,13 +1698,103 @@ NEWS
 <td>News about 1.2.3.
 </tr>
 
+<tr>
+<td colspan=4 bgcolor=lightblue><b>2003-05-23</b>
+<tr>
+<td>14:11
+<td>bjoo
+<td>
+src/QMP_mem_mpi.c
+1.3<br>
+<td>Fixed memory leak in QMP_free_msghandle
+</tr>
+
+<tr>
+<td colspan=4 bgcolor=lightblue><b>2003-04-23</b>
+<tr bgcolor=lightgrey>
+<td>04:59
+<td>edwards
+<td>
+src/QMP_util_mpi.c
+1.4<br>
+<td>Ifdef protected check of MPI_ERR_WIN. Doesn't seem to be defined
+on IBM's.
+</tr>
+
+<tr>
+<td colspan=4 bgcolor=lightblue><b>2003-02-19</b>
+<tr>
+<td>20:37
+<td>chen
+<td>
+src/QMP_P_GM.h
+1.4<br>
+src/QMP_P_MPI.h
+1.3<br>
+src/QMP_comm_gm.c
+1.4<br>
+src/QMP_comm_mpi.c
+1.4<br>
+<td>Make QMP_is_complete a polling function
+</tr>
+
+<tr>
+<td colspan=4 bgcolor=lightblue><b>2003-02-18</b>
+<tr bgcolor=lightgrey>
+<td>18:16
+<td>chen
+<td>
+src/QMP_comm_mpi.c
+1.3<br>
+<td>Fix a minor bug for is_complete
+</tr>
+
+<tr>
+<td colspan=4 bgcolor=lightblue><b>2003-02-14</b>
+<tr>
+<td>03:22
+<td>flemingg
+<td>
+src/Makefile.am
+1.6<br>
+src/qmp.h
+1.3<br>
+<td>src/qmp.hpp is no longer #include-d by src/qmp.h #ifdef __cplusplus.
+Also, since qmp.hpp doesn't need to end up in $prefix/include anymore,
+moved it back to EXTRA_DIST in src/Makefile.am
+</tr>
+
 <tr bgcolor=lightgreen>
-<td>18:50
+<td>19:39
 <td><td>
 <td>tag <b>qmp1-2-2</b> added
 </tr>
 <tr>
 <td colspan=4 bgcolor=lightblue><b>2003-02-13</b>
+<tr bgcolor=lightgrey>
+<td>19:39
+<td>flemingg
+<td>
+src/Makefile.am
+1.5<br>
+<td>Fixed a mistake in src/Makefile.am:  I had moved 'qmp.h' from a _HEADERS
+primary to a _SOURCES primary so that libqmp.a would depend on it, but then
+it wasn't installed properly.  Now it appears both in libqmp_a_SOURCES
+and include_HEADERS.  This seems to do the right thing.
+</tr>
+
+<tr>
+<td>19:05
+<td>flemingg
+<td>
+src/Makefile.am
+1.4<br>
+<td>A bit of reorganizing plus added a target to ensure 'qmp.hpp' is included
+in the dist from 'make dist' even though it may not be useful?  I don't
+think it gets installed by 'make install'.  I'll check it later and if
+it does, then I'll modify Makefile.am so that it doesn't.
+</tr>
+
 <tr bgcolor=lightgrey>
 <td>18:50
 <td>flemingg
@@ -1418,9 +1846,61 @@ doc/QMP_API.html
 </tr>
 
 <tr bgcolor=lightgrey>
-<td>16:23
+<td>16:41
 <td>chen
 <td>
+src/qmp.hpp
+1.2<br>
+<td>minor change
+</tr>
+
+<tr>
+<td>16:37
+<td>chen
+<td>
+src/qmp.h
+1.2<br>
+src/qmp.hh
+1.2<br>
+src/qmp.hpp
+1.1<br>
+<td>add qmp.hpp remove qmp.hh
+</tr>
+
+<tr bgcolor=lightgrey>
+<td>16:22
+<td>chen
+<td>
+src/Makefile.am
+1.3<br>
+src/QMP.h
+1.3<br>
+src/QMP_P_GM.h
+1.3<br>
+src/QMP_comm_gm.c
+1.3<br>
+src/QMP_comm_mpi.c
+1.2<br>
+src/QMP_grid.c
+1.3<br>
+src/QMP_init_gm.c
+1.3<br>
+src/QMP_init_mpi.c
+1.3<br>
+src/QMP_mem_gm.c
+1.2<br>
+src/QMP_mem_mpi.c
+1.2<br>
+src/QMP_topology_gm.c
+1.3<br>
+src/QMP_util_gm.c
+1.3<br>
+src/QMP_util_mpi.c
+1.3<br>
+src/qmp.h
+1.1<br>
+src/qmp.hh
+1.1<br>
 doc/QMPdoxyfile.in
 1.2<br>
 examples/Makefile.am
@@ -1531,6 +2011,28 @@ examples/QMP_qcd_test.c
 1.2<br>
 examples/QMP_test.c
 1.2<br>
+src/Makefile.am
+1.2<br>
+src/QMP.h
+1.2<br>
+src/QMP_P_GM.h
+1.2<br>
+src/QMP_P_MPI.h
+1.2<br>
+src/QMP_comm_gm.c
+1.2<br>
+src/QMP_grid.c
+1.2<br>
+src/QMP_init_gm.c
+1.2<br>
+src/QMP_init_mpi.c
+1.2<br>
+src/QMP_topology_gm.c
+1.2<br>
+src/QMP_util_gm.c
+1.2<br>
+src/QMP_util_mpi.c
+1.2<br>
 <td>GTF: Update of automake and autoconf files to use qmp-config in lieu
      of qmp_build_env.sh
 </tr>
@@ -1586,6 +2088,36 @@ doc/constru3.gif
 doc/id2.gif
 1.1<br>
 doc/note02.gif
+1.1<br>
+src/Makefile.am
+1.1<br>
+src/QMP.h
+1.1<br>
+src/QMP_P_GM.h
+1.1<br>
+src/QMP_P_MPI.h
+1.1<br>
+src/QMP_comm_gm.c
+1.1<br>
+src/QMP_comm_mpi.c
+1.1<br>
+src/QMP_grid.c
+1.1<br>
+src/QMP_init_gm.c
+1.1<br>
+src/QMP_init_mpi.c
+1.1<br>
+src/QMP_mem_gm.c
+1.1<br>
+src/QMP_mem_mpi.c
+1.1<br>
+src/QMP_run
+1.1<br>
+src/QMP_topology_gm.c
+1.1<br>
+src/QMP_util_gm.c
+1.1<br>
+src/QMP_util_mpi.c
 1.1<br>
 config/compile
 1.1<br>
@@ -1664,6 +2196,36 @@ doc/id2.gif
 1.1.1.1<br>
 doc/note02.gif
 1.1.1.1<br>
+src/Makefile.am
+1.1.1.1<br>
+src/QMP.h
+1.1.1.1<br>
+src/QMP_P_GM.h
+1.1.1.1<br>
+src/QMP_P_MPI.h
+1.1.1.1<br>
+src/QMP_comm_gm.c
+1.1.1.1<br>
+src/QMP_comm_mpi.c
+1.1.1.1<br>
+src/QMP_grid.c
+1.1.1.1<br>
+src/QMP_init_gm.c
+1.1.1.1<br>
+src/QMP_init_mpi.c
+1.1.1.1<br>
+src/QMP_mem_gm.c
+1.1.1.1<br>
+src/QMP_mem_mpi.c
+1.1.1.1<br>
+src/QMP_run
+1.1.1.1<br>
+src/QMP_topology_gm.c
+1.1.1.1<br>
+src/QMP_util_gm.c
+1.1.1.1<br>
+src/QMP_util_mpi.c
+1.1.1.1<br>
 config/compile
 1.1.1.1<br>
 config/depcomp
@@ -1702,3 +2264,4 @@ examples/gm_loop.c
 </tr>
 
 </table>
+<p>This page was created on Wed Dec 13 09:45:13 2006 using <a href="http://josefsson.org/cl2html/">cl2html</a> written by Simon Josefsson.
