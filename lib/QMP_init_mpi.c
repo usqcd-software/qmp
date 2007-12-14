@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.9  2006/10/03 21:31:14  osborn
+ *   Added "-qmp-geom native" command line option for BG/L.
+ *
  *   Revision 1.8  2006/03/10 08:38:07  osborn
  *   Added timing routines.
  *
@@ -90,9 +93,6 @@
 #include <unistd.h>
 
 #include "QMP_P_MPI.h"
-#ifdef HAVE_BGL
-#include <rts.h>
-#endif
 
 /* global communicator */
 MPI_Comm QMP_COMM_WORLD;
@@ -105,6 +105,86 @@ QMP_machine_t QMP_global_m = &par_machine;
 
 static struct QMP_logical_topology par_logical_topology;
 QMP_logical_topology_t QMP_topo = &par_logical_topology;
+
+#ifdef HAVE_BGL
+
+#include <rts.h>
+
+static void
+set_native_machine(void)
+{
+  int nd;
+      BGLPersonality pers;
+      rts_get_personality(&pers, sizeof(pers));
+      if(BGLPersonality_virtualNodeMode(&pers)) nd = 4;
+      else nd = 3;
+      QMP_global_m->ndim = nd;
+      QMP_global_m->geom = (int *) malloc(nd*sizeof(int));
+      QMP_global_m->coord = (int *) malloc(nd*sizeof(int));
+      QMP_global_m->geom[0] = pers.xSize;
+      QMP_global_m->geom[1] = pers.ySize;
+      QMP_global_m->geom[2] = pers.zSize;
+      QMP_global_m->coord[0] = pers.xCoord;
+      QMP_global_m->coord[1] = pers.yCoord;
+      QMP_global_m->coord[2] = pers.zCoord;
+      if(nd==4) {
+	QMP_global_m->geom[3] = 2;
+	QMP_global_m->coord[3] = rts_get_processor_id();
+      }
+}
+
+#elsif defined(HAVE_BGP)
+
+#include <spi/kernel_interface.h>
+#include <common/bgp_personality.h>
+#include <common/bgp_personality_inlines.h>
+
+static int
+BGP_Personality_tSize(_BGP_Personality_t *p)
+{
+    int node_config = BGP_Personality_processConfig(p);
+    if (node_config == _BGP_PERS_PROCESSCONFIG_VNM) return 4;
+    else if (node_config == _BGP_PERS_PROCESSCONFIG_SMP) return 1;
+    //else if (node_config == _BGP_PERS_PROCESSCONFIG_2x2) return 2;
+    return 2;
+}
+
+static void
+set_native_machine(void)
+{
+  int nd, nt;
+    _BGP_Personality_t pers;
+    Kernel_GetPersonality(&pers, sizeof(pers));
+  nt = BGP_Personality_tSize(&pers);
+      if(nt!=1) nd = 4;
+      else nd = 3;
+      QMP_global_m->ndim = nd;
+      QMP_global_m->geom = (int *) malloc(nd*sizeof(int));
+      QMP_global_m->coord = (int *) malloc(nd*sizeof(int));
+      QMP_global_m->geom[0] = BGP_Personality_xSize(&pers);
+      QMP_global_m->geom[1] = BGP_Personality_ySize(&pers);
+      QMP_global_m->geom[2] = BGP_Personality_zSize(&pers);
+      QMP_global_m->coord[0] = BGP_Personality_xCoord(&pers);
+      QMP_global_m->coord[1] = BGP_Personality_yCoord(&pers);
+      QMP_global_m->coord[2] = BGP_Personality_zCoord(&pers);
+      if(nd==4) {
+	QMP_global_m->geom[3] = nt;
+	QMP_global_m->coord[3] = Kernel_PhysicalProcessorID();
+      }
+}
+
+#else  /* native only supported on BG/L and BG/P */
+
+static void
+set_native_machine(void)
+{
+    QMP_global_m->ic_type = QMP_SWITCH;
+    QMP_global_m->ndim = 0;
+    QMP_global_m->geom = NULL;
+    QMP_global_m->coord = NULL;
+}
+
+#endif
 
 
 /**
@@ -140,30 +220,7 @@ QMP_init_machine_i(int* argc, char*** argv)
   } else { /* act like a mesh */
     QMP_global_m->ic_type = QMP_MESH;
     if(strcmp((*argv)[last], "native")==0) {
-#ifdef HAVE_BGL
-      BGLPersonality pers;
-      rts_get_personality(&pers, sizeof(pers));
-      if(BGLPersonality_virtualNodeMode(&pers)) nd = 4;
-      else nd = 3;
-      QMP_global_m->ndim = nd;
-      QMP_global_m->geom = (int *) malloc(nd*sizeof(int));
-      QMP_global_m->coord = (int *) malloc(nd*sizeof(int));
-      QMP_global_m->geom[0] = pers.xSize;
-      QMP_global_m->geom[1] = pers.ySize;
-      QMP_global_m->geom[2] = pers.zSize;
-      QMP_global_m->coord[0] = pers.xCoord;
-      QMP_global_m->coord[1] = pers.yCoord;
-      QMP_global_m->coord[2] = pers.zCoord;
-      if(nd==4) {
-	QMP_global_m->geom[3] = 2;
-	QMP_global_m->coord[3] = rts_get_processor_id();
-      }
-#else  /* native only supported on BG/L */
-      QMP_global_m->ic_type = QMP_SWITCH;
-      QMP_global_m->ndim = 0;
-      QMP_global_m->geom = NULL;
-      QMP_global_m->coord = NULL;
-#endif
+      set_native_machine();
     } else {
       QMP_global_m->ndim = nd;
       QMP_global_m->geom = (int *) malloc(nd*sizeof(int));

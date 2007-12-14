@@ -3,6 +3,9 @@
 /* compiling for BG/L */
 #undef HAVE_BGL
 
+/* compiling for BG/P */
+#undef HAVE_BGP
+
 /* Name of package */
 #undef PACKAGE
 
