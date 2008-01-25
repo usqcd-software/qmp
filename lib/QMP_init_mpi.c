@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.10  2007/12/14 23:32:00  osborn
+ *   added --enable-bgp option to use BG/P personality info
+ *
  *   Revision 1.9  2006/10/03 21:31:14  osborn
  *   Added "-qmp-geom native" command line option for BG/L.
  *
@@ -268,8 +271,11 @@ QMP_init_msg_passing (int* argc, char*** argv, QMP_thread_level_t required,
   *provided = QMP_THREAD_SINGLE;  /* just single for now */
   if (MPI_Init(argc, argv) != MPI_SUCCESS) 
     QMP_abort_string (-1, "MPI_Init failed");
+#if 0
   if (MPI_Comm_dup(MPI_COMM_WORLD, &QMP_COMM_WORLD) != MPI_SUCCESS)
     QMP_abort_string (-1, "MPI_Comm_dup failed");
+#endif
+  QMP_COMM_WORLD = MPI_COMM_WORLD;
   if (MPI_Comm_size(QMP_COMM_WORLD, &PAR_num_nodes) != MPI_SUCCESS)
     QMP_abort_string (-1, "MPI_Comm_size failed");
   if (MPI_Comm_rank(QMP_COMM_WORLD, &PAR_node_rank) != MPI_SUCCESS)

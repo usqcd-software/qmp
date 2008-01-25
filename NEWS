@@ -1,3 +1,8 @@
+01/25/2008 -- James Osborn
+
+	Added BG/P personality info.  Now uses MPI_Cart_create to layout
+	logical topology.
+
 05/25/2006 -- Robert Edwards
 
 	Version 2.1.6 : Minutae - fixed error string output names in single node
