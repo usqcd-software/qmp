@@ -1,3 +1,9 @@
+2008-01-25 15:07  osborn
+
+	* NEWS, lib/QMP_init_mpi.c, lib/QMP_topology.c: Added BG/P
+	  personality info.  Now uses MPI_Cart_create to layout logical
+	  topology.
+
 2007-12-14 18:32  osborn
 
 	* configure, configure.ac, include/qmp_config.h.in,
