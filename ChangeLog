@@ -1,3 +1,7 @@
+2008-01-27 21:14  edwards
+
+	* aclocal.m4, configure: Induced changes
+
 2008-01-25 15:07  osborn
 
 	* NEWS, lib/QMP_init_mpi.c, lib/QMP_topology.c: Added BG/P
