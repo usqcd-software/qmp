@@ -9,14 +9,19 @@
  *----------------------------------------------------------------------------
  *
  * Description:
- *      QMP intialize code for MPI
+ *      QMP logical topology code
  *
  * Author:  
  *      Jie Chen, Robert Edwards and Chip Watson
  *      Jefferson Lab HPC Group
+ *      James Osborn (BU)
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.9  2008/01/25 20:07:39  osborn
+ *   Added BG/P personality info.  Now uses MPI_Cart_create to layout logical
+ *   topology.
+ *
  *   Revision 1.8  2006/10/03 21:31:14  osborn
  *   Added "-qmp-geom native" command line option for BG/L.
  *
@@ -87,132 +92,12 @@
 #include <stdarg.h>
 
 #include "QMP_P_COMMON.h"
+
+#ifdef HAVE_MPI
 #include "QMP_P_MPI.h"
-#ifdef HAVE_BGL
-#include <rts.h>
-#endif
 
 static MPI_Comm comm_cart;
 static int *c2w, *w2c;
-
-static int *remap=NULL;
-
-static void
-sort(int *index, const int *key, int n)
-{
-  int i, j;
-  for(i=0; i<n; i++) index[i] = i;
-
-  for(i=0; i<n; i++) {
-    for(j=i+1; j<n; j++) {
-      if(key[index[i]]<key[index[j]]) {
-	int k = index[i];
-	index[i] = index[j];
-	index[j] = k;
-      }
-    }
-  }
-}
-
-#ifndef HAVE_BGL /* not on a BG/L */
-
-static void
-remap_switch(const int *dims, int ndim)
-{
-  int i;
-  remap = (int *) malloc(ndim*sizeof(int));
-  for(i=0; i<ndim; i++) remap[i] = i;
-}
-
-#else /* HAVE_BGL -- use BG/L personality */
-
-/* try to have dims[remap[i]] == bgl_dims[i] */
-static void
-remap_switch(const int *dims, int ndim)
-{
-  int i;
-  int bgl_ndim=4, bgl_dims[4], bgl_index[4];
-  int *index;
-  BGLPersonality pers;
-
-  rts_get_personality(&pers, sizeof(pers));
-  bgl_dims[0] = pers.xSize;
-  bgl_dims[1] = pers.ySize;
-  bgl_dims[2] = pers.zSize;
-  bgl_dims[3] = (pers.opFlags & BGLPERSONALITY_OPFLAGS_VIRTUALNM) ? 2 : 1;
-  sort(bgl_index, bgl_dims, bgl_ndim);
-
-  index = (int *) malloc(ndim*sizeof(int));
-  sort(index, dims, ndim);
-
-  remap = (int *) malloc(ndim*sizeof(int));
-  for(i=0; i<ndim; i++) {
-    int k = i;
-    if(i<bgl_ndim) k = bgl_index[i];
-    remap[k] = index[i];
-  }
-
-  free(index);
-}
-
-#endif /* HAVE_BGL */
-
-static void
-remap_grid(const int *dims, int ndim)
-{
-  int i;
-  int alloc_ndim, *alloc_dims, *alloc_index;
-  int *index;
-
-  alloc_ndim = QMP_global_m->ndim;
-  alloc_dims = QMP_global_m->geom;
-  alloc_index = (int *) malloc(alloc_ndim*sizeof(int));
-  sort(alloc_index, alloc_dims, alloc_ndim);
-
-  index = (int *) malloc(ndim*sizeof(int));
-  sort(index, dims, ndim);
-
-  remap = (int *) malloc(ndim*sizeof(int));
-  for(i=0; i<ndim; i++) {
-    int k = i;
-    if(i<alloc_ndim) {
-      k = alloc_index[i];
-      if(alloc_dims[k]!=dims[index[i]]) {
-	int j;
-	QMP_error("QMP_declare_logical_topology: requested topology not compatible with machine\n");
-	QMP_error("allocated machine:");
-	for(j=0; j<alloc_ndim; j++) {
-	  fprintf(stderr, "\t%i", alloc_dims[j]);
-	}
-	fprintf(stderr, "\n");
-	QMP_error("logical topology:");
-	for(j=0; j<ndim; j++) {
-	  fprintf(stderr, "\t%i", dims[j]);
-	}
-	fprintf(stderr, "\n");
-      }
-    } else {
-      if(dims[index[i]]!=1) {
-	int j;
-	QMP_error("QMP_declare_logical_topology: requested topology not compatible with machine\n");
-	QMP_error("allocated machine:");
-	for(j=0; j<alloc_ndim; j++) {
-	  fprintf(stderr, "\t%i", alloc_dims[j]);
-	}
-	fprintf(stderr, "\n");
-	QMP_error("logical topology:");
-	for(j=0; j<ndim; j++) {
-	  fprintf(stderr, "\t%i", dims[j]);
-	}
-	fprintf(stderr, "\n");
-      }
-    }
-    remap[k] = index[i];
-  }
-
-  free(index);
-  free(alloc_index);
-}
 
 static void
 sumint(int *v, int n)
@@ -243,29 +128,7 @@ remap_mpi(int *dims, int ndim)
   sumint(c2w, size);
   sumint(w2c, size);
 }
-
-static void 
-crtesn_coord(int ipos, int coordf[], int latt_size[], int ndim)
-{
-  int i;
-  for(i=0; i<ndim; ++i) {
-    int ir = remap[i];
-    coordf[ir] = ipos % latt_size[ir];
-    ipos = ipos / latt_size[ir];
-  }
-}
-
-static int 
-crtesn_pos(int coordf[], int latt_size[], int ndim)
-{
-  int k, ipos;
-  ipos = 0;
-  for(k=ndim-1; k>=0; k--) {
-    int kr = remap[k];
-    ipos = ipos * latt_size[kr] + coordf[kr]; 
-  }
-  return ipos;
-}
+#endif
 
 /* This is called by all children */
 QMP_status_t
@@ -297,24 +160,14 @@ QMP_declare_logical_topology (const int* dims, int ndim)
     goto leave;
   }
 
-#if 0
-  if(QMP_global_m->ic_type!=QMP_SWITCH) {
-    remap_grid(dims, ndim);
-  } else {
-    remap_switch(dims, ndim);
-  }
-#endif
+#ifdef HAVE_MPI
   remap_mpi(dims, ndim);
+#endif
 
   QMP_topo->dimension = ndim;
   QMP_topo->logical_size = (int *) malloc(ndim*sizeof(int));
   for(i=0; i < ndim; ++i) QMP_topo->logical_size[i] = dims[i];
 
-#if 0
-  QMP_topo->logical_coord = (int *) malloc(ndim*sizeof(int));
-  crtesn_coord(QMP_global_m->nodeid, QMP_topo->logical_coord,
-	       QMP_topo->logical_size, ndim);
-#endif
   QMP_topo->logical_coord = QMP_get_logical_coordinates_from(QMP_global_m->nodeid);
 
   QMP_topo->neigh[0] = (int *) malloc(2*ndim*sizeof(int));
@@ -332,19 +185,11 @@ QMP_declare_logical_topology (const int* dims, int ndim)
       coord[m] = QMP_topo->logical_coord[m];
 
     coord[i] = (QMP_topo->logical_coord[i] - 1 + dims[i]) % dims[i];
-#if 0
-    QMP_topo->neigh[0][i] = 
-      crtesn_pos(coord, QMP_topo->logical_size, ndim);
-#endif
     QMP_topo->neigh[0][i] = QMP_get_node_number_from(coord);
 
     coord[i] = (QMP_topo->logical_coord[i] + 1) % dims[i];
-#if 0
-    QMP_topo->neigh[1][i] =
-      crtesn_pos(coord, QMP_topo->logical_size, ndim);
-#endif
     QMP_topo->neigh[1][i] = QMP_get_node_number_from(coord);
-  
+
     free(coord);
   }
 
@@ -395,17 +240,18 @@ QMP_get_logical_coordinates(void)
 int *
 QMP_get_logical_coordinates_from (int node)
 {
-  int *nc, nd, cart_node;
+  int *nc, nd;
   ENTER;
 
   nd = QMP_topo->dimension;
   nc = (int *) malloc(nd*sizeof(int));
-#if 0
-  crtesn_coord (node, nc, QMP_topo->logical_size,
-		QMP_topo->dimension);
-#endif
-  cart_node = w2c[node];
+#ifdef HAVE_MPI
+  int cart_node = w2c[node];
   MPI_Cart_coords(comm_cart, cart_node, nd, nc);
+#else /* single node version */
+  int i;
+  for(i=0; i<nd; i++) nc[i] = 0;
+#endif
 
   LEAVE;
   return nc;
@@ -417,15 +263,16 @@ QMP_get_logical_coordinates_from (int node)
 int 
 QMP_get_node_number_from (const int* coordinates)
 {
-  int cart_node, world_node;
+  int world_node;
   ENTER;
 
-#if 0
-  logic_node = crtesn_pos ((int *)coordinates, QMP_topo->logical_size,
-			   QMP_topo->dimension);
-#endif
+#ifdef HAVE_MPI
+  int cart_node;
   MPI_Cart_rank(comm_cart, coordinates, &cart_node);
   world_node = c2w[cart_node];
+#else
+  world_node = 0;
+#endif
 
   LEAVE;
   return world_node;

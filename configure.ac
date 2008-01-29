@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(qmp, 2.1.8, [josborn at physics.bu.edu])
+AC_INIT(qmp, 2.2.0, [josborn at physics.bu.edu])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_SRCDIR([lib/QMP_grid.c])
 AC_CONFIG_SRCDIR([examples/QMP_test.c])
@@ -32,7 +32,8 @@ AC_ARG_WITH(qmp-comms-type,
      Default is SINGLE.]),
   [case "${with_qmp_comms_type}" in
     single|SINGLE) QMP_COMMS_TYPE=SINGLE ;;
-    mpi|MPI) QMP_COMMS_TYPE=MPI ;;
+    mpi|MPI) QMP_COMMS_TYPE=MPI
+             AC_DEFINE([HAVE_MPI],[],[compiling for MPI]) ;;
     *)       AC_MSG_ERROR([bad value "${with_qmp_comms_type}"
       for --with-qmp-comms-type]) ;;
     esac],
@@ -125,7 +126,7 @@ dnl --enable-bgl
 AC_ARG_ENABLE(
   bgl,
   AC_HELP_STRING([--enable-bgl],
-    [Use BG/L personality to assist logical layout.]),
+    [Use BG/L personality to set native machine geometry.]),
   [if test "X$enableval" != "Xno"; then
     AC_DEFINE([HAVE_BGL],[],[compiling for BG/L])
     AC_MSG_NOTICE([Using BG/L personality.])
@@ -136,14 +137,13 @@ dnl --enable-bgp
 AC_ARG_ENABLE(
   bgp,
   AC_HELP_STRING([--enable-bgp],
-    [Use BG/P personality to assist logical layout.]),
+    [Use BG/P personality to set native machine geometry.]),
   [if test "X$enableval" != "Xno"; then
     AC_DEFINE([HAVE_BGP],[],[compiling for BG/P])
     AC_MSG_NOTICE([Using BG/P personality.])
   fi]
 )
 
-AM_CONDITIONAL(QMP_SINGLE, [test "X${QMP_COMMS_TYPE}X" = "XSINGLEX"])
 AM_CONDITIONAL(QMP_SINGLE, [test "X${QMP_COMMS_TYPE}X" = "XSINGLEX"])
 AM_CONDITIONAL(QMP_MPI, [test "X${QMP_COMMS_TYPE}X" = "XMPIX"])
 

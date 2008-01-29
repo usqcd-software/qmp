@@ -6,6 +6,9 @@
 /* compiling for BG/P */
 #undef HAVE_BGP
 
+/* compiling for MPI */
+#undef HAVE_MPI
+
 /* Name of package */
 #undef PACKAGE
 
