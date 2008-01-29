@@ -1,3 +1,11 @@
+2008-01-28 21:53  tag qmp2-2-0
+
+2008-01-28 21:53  osborn
+
+	* aclocal.m4, configure, configure.ac, include/qmp_config.h.in,
+	  lib/QMP_init_mpi.c, lib/QMP_topology.c: Fixed single node
+	  version.  Bumped version to 2.2.0.
+
 2008-01-27 21:14  edwards
 
 	* aclocal.m4, configure: Induced changes
