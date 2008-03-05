@@ -33,7 +33,8 @@ check_PROGRAMS = QMP_test$(EXEEXT) QMP_msg$(EXEEXT) \
 	QMP_grid_test$(EXEEXT) QMP_loopback$(EXEEXT) \
 	QMP_qcd_test$(EXEEXT) QMP_stride_test$(EXEEXT) \
 	QMP_perf$(EXEEXT) QMP_broadcast$(EXEEXT) \
-	QMP_gcomm_perf$(EXEEXT) QMP_MILC_test$(EXEEXT)
+	QMP_gcomm_perf$(EXEEXT) QMP_MILC_test$(EXEEXT) \
+	QMP_show_geom$(EXEEXT)
 subdir = examples
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -76,6 +77,10 @@ QMP_qcd_test_SOURCES = QMP_qcd_test.c
 QMP_qcd_test_OBJECTS = QMP_qcd_test.$(OBJEXT)
 QMP_qcd_test_LDADD = $(LDADD)
 QMP_qcd_test_DEPENDENCIES =
+QMP_show_geom_SOURCES = QMP_show_geom.c
+QMP_show_geom_OBJECTS = QMP_show_geom.$(OBJEXT)
+QMP_show_geom_LDADD = $(LDADD)
+QMP_show_geom_DEPENDENCIES =
 QMP_stride_test_SOURCES = QMP_stride_test.c
 QMP_stride_test_OBJECTS = QMP_stride_test.$(OBJEXT)
 QMP_stride_test_LDADD = $(LDADD)
@@ -93,10 +98,10 @@ CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 SOURCES = QMP_MILC_test.c QMP_broadcast.c QMP_gcomm_perf.c \
 	QMP_grid_test.c QMP_loopback.c QMP_msg.c QMP_perf.c \
-	QMP_qcd_test.c QMP_stride_test.c QMP_test.c
+	QMP_qcd_test.c QMP_show_geom.c QMP_stride_test.c QMP_test.c
 DIST_SOURCES = QMP_MILC_test.c QMP_broadcast.c QMP_gcomm_perf.c \
 	QMP_grid_test.c QMP_loopback.c QMP_msg.c QMP_perf.c \
-	QMP_qcd_test.c QMP_stride_test.c QMP_test.c
+	QMP_qcd_test.c QMP_show_geom.c QMP_stride_test.c QMP_test.c
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -252,6 +257,9 @@ QMP_perf$(EXEEXT): $(QMP_perf_OBJECTS) $(QMP_perf_DEPENDENCIES)
 QMP_qcd_test$(EXEEXT): $(QMP_qcd_test_OBJECTS) $(QMP_qcd_test_DEPENDENCIES) 
 	@rm -f QMP_qcd_test$(EXEEXT)
 	$(LINK) $(QMP_qcd_test_OBJECTS) $(QMP_qcd_test_LDADD) $(LIBS)
+QMP_show_geom$(EXEEXT): $(QMP_show_geom_OBJECTS) $(QMP_show_geom_DEPENDENCIES) 
+	@rm -f QMP_show_geom$(EXEEXT)
+	$(LINK) $(QMP_show_geom_OBJECTS) $(QMP_show_geom_LDADD) $(LIBS)
 QMP_stride_test$(EXEEXT): $(QMP_stride_test_OBJECTS) $(QMP_stride_test_DEPENDENCIES) 
 	@rm -f QMP_stride_test$(EXEEXT)
 	$(LINK) $(QMP_stride_test_OBJECTS) $(QMP_stride_test_LDADD) $(LIBS)
@@ -273,6 +281,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/QMP_msg.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/QMP_perf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/QMP_qcd_test.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/QMP_show_geom.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/QMP_stride_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/QMP_test.Po@am__quote@
 

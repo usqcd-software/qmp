@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.4  2005/08/18 05:53:09  osborn
+ *   Changed to use persistent communication requests.
+ *
  *   Revision 1.3  2005/06/20 22:20:59  osborn
  *   Fixed inclusion of profiling header.
  *
@@ -57,12 +60,14 @@
 #ifndef _QMP_P_MPI_H
 #define _QMP_P_MPI_H
 
-#include <mpi.h>
-#include "QMP_P_COMMON.h"
-
 #ifdef DMALLOC
 #include <dmalloc.h>
 #endif
+#include <mpi.h>
+
+#define MAX_HOST_LEN MPI_MAX_PROCESSOR_NAME
+
+#include "QMP_P_COMMON.h"
 
 /* 
  * Message Passing routines 

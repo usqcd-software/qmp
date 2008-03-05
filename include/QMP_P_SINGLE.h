@@ -8,6 +8,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.5  2005/06/20 22:20:59  osborn
+ *   Fixed inclusion of profiling header.
+ *
  *   Revision 1.4  2004/12/16 02:44:12  osborn
  *   Changed QMP_mem_t structure, fixed strided memory and added test.
  *
@@ -30,8 +33,6 @@
 #ifndef _QMP_P_SINGLE_H
 #define _QMP_P_SINGLE_H
 
-#include "QMP_P_COMMON.h"
-
 #ifdef DMALLOC
 #include <dmalloc.h>
 #endif
@@ -43,5 +44,9 @@ struct QMP_mem_struct_t {
   void *aligned_ptr;
   void *allocated_ptr;
 };
+
+#define MAX_HOST_LEN 256
+
+#include "QMP_P_COMMON.h"
 
 #endif /* _QMP_P_SINGLE_H */

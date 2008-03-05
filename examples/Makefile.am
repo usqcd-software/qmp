@@ -9,7 +9,8 @@ check_PROGRAMS = QMP_test          \
                  QMP_perf          \
                  QMP_broadcast     \
                  QMP_gcomm_perf    \
-                 QMP_MILC_test
+                 QMP_MILC_test     \
+		 QMP_show_geom
 
 ## GTF: The whole point of an API is that you don't need to know where
 ## to find the header files for package on which you're building, e.g. GM,

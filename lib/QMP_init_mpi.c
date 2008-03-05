@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.12  2008/01/29 02:53:21  osborn
+ *   Fixed single node version.  Bumped version to 2.2.0.
+ *
  *   Revision 1.11  2008/01/25 20:07:39  osborn
  *   Added BG/P personality info.  Now uses MPI_Cart_create to layout logical
  *   topology.
@@ -94,10 +97,10 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <stdarg.h>
-#ifndef __USE_UNIX98
-#define __USE_UNIX98 /* needed to get gethostname from GNU unistd.h */
-#endif
-#include <unistd.h>
+//#ifndef __USE_UNIX98
+//#define __USE_UNIX98 /* needed to get gethostname from GNU unistd.h */
+//#endif
+//#include <unistd.h>
 
 #include "QMP_P_MPI.h"
 
@@ -121,23 +124,25 @@ static void
 set_native_machine(void)
 {
   int nd;
-      BGLPersonality pers;
-      rts_get_personality(&pers, sizeof(pers));
-      if(BGLPersonality_virtualNodeMode(&pers)) nd = 4;
-      else nd = 3;
-      QMP_global_m->ndim = nd;
-      QMP_global_m->geom = (int *) malloc(nd*sizeof(int));
-      QMP_global_m->coord = (int *) malloc(nd*sizeof(int));
-      QMP_global_m->geom[0] = pers.xSize;
-      QMP_global_m->geom[1] = pers.ySize;
-      QMP_global_m->geom[2] = pers.zSize;
-      QMP_global_m->coord[0] = pers.xCoord;
-      QMP_global_m->coord[1] = pers.yCoord;
-      QMP_global_m->coord[2] = pers.zCoord;
-      if(nd==4) {
-	QMP_global_m->geom[3] = 2;
-	QMP_global_m->coord[3] = rts_get_processor_id();
-      }
+  BGLPersonality pers;
+
+  rts_get_personality(&pers, sizeof(pers));
+  if(BGLPersonality_virtualNodeMode(&pers)) nd = 4;
+  else nd = 3;
+
+  QMP_global_m->ndim = nd;
+  QMP_global_m->geom = (int *) malloc(nd*sizeof(int));
+  QMP_global_m->coord = (int *) malloc(nd*sizeof(int));
+  QMP_global_m->geom[0] = pers.xSize;
+  QMP_global_m->geom[1] = pers.ySize;
+  QMP_global_m->geom[2] = pers.zSize;
+  QMP_global_m->coord[0] = pers.xCoord;
+  QMP_global_m->coord[1] = pers.yCoord;
+  QMP_global_m->coord[2] = pers.zCoord;
+  if(nd==4) {
+    QMP_global_m->geom[3] = 2;
+    QMP_global_m->coord[3] = rts_get_processor_id();
+  }
 }
 
 #elsif defined(HAVE_BGP)
@@ -149,35 +154,37 @@ set_native_machine(void)
 static int
 BGP_Personality_tSize(_BGP_Personality_t *p)
 {
-    int node_config = BGP_Personality_processConfig(p);
-    if (node_config == _BGP_PERS_PROCESSCONFIG_VNM) return 4;
-    else if (node_config == _BGP_PERS_PROCESSCONFIG_SMP) return 1;
-    //else if (node_config == _BGP_PERS_PROCESSCONFIG_2x2) return 2;
-    return 2;
+  int node_config = BGP_Personality_processConfig(p);
+  if (node_config == _BGP_PERS_PROCESSCONFIG_VNM) return 4;
+  else if (node_config == _BGP_PERS_PROCESSCONFIG_SMP) return 1;
+  //else if (node_config == _BGP_PERS_PROCESSCONFIG_2x2) return 2;
+  return 2;
 }
 
 static void
 set_native_machine(void)
 {
   int nd, nt;
-    _BGP_Personality_t pers;
-    Kernel_GetPersonality(&pers, sizeof(pers));
+  _BGP_Personality_t pers;
+
+  Kernel_GetPersonality(&pers, sizeof(pers));
   nt = BGP_Personality_tSize(&pers);
-      if(nt!=1) nd = 4;
-      else nd = 3;
-      QMP_global_m->ndim = nd;
-      QMP_global_m->geom = (int *) malloc(nd*sizeof(int));
-      QMP_global_m->coord = (int *) malloc(nd*sizeof(int));
-      QMP_global_m->geom[0] = BGP_Personality_xSize(&pers);
-      QMP_global_m->geom[1] = BGP_Personality_ySize(&pers);
-      QMP_global_m->geom[2] = BGP_Personality_zSize(&pers);
-      QMP_global_m->coord[0] = BGP_Personality_xCoord(&pers);
-      QMP_global_m->coord[1] = BGP_Personality_yCoord(&pers);
-      QMP_global_m->coord[2] = BGP_Personality_zCoord(&pers);
-      if(nd==4) {
-	QMP_global_m->geom[3] = nt;
-	QMP_global_m->coord[3] = Kernel_PhysicalProcessorID();
-      }
+  if(nt!=1) nd = 4;
+  else nd = 3;
+
+  QMP_global_m->ndim = nd;
+  QMP_global_m->geom = (int *) malloc(nd*sizeof(int));
+  QMP_global_m->coord = (int *) malloc(nd*sizeof(int));
+  QMP_global_m->geom[0] = BGP_Personality_xSize(&pers);
+  QMP_global_m->geom[1] = BGP_Personality_ySize(&pers);
+  QMP_global_m->geom[2] = BGP_Personality_zSize(&pers);
+  QMP_global_m->coord[0] = BGP_Personality_xCoord(&pers);
+  QMP_global_m->coord[1] = BGP_Personality_yCoord(&pers);
+  QMP_global_m->coord[2] = BGP_Personality_zCoord(&pers);
+  if(nd==4) {
+    QMP_global_m->geom[3] = nt;
+    QMP_global_m->coord[3] = Kernel_PhysicalProcessorID();
+  }
 }
 
 #else  /* native only supported on BG/L and BG/P */
@@ -185,13 +192,54 @@ set_native_machine(void)
 static void
 set_native_machine(void)
 {
-    QMP_global_m->ic_type = QMP_SWITCH;
-    QMP_global_m->ndim = 0;
-    QMP_global_m->geom = NULL;
-    QMP_global_m->coord = NULL;
+  QMP_global_m->ic_type = QMP_SWITCH;
+  QMP_global_m->ndim = 0;
+  QMP_global_m->geom = NULL;
+  QMP_global_m->coord = NULL;
 }
 
 #endif
+
+void
+get_arg(int argc, char **argv, char *tag, int *first, int *last,
+	char *c, int *a)
+{
+  int i;
+  *first = -1;
+  *last = -1;
+  c = NULL;
+  a = NULL;
+  for(i=0; i<argc; i++) {
+    if(strcmp(argv[i], tag)==0) {
+      *first = i;
+      if( ((i+1)<argc) && !(isdigit(argv[i+1][0])) ) {
+	c = argv[i+1];
+	*last = i+1;
+      } else {
+	while( (++i<argc) && isdigit(argv[i][0]) );
+	*last = i-1;
+	int n = *last - *first;
+	if(n) {
+	  a = (int *) malloc(n*sizeof(int));
+	  for(i=0; i<n; i++) {
+	    a[i] = atoi(argv[*first+1+i]);
+	  }
+	}
+      }
+    }
+  }
+}
+
+void
+remove_from_args(int *argc, char ***argv, int first, int last)
+{
+  int n = last - first;
+  if(first>=0) {
+    int i;
+    for(i=last+1; i<*argc; i++) (*argv)[i-n-1] = (*argv)[i];
+    *argc -= n + 1;
+  }
+}
 
 
 /**
@@ -203,21 +251,40 @@ QMP_init_machine_i(int* argc, char*** argv)
   ENTER_INIT;
 
   /* get host name of this machine */
-  gethostname (QMP_global_m->host, sizeof (QMP_global_m->host));
+  /* gethostname(QMP_global_m->host, sizeof (QMP_global_m->host)); */
+  int len;
+  MPI_Get_processor_name(QMP_global_m->host, &len);
 
-  int first=-1, last=-1;
-  int i, nd, n;
-  for(i=0; i<*argc; i++) {
-    if(strcmp((*argv)[i], "-qmp-geom")==0) {
-      first = i;
-      if( ((i+1)<*argc) && (strcmp((*argv)[i+1], "native")==0) ) last = i+1;
-      else {
-	while( (++i<*argc) && (isdigit((*argv)[i][0])) );
-	last = i-1;
-      }
-    }
+  /* find QMP command line arguments */
+  int nd;
+  int first, last, *a=NULL;
+  char *c=NULL;
+
+#if 0
+  /* process -qmp-alloc-map */
+  get_arg(*argv, *argc, "-qmp-alloc-map", &first, &last, &c, &a);
+  if( c && strcmp(c, "MPI")!=0 ) { last = first; }
+  if(last<=first) {
+    set_map(&QMP_global_m->amap, NULL, NULL);
+  } else {
+    set_map(&QMP_global_m->amap, c, a);
   }
+  remove_from_args(argc, argv, first, last);
 
+  /* process -qmp-logic-map */
+  get_arg(*argv, *argc, "-qmp-logic-map", &first, &last, &c, &a);
+  if( c && strcmp(c, "MPI")!=0 ) { last = first; }
+  if(last<=first) {
+    set_map(&QMP_global_m->lmap, NULL, NULL);
+  } else {
+    set_map(&QMP_global_m->lmap, c, a);
+  }
+  remove_from_args(argc, argv, first, last);
+#endif
+
+  /* process -qmp-geom */
+  get_arg(*argc, *argv, "-qmp-geom", &first, &last, c, a);
+  if( c && strcmp(c, "native")!=0 ) { last = first; }
   nd = last - first;
   if(nd<=0) {
     QMP_global_m->ic_type = QMP_SWITCH;
@@ -229,6 +296,7 @@ QMP_init_machine_i(int* argc, char*** argv)
     if(strcmp((*argv)[last], "native")==0) {
       set_native_machine();
     } else {
+      int i, n;
       QMP_global_m->ndim = nd;
       QMP_global_m->geom = (int *) malloc(nd*sizeof(int));
       QMP_global_m->coord = (int *) malloc(nd*sizeof(int));
@@ -240,11 +308,8 @@ QMP_init_machine_i(int* argc, char*** argv)
       }
     }
   }
-  nd = last - first;
-  if(first>=0) {  /* remove from arguments */
-    for(i=last+1; i<*argc; i++) (*argv)[i-nd-1] = (*argv)[i];
-    *argc -= nd + 1;
-  }
+  remove_from_args(argc, argv, first, last);
+
   /* QMP_printf("allocated dimensions = %i\n", QMP_global_m->ndim); */
   LEAVE_INIT;
 }
