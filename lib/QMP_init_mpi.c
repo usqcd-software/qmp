@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.13  2008/03/05 17:49:29  osborn
+ *   added QMP_show_geom example and prepare for adding new command line options
+ *
  *   Revision 1.12  2008/01/29 02:53:21  osborn
  *   Fixed single node version.  Bumped version to 2.2.0.
  *
@@ -145,7 +148,7 @@ set_native_machine(void)
   }
 }
 
-#elsif defined(HAVE_BGP)
+#elif defined(HAVE_BGP)
 
 #include <spi/kernel_interface.h>
 #include <common/bgp_personality.h>
@@ -200,37 +203,43 @@ set_native_machine(void)
 
 #endif
 
-void
+static void
 get_arg(int argc, char **argv, char *tag, int *first, int *last,
-	char *c, int *a)
+	char **c, int **a)
 {
   int i;
   *first = -1;
   *last = -1;
-  c = NULL;
-  a = NULL;
-  for(i=0; i<argc; i++) {
+  *c = NULL;
+  *a = NULL;
+  for(i=1; i<argc; i++) {
     if(strcmp(argv[i], tag)==0) {
       *first = i;
+      //printf("%i %i\n", i, argc);
       if( ((i+1)<argc) && !(isdigit(argv[i+1][0])) ) {
-	c = argv[i+1];
+	//printf("c %i %s\n", i+1, argv[i+1]);
+	*c = argv[i+1];
 	*last = i+1;
       } else {
+	//printf("a %i %s\n", i+1, argv[i+1]);
 	while( (++i<argc) && isdigit(argv[i][0]) );
 	*last = i-1;
 	int n = *last - *first;
 	if(n) {
-	  a = (int *) malloc(n*sizeof(int));
-	  for(i=0; i<n; i++) {
-	    a[i] = atoi(argv[*first+1+i]);
+	  int j;
+	  *a = (int *) malloc(n*sizeof(int));
+	  for(j=0; j<n; j++) {
+	    (*a)[j] = atoi(argv[*first+1+j]);
+	    printf(" %i", (*a)[j]);
 	  }
+	  printf("\n");
 	}
       }
     }
   }
 }
 
-void
+static void
 remove_from_args(int *argc, char ***argv, int first, int last)
 {
   int n = last - first;
@@ -241,6 +250,13 @@ remove_from_args(int *argc, char ***argv, int first, int last)
   }
 }
 
+static void
+permute(int *a, int *p, int n)
+{
+  int i, t[n];
+  for(i=0; i<n; i++) t[i] = a[i];
+  for(i=0; i<n; i++) a[i] = t[p[i]];
+}
 
 /**
  * Populate this machine information.
@@ -251,28 +267,33 @@ QMP_init_machine_i(int* argc, char*** argv)
   ENTER_INIT;
 
   /* get host name of this machine */
-  /* gethostname(QMP_global_m->host, sizeof (QMP_global_m->host)); */
-  int len;
-  MPI_Get_processor_name(QMP_global_m->host, &len);
+  /*gethostname (QMP_global_m->host, sizeof (QMP_global_m->host));*/
+  QMP_global_m->host = (char *) malloc(MPI_MAX_PROCESSOR_NAME);
+  MPI_Get_processor_name(QMP_global_m->host, &QMP_global_m->hostlen);
 
   /* find QMP command line arguments */
-  int nd;
+  int nd, na;
   int first, last, *a=NULL;
   char *c=NULL;
 
-#if 0
   /* process -qmp-alloc-map */
-  get_arg(*argv, *argc, "-qmp-alloc-map", &first, &last, &c, &a);
-  if( c && strcmp(c, "MPI")!=0 ) { last = first; }
-  if(last<=first) {
-    set_map(&QMP_global_m->amap, NULL, NULL);
+  get_arg(*argc, *argv, "-qmp-alloc-map", &first, &last, &c, &a);
+  printf("%i %i %p %p\n", first, last, c, a);
+  if( c ) {
+    fprintf(stderr, "unknown argument to -qmp-alloc-map: %s\n", c);
+    QMP_abort(-1);
+  }
+  na = last - first;
+  if(na<=0) {
+    QMP_global_m->amap = NULL;
   } else {
-    set_map(&QMP_global_m->amap, c, a);
+    QMP_global_m->amap = a;
   }
   remove_from_args(argc, argv, first, last);
 
+#if 0
   /* process -qmp-logic-map */
-  get_arg(*argv, *argc, "-qmp-logic-map", &first, &last, &c, &a);
+  get_arg(*argc, *argv, "-qmp-logic-map", &first, &last, &c, &a);
   if( c && strcmp(c, "MPI")!=0 ) { last = first; }
   if(last<=first) {
     set_map(&QMP_global_m->lmap, NULL, NULL);
@@ -283,8 +304,12 @@ QMP_init_machine_i(int* argc, char*** argv)
 #endif
 
   /* process -qmp-geom */
-  get_arg(*argc, *argv, "-qmp-geom", &first, &last, c, a);
-  if( c && strcmp(c, "native")!=0 ) { last = first; }
+  get_arg(*argc, *argv, "-qmp-geom", &first, &last, &c, &a);
+  printf("%i %i %p %p\n", first, last, c, a);
+  if( c && strcmp(c, "native")!=0 ) {
+    fprintf(stderr, "unknown argument to -qmp-geom: %s\n", c);
+    QMP_abort(-1);
+  }
   nd = last - first;
   if(nd<=0) {
     QMP_global_m->ic_type = QMP_SWITCH;
@@ -293,19 +318,48 @@ QMP_init_machine_i(int* argc, char*** argv)
     QMP_global_m->coord = NULL;
   } else { /* act like a mesh */
     QMP_global_m->ic_type = QMP_MESH;
-    if(strcmp((*argv)[last], "native")==0) {
+    if( c && strcmp(c, "native")==0 ) {
       set_native_machine();
+      nd = QMP_global_m->ndim;
+      if(QMP_global_m->amap) {
+	if(na!=nd) {
+	  fprintf(stderr, "allocated number of dimensions %i != map dimension %i\n", nd, na);
+	  QMP_abort(-1);
+	}
+	permute(QMP_global_m->geom, QMP_global_m->amap, nd);
+	permute(QMP_global_m->coord, QMP_global_m->amap, nd);
+      }
     } else {
       int i, n;
       QMP_global_m->ndim = nd;
       QMP_global_m->geom = (int *) malloc(nd*sizeof(int));
       QMP_global_m->coord = (int *) malloc(nd*sizeof(int));
-      n = QMP_global_m->nodeid;
-      for(i=0; i<nd; i++) {
-	QMP_global_m->geom[i] = atoi((*argv)[i+first+1]);
-	QMP_global_m->coord[i] = n % QMP_global_m->geom[i];
-	n /= QMP_global_m->geom[i];
+      for(i=0; i<nd; i++) QMP_global_m->geom[i] = 4;
+#if 0
+      QMP_global_m->geom = a;
+      QMP_global_m->coord = a;
+      QMP_global_m->geom = (int *) malloc(nd*sizeof(int));
+      for(i=0; i<nd; i++) QMP_global_m->geom[i] = a[i];
+      QMP_global_m->coord = (int *) malloc(nd*sizeof(int));
+      if(QMP_global_m->amap) {
+	if(na!=nd) {
+	  fprintf(stderr, "allocated number of dimensions %i != map dimension %i\n", nd, na);
+	  QMP_abort(-1);
+	}
+	n = QMP_global_m->nodeid;
+	for(i=0; i<nd; i++) {
+	  QMP_global_m->coord[QMP_global_m->amap[i]] =
+	    n % QMP_global_m->geom[QMP_global_m->amap[i]];
+	  n /= QMP_global_m->geom[QMP_global_m->amap[i]];
+	}
+      } else {
+	n = QMP_global_m->nodeid;
+	for(i=0; i<nd; i++) {
+	  QMP_global_m->coord[i] = n % QMP_global_m->geom[i];
+	  n /= QMP_global_m->geom[i];
+	}
       }
+#endif
     }
   }
   remove_from_args(argc, argv, first, last);

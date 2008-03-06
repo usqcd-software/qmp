@@ -18,6 +18,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.10  2008/01/29 02:53:21  osborn
+ *   Fixed single node version.  Bumped version to 2.2.0.
+ *
  *   Revision 1.9  2008/01/25 20:07:39  osborn
  *   Added BG/P personality info.  Now uses MPI_Cart_create to layout logical
  *   topology.
@@ -109,7 +112,7 @@ sumint(int *v, int n)
   free(t);
 }
 
-void
+static void
 remap_mpi(int *dims, int ndim)
 {
   int i, periods[ndim], reorder=1, rankc, rankw, size;
@@ -161,7 +164,7 @@ QMP_declare_logical_topology (const int* dims, int ndim)
   }
 
 #ifdef HAVE_MPI
-  remap_mpi(dims, ndim);
+  remap_mpi((int *)dims, ndim);
 #endif
 
   QMP_topo->dimension = ndim;
@@ -268,7 +271,7 @@ QMP_get_node_number_from (const int* coordinates)
 
 #ifdef HAVE_MPI
   int cart_node;
-  MPI_Cart_rank(comm_cart, coordinates, &cart_node);
+  MPI_Cart_rank(comm_cart, (int *)coordinates, &cart_node);
   world_node = c2w[cart_node];
 #else
   world_node = 0;

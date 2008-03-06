@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.8  2008/03/05 17:49:29  osborn
+ *   added QMP_show_geom example and prepare for adding new command line options
+ *
  *   Revision 1.7  2006/03/10 08:38:07  osborn
  *   Added timing routines.
  *
@@ -93,7 +96,8 @@ typedef struct QMP_machine
   QMP_ictype_t ic_type;
 
   /* host name of this machine.                              */
-  char        host[MAX_HOST_LEN];
+  char *host;
+  int hostlen;
 
   /* whether this machine is initialized                     */
   QMP_bool_t inited;
@@ -113,6 +117,9 @@ typedef struct QMP_machine
   /* my coordinate if acting like mesh */
   int *coord;
 
+  /* allocated geometry mapping */
+  int *amap;
+
   /* verbose level                                           */
   int verbose;
 
@@ -123,8 +130,8 @@ typedef struct QMP_machine
   QMP_status_t err_code;
 
 } *QMP_machine_t;
-#define QMP_MACHINE_INIT {0.0, 0, QMP_SWITCH, "", QMP_FALSE, 0, 0,	\
-	                  0, NULL, NULL, 0, 0, QMP_SUCCESS}
+#define QMP_MACHINE_INIT {0.0, 0, QMP_SWITCH, NULL, 0, QMP_FALSE, 0, 0, 0,  \
+	                  NULL, NULL, NULL, 0, 0, QMP_SUCCESS}
 
 extern QMP_machine_t QMP_global_m;
 

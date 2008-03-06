@@ -39,15 +39,11 @@ AC_ARG_WITH(qmp-comms-type,
     esac],
   [QMP_COMMS_TYPE=SINGLE])
 
-AC_SUBST(QMP_COMMS_TYPE)
-
 AC_ARG_WITH( qmp-comms-cflags,
   AC_HELP_STRING([--with-qmp-comms-cflags=QMP_COMMS_CFLAGS],
     [To pass optional include path to comms header files via compiler flag
       -I]),
   [QMP_COMMS_CFLAGS="$with_qmp_comms_cflags"] )
-
-AC_SUBST(QMP_COMMS_CFLAGS)
 
 AC_ARG_WITH( qmp-comms-ldflags,
   AC_HELP_STRING([--with-qmp-comms-ldflags=QMP_COMMS_LDFLAGS],
@@ -55,14 +51,10 @@ AC_ARG_WITH( qmp-comms-ldflags,
       flag -L]),
   [QMP_COMMS_LDFLAGS="$with_qmp_comms_ldflags"])
 
-AC_SUBST(QMP_COMMS_LDFLAGS)
-
 AC_ARG_WITH( qmp-comms-libs,
   AC_HELP_STRING([--with-qmp-comms-libs=QMP_COMMS_LIBS],
     [To pass optional list of comms libraries to linker via compiler flag -l]),
   [QMP_COMMS_LIBS="$with_qmp_comms_libs"])
-
-AC_SUBST(QMP_COMMS_LIBS)
 
 # If $QMP_COMMS_TYPE=MPI then perform the following link test
 
@@ -141,8 +133,14 @@ AC_ARG_ENABLE(
   [if test "X$enableval" != "Xno"; then
     AC_DEFINE([HAVE_BGP],[],[compiling for BG/P])
     AC_MSG_NOTICE([Using BG/P personality.])
+    QMP_COMMS_CFLAGS="-I/bgsys/drivers/ppcfloor/arch/include $QMP_COMMS_CFLAGS"
   fi]
 )
+
+AC_SUBST(QMP_COMMS_TYPE)
+AC_SUBST(QMP_COMMS_CFLAGS)
+AC_SUBST(QMP_COMMS_LDFLAGS)
+AC_SUBST(QMP_COMMS_LIBS)
 
 AM_CONDITIONAL(QMP_SINGLE, [test "X${QMP_COMMS_TYPE}X" = "XSINGLEX"])
 AM_CONDITIONAL(QMP_MPI, [test "X${QMP_COMMS_TYPE}X" = "XMPIX"])

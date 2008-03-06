@@ -8,6 +8,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.8  2006/05/22 17:28:10  detar
+ *   Trivial: Move two declarations for compatibility with pre-C90 syntax.
+ *
  *   Revision 1.7  2006/03/10 08:38:07  osborn
  *   Added timing routines.
  *
@@ -67,7 +70,8 @@ QMP_init_machine_i(int* argc, char*** argv)
   ENTER;
 
   /* get host name of this machine */
-  gethostname (QMP_global_m->host, sizeof (QMP_global_m->host));
+  QMP_global_m->host = (char *) malloc(256);
+  gethostname (QMP_global_m->host, 256);
 
   for(i=0; i<*argc; i++) {
     if(strcmp((*argv)[i], "-qmp-geom")==0) {

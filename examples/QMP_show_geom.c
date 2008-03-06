@@ -21,11 +21,22 @@ main(int argc, char **argv)
 
   if(rank==0) {
     printf("number of nodes = %i\n", n);
+    if(QMP_get_msg_passing_type()==QMP_GRID) {
+      printf("machine type is GRID\n");
+    } else
+    if(QMP_get_msg_passing_type()==QMP_SWITCH) {
+      printf("machine type is SWITCH\n");
+    } else {
+      printf("machine type is not SWITCH or GRID\n");
+    }
   }
 
   if(QMP_get_msg_passing_type()==QMP_GRID) {
     int nd;
     nd = QMP_get_allocated_number_of_dimensions();
+    if(rank==0) {
+      printf("allocated number of dimensions = %i\n", nd);
+    }
     if(nd) {
       double *coord = (double *) malloc(2*nd*sizeof(double));
       const int *ad = QMP_get_allocated_dimensions();
