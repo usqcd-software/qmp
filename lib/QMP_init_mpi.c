@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.14  2008/03/06 07:54:11  osborn
+ *   added -qmp-alloc-map command line argument
+ *
  *   Revision 1.13  2008/03/05 17:49:29  osborn
  *   added QMP_show_geom example and prepare for adding new command line options
  *
@@ -228,6 +231,7 @@ get_arg(int argc, char **argv, char *tag, int *first, int *last,
 	if(n) {
 	  int j;
 	  *a = (int *) malloc(n*sizeof(int));
+	  printf("%i %p\n", n, *a);
 	  for(j=0; j<n; j++) {
 	    (*a)[j] = atoi(argv[*first+1+j]);
 	    printf(" %i", (*a)[j]);
@@ -332,12 +336,12 @@ QMP_init_machine_i(int* argc, char*** argv)
     } else {
       int i, n;
       QMP_global_m->ndim = nd;
+      QMP_global_m->geom = a;
+      QMP_global_m->coord = a;
+#if 0
       QMP_global_m->geom = (int *) malloc(nd*sizeof(int));
       QMP_global_m->coord = (int *) malloc(nd*sizeof(int));
       for(i=0; i<nd; i++) QMP_global_m->geom[i] = 4;
-#if 0
-      QMP_global_m->geom = a;
-      QMP_global_m->coord = a;
       QMP_global_m->geom = (int *) malloc(nd*sizeof(int));
       for(i=0; i<nd; i++) QMP_global_m->geom[i] = a[i];
       QMP_global_m->coord = (int *) malloc(nd*sizeof(int));
