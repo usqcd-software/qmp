@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.9  2008/03/06 07:54:10  osborn
+ *   added -qmp-alloc-map command line argument
+ *
  *   Revision 1.8  2008/03/05 17:49:29  osborn
  *   added QMP_show_geom example and prepare for adding new command line options
  *
@@ -120,6 +123,10 @@ typedef struct QMP_machine
   /* allocated geometry mapping */
   int *amap;
 
+  /* logical geometry mapping */
+  int lmaplen;
+  int *lmap;
+
   /* verbose level                                           */
   int verbose;
 
@@ -131,7 +138,7 @@ typedef struct QMP_machine
 
 } *QMP_machine_t;
 #define QMP_MACHINE_INIT {0.0, 0, QMP_SWITCH, NULL, 0, QMP_FALSE, 0, 0, 0,  \
-	                  NULL, NULL, NULL, 0, 0, QMP_SUCCESS}
+	                  NULL, NULL, NULL, 0, NULL, 0, 0, QMP_SUCCESS}
 
 extern QMP_machine_t QMP_global_m;
 

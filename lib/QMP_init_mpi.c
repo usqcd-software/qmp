@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.15  2008/03/06 08:06:56  osborn
+ *   testing
+ *
  *   Revision 1.14  2008/03/06 07:54:11  osborn
  *   added -qmp-alloc-map command line argument
  *
@@ -231,12 +234,12 @@ get_arg(int argc, char **argv, char *tag, int *first, int *last,
 	if(n) {
 	  int j;
 	  *a = (int *) malloc(n*sizeof(int));
-	  printf("%i %p\n", n, *a);
+	  //printf("%i %p\n", n, *a);
 	  for(j=0; j<n; j++) {
 	    (*a)[j] = atoi(argv[*first+1+j]);
-	    printf(" %i", (*a)[j]);
+	    //printf(" %i", (*a)[j]);
 	  }
-	  printf("\n");
+	  //printf("\n");
 	}
       }
     }
@@ -276,13 +279,13 @@ QMP_init_machine_i(int* argc, char*** argv)
   MPI_Get_processor_name(QMP_global_m->host, &QMP_global_m->hostlen);
 
   /* find QMP command line arguments */
-  int nd, na;
+  int nd, na, nl;
   int first, last, *a=NULL;
   char *c=NULL;
 
   /* process -qmp-alloc-map */
   get_arg(*argc, *argv, "-qmp-alloc-map", &first, &last, &c, &a);
-  printf("%i %i %p %p\n", first, last, c, a);
+  //printf("%i %i %p %p\n", first, last, c, a);
   if( c ) {
     fprintf(stderr, "unknown argument to -qmp-alloc-map: %s\n", c);
     QMP_abort(-1);
@@ -295,21 +298,26 @@ QMP_init_machine_i(int* argc, char*** argv)
   }
   remove_from_args(argc, argv, first, last);
 
-#if 0
   /* process -qmp-logic-map */
   get_arg(*argc, *argv, "-qmp-logic-map", &first, &last, &c, &a);
-  if( c && strcmp(c, "MPI")!=0 ) { last = first; }
-  if(last<=first) {
-    set_map(&QMP_global_m->lmap, NULL, NULL);
+  //printf("%i %i %p %p\n", first, last, c, a);
+  if( c ) {
+    fprintf(stderr, "unknown argument to -qmp-logic-map: %s\n", c);
+    QMP_abort(-1);
+  }
+  nl = last - first;
+  if(nl<=0) {
+    QMP_global_m->lmaplen = 0;
+    QMP_global_m->lmap = NULL;
   } else {
-    set_map(&QMP_global_m->lmap, c, a);
+    QMP_global_m->lmaplen = nl;
+    QMP_global_m->lmap = a;
   }
   remove_from_args(argc, argv, first, last);
-#endif
 
   /* process -qmp-geom */
   get_arg(*argc, *argv, "-qmp-geom", &first, &last, &c, &a);
-  printf("%i %i %p %p\n", first, last, c, a);
+  //printf("%i %i %p %p\n", first, last, c, a);
   if( c && strcmp(c, "native")!=0 ) {
     fprintf(stderr, "unknown argument to -qmp-geom: %s\n", c);
     QMP_abort(-1);
@@ -337,13 +345,6 @@ QMP_init_machine_i(int* argc, char*** argv)
       int i, n;
       QMP_global_m->ndim = nd;
       QMP_global_m->geom = a;
-      QMP_global_m->coord = a;
-#if 0
-      QMP_global_m->geom = (int *) malloc(nd*sizeof(int));
-      QMP_global_m->coord = (int *) malloc(nd*sizeof(int));
-      for(i=0; i<nd; i++) QMP_global_m->geom[i] = 4;
-      QMP_global_m->geom = (int *) malloc(nd*sizeof(int));
-      for(i=0; i<nd; i++) QMP_global_m->geom[i] = a[i];
       QMP_global_m->coord = (int *) malloc(nd*sizeof(int));
       if(QMP_global_m->amap) {
 	if(na!=nd) {
@@ -363,7 +364,6 @@ QMP_init_machine_i(int* argc, char*** argv)
 	  n /= QMP_global_m->geom[i];
 	}
       }
-#endif
     }
   }
   remove_from_args(argc, argv, first, last);

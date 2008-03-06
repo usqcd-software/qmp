@@ -18,6 +18,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.11  2008/03/06 07:54:11  osborn
+ *   added -qmp-alloc-map command line argument
+ *
  *   Revision 1.10  2008/01/29 02:53:21  osborn
  *   Fixed single node version.  Bumped version to 2.2.0.
  *
@@ -133,6 +136,39 @@ remap_mpi(int *dims, int ndim)
 }
 #endif
 
+static void
+get_coord(int *x, int n)
+{
+  int i;
+  int nd = QMP_topo->dimension;
+  int *l = QMP_topo->logical_size;
+  int *p = QMP_global_m->lmap;
+
+  for(i=0; i<nd; i++) {
+    int k;
+    if(p) k = p[i]; else k = i;
+    x[k] = n % l[k];
+    n /= l[k];
+  }
+}
+
+static int
+get_rank(int *x)
+{
+  int i, n;
+  int nd = QMP_topo->dimension;
+  int *l = QMP_topo->logical_size;
+  int *p = QMP_global_m->lmap;
+
+  n = 0;
+  for(i=nd-1; i>=0; i--) {
+    int k;
+    if(p) k = p[i]; else k = i;
+    n = (n*l[k]) + x[k];
+  }
+  return n;
+}
+
 /* This is called by all children */
 QMP_status_t
 QMP_declare_logical_topology (const int* dims, int ndim)
@@ -162,9 +198,14 @@ QMP_declare_logical_topology (const int* dims, int ndim)
     status = QMP_INVALID_ARG;
     goto leave;
   }
+  if ( QMP_global_m->lmaplen && (ndim != QMP_global_m->lmaplen) ) {
+    QMP_error ("QMP_declare_logical_topology: logical topology dimension not equal to logical map dimension\n");
+    status = QMP_INVALID_ARG;
+    goto leave;
+  }
 
 #ifdef HAVE_MPI
-  remap_mpi((int *)dims, ndim);
+  //remap_mpi((int *)dims, ndim);
 #endif
 
   QMP_topo->dimension = ndim;
@@ -249,8 +290,9 @@ QMP_get_logical_coordinates_from (int node)
   nd = QMP_topo->dimension;
   nc = (int *) malloc(nd*sizeof(int));
 #ifdef HAVE_MPI
-  int cart_node = w2c[node];
-  MPI_Cart_coords(comm_cart, cart_node, nd, nc);
+  //int cart_node = w2c[node];
+  //MPI_Cart_coords(comm_cart, cart_node, nd, nc);
+  get_coord(nc, node);
 #else /* single node version */
   int i;
   for(i=0; i<nd; i++) nc[i] = 0;
@@ -270,9 +312,10 @@ QMP_get_node_number_from (const int* coordinates)
   ENTER;
 
 #ifdef HAVE_MPI
-  int cart_node;
-  MPI_Cart_rank(comm_cart, (int *)coordinates, &cart_node);
-  world_node = c2w[cart_node];
+  //int cart_node;
+  //MPI_Cart_rank(comm_cart, (int *)coordinates, &cart_node);
+  //world_node = c2w[cart_node];
+  world_node = get_rank(coordinates);
 #else
   world_node = 0;
 #endif
