@@ -1,3 +1,14 @@
+2008-03-06 03:06  osborn
+
+	* lib/QMP_init_mpi.c: testing
+
+2008-03-06 02:54  osborn
+
+	* aclocal.m4, configure, configure.ac, examples/QMP_show_geom.c,
+	  include/QMP_P_COMMON.h, lib/QMP_init_mpi.c,
+	  lib/QMP_init_single.c, lib/QMP_topology.c: added -qmp-alloc-map
+	  command line argument
+
 2008-03-05 12:49  osborn
 
 	* configure, configure.ac, examples/Makefile.am,
