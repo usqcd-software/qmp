@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.6  2006/03/10 08:38:07  osborn
+ *   Added timing routines.
+ *
  *   Revision 1.5  2006/01/05 03:12:56  osborn
  *   Added --enable-bgl compilation option.
  *
@@ -242,12 +245,12 @@ QMP_declare_strided_array_msgmem (void* base[],
 
   mem = (Message_Memory_t)MP_allocMsgMem();
   if (mem) {
-    int err_code, i;
-    int tlen[2];
-    MPI_Aint tdisp[2], *disp;
-    MPI_Datatype tdt[2], *dt;
+    int err_code, i, *ones;
+    MPI_Aint *disp;
+    MPI_Datatype *dt;
     disp = (MPI_Aint *) malloc(narray*sizeof(MPI_Aint));
     dt = (MPI_Datatype *) malloc(narray*sizeof(MPI_Datatype));
+    ones = (int *) malloc(narray*sizeof(int));
 
 #define check_error if(err_code!=MPI_SUCCESS) { \
       QMP_free_msgmem(mem);			\
@@ -257,23 +260,16 @@ QMP_declare_strided_array_msgmem (void* base[],
     }
 
     mem->type = MM_strided_array_buf;
-
-    tlen[1] = 1;
-    tdisp[0] = 0;
-    tdt[0] = MPI_BYTE;
-    tdt[1] = MPI_UB;
+    mem->mem = base[0];
 
     for(i=0; i<narray; i++) {
-      err_code = MPI_Address(base[i], &disp[i]);
-      check_error;
-
-      tlen[0] = blksize[i];
-      tdisp[1] = stride[i];
-      err_code = MPI_Type_struct(2, tlen, tdisp, tdt, &dt[i]);
+      ones[i] = 1;
+      disp[i] = ((MPI_Aint)base[i]) - ((MPI_Aint)base[0]);
+      err_code = MPI_Type_vector(nblocks[i], blksize[i], stride[i], MPI_BYTE, &dt[i]);
       check_error;
     }
 
-    err_code = MPI_Type_struct(narray, nblocks, disp, dt, &(mem->mpi_type));
+    err_code = MPI_Type_struct(narray, ones, disp, dt, &(mem->mpi_type));
     check_error;
     err_code = MPI_Type_commit(&(mem->mpi_type));
     check_error;
@@ -285,6 +281,7 @@ QMP_declare_strided_array_msgmem (void* base[],
 #undef check_error
     free(dt);
     free(disp);
+    free(ones);
   }
   else {
     QMP_SET_STATUS_CODE (QMP_NOMEM_ERR);
@@ -424,7 +421,7 @@ QMP_declare_receive_from (QMP_msgmem_t mmt, int sourceNode, int priority)
 		    QMP_COMM_WORLD, &mh->request);
       break;
     case MM_strided_array_buf:
-      MPI_Recv_init(MPI_BOTTOM, 1,
+      MPI_Recv_init(mm->mem, 1,
 		    mm->mpi_type,
 		    mh->srce_node, mh->tag,
 		    QMP_COMM_WORLD, &mh->request);
@@ -477,7 +474,7 @@ QMP_declare_send_to (QMP_msgmem_t mmt, int remoteHost, int priority)
 		    &mh->request);
       break;
     case MM_strided_array_buf:
-      MPI_Send_init(MPI_BOTTOM, 1,
+      MPI_Send_init(mm->mem, 1,
 		    mm->mpi_type,
 		    mh->dest_node,
 		    mh->tag,
