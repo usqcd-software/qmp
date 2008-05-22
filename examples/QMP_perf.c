@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.5  2006/10/03 21:31:14  osborn
+ *   Added "-qmp-geom native" command line option for BG/L.
+ *
  *   Revision 1.4  2004/06/14 20:36:30  osborn
  *   Updated to API version 2 and added single node target
  *
@@ -207,12 +210,17 @@ parse_options (int argc, char** argv, struct perf_argv* pargv)
 	fprintf (stderr, "-strided-array-send needs a numerical argument.\n");
 	return -1;
       }
+    } else {
+      return -1;
     }
     i++;
   }
 
   if(pargv->size==0) {
-    pargv->minsize = 12;
+    pargv->minsize = 6;
+    if(pargv->minsize<strided_send) pargv->minsize = strided_send;
+    if(pargv->minsize<strided_array_send) pargv->minsize = strided_array_send;
+    if(pargv->minsize<strided_recv) pargv->minsize = strided_recv;
     pargv->maxsize = 65536;
     pargv->size = pargv->maxsize;
   } else {
@@ -847,7 +855,8 @@ main (int argc, char** argv)
     printf("finished init\n"); fflush(stdout);
 
   if (parse_options (argc, argv, &pargv) == -1) {
-    usage (argv[0]);
+    if(QMP_get_node_number()==0)
+      usage (argv[0]);
     exit (1);
   }
 

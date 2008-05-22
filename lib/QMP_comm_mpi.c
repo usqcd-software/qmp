@@ -17,6 +17,9 @@
  *
  * Revision History:
  *   $Log: not supported by cvs2svn $
+ *   Revision 1.7  2006/06/13 17:43:09  bjoo
+ *   Removed some c99isms. Code  compiles on Cray at ORNL using pgcc
+ *
  *   Revision 1.6  2006/03/10 08:38:07  osborn
  *   Added timing routines.
  *
@@ -211,6 +214,8 @@ QMP_is_complete(QMP_msghandle_t msgh)
 	mh->activeP = 0;
       }
      free(status);
+    } else {
+      done = QMP_TRUE;
     }
     break;
 
@@ -227,6 +232,8 @@ QMP_is_complete(QMP_msghandle_t msgh)
 	done = QMP_TRUE;
 	mh->activeP = 0;
       }
+    } else {
+      done = QMP_TRUE;
     }
     break;
 
