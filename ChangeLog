@@ -1,9 +1,3 @@
-2008-05-21 17:39  osborn
-
-	* configure, configure.ac, lib/QMP_mem_mpi.c: changed strided array
-	  code to use different MPI type constructors and not use
-	  MPI_BOTTOM
-
 2008-03-06 12:28  tag qmp2-3-0
 
 2008-03-06 12:28  osborn
