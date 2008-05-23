@@ -1,3 +1,5 @@
+2008-05-21 23:48  tag qmp2-3-1
+
 2008-05-21 23:48  osborn
 
 	* aclocal.m4, configure, examples/QMP_perf.c, lib/QMP_comm_mpi.c:
