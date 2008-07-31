@@ -7,7 +7,10 @@
  *      James C. Osborn
  *
  * Revision History:
- *   $Log: not supported by cvs2svn $
+ *   $Log: QMP_init_single.c,v $
+ *   Revision 1.9  2008/03/06 07:54:11  osborn
+ *   added -qmp-alloc-map command line argument
+ *
  *   Revision 1.8  2006/05/22 17:28:10  detar
  *   Trivial: Move two declarations for compatibility with pre-C90 syntax.
  *

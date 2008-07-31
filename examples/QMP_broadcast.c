@@ -15,7 +15,10 @@
  *      Robert Edwards
  *
  * Revision History:
- *   $Log: not supported by cvs2svn $
+ *   $Log: QMP_broadcast.c,v $
+ *   Revision 1.4  2004/12/16 02:44:11  osborn
+ *   Changed QMP_mem_t structure, fixed strided memory and added test.
+ *
  *   Revision 1.3  2004/06/14 20:36:30  osborn
  *   Updated to API version 2 and added single node target
  *
@@ -105,7 +108,7 @@ int main (int argc, char** argv)
       for(i=0; i < 288;++i)
 	p[i] = 65;
 
-#if 0
+#if 1
     for(i=0; i < 1000000;++i)
       QMP_broadcast(p, 288);
 #else

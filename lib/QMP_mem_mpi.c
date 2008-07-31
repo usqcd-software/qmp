@@ -16,7 +16,10 @@
  *      Jefferson Lab HPC Group
  *
  * Revision History:
- *   $Log: not supported by cvs2svn $
+ *   $Log: QMP_mem_mpi.c,v $
+ *   Revision 1.6  2006/03/10 08:38:07  osborn
+ *   Added timing routines.
+ *
  *   Revision 1.5  2006/01/05 03:12:56  osborn
  *   Added --enable-bgl compilation option.
  *
@@ -147,8 +150,14 @@ QMP_free_memory (QMP_mem_t* mem)
 static QMP_msgmem_t MP_allocMsgMem(void)
 {
   QMP_msgmem_t mem;
+  Message_Memory_t  mm;
   ENTER;
   mem = (QMP_msgmem_t)malloc(sizeof(Message_Memory));
+  mm = (Message_Memory_t)mem;
+  mm->narray=0;
+  mm->nblocks=NULL;
+  mm->dt=NULL;
+
   LEAVE;
   return mem;
 }
@@ -244,10 +253,13 @@ QMP_declare_strided_array_msgmem (void* base[],
   if (mem) {
     int err_code, i;
     int tlen[2];
+    int *nb;
     MPI_Aint tdisp[2], *disp;
     MPI_Datatype tdt[2], *dt;
     disp = (MPI_Aint *) malloc(narray*sizeof(MPI_Aint));
     dt = (MPI_Datatype *) malloc(narray*sizeof(MPI_Datatype));
+    nb = (int *) malloc(narray*sizeof(int));
+    mem->nblocks = nb;
 
 #define check_error if(err_code!=MPI_SUCCESS) { \
       QMP_free_msgmem(mem);			\
@@ -271,6 +283,8 @@ QMP_declare_strided_array_msgmem (void* base[],
       tdisp[1] = stride[i];
       err_code = MPI_Type_struct(2, tlen, tdisp, tdt, &dt[i]);
       check_error;
+
+	  nb[i] = nblocks[i];
     }
 
     err_code = MPI_Type_struct(narray, nblocks, disp, dt, &(mem->mpi_type));
@@ -279,11 +293,13 @@ QMP_declare_strided_array_msgmem (void* base[],
     check_error;
 
     for(i=0; i<narray; i++) {
-      err_code = MPI_Type_free(&dt[i]);
+//      err_code = MPI_Type_free(&dt[i]);
       check_error;
     }
+    mem->narray=narray;
+    mem->dt = dt;
 #undef check_error
-    free(dt);
+//    free(dt);
     free(disp);
   }
   else {
@@ -307,6 +323,10 @@ QMP_free_msgmem(QMP_msgmem_t mm)
     if ( (mem->type == MM_strided_buf) ||
 	 (mem->type == MM_strided_array_buf) ) {
       MPI_Type_free(&(mem->mpi_type));
+    }
+    if(mem->narray>0) {
+      free(mem->dt);
+      free(mem->nblocks);
     }
 
     free(mem);
@@ -387,6 +407,130 @@ QMP_free_msghandle (QMP_msghandle_t msgh)
     }
   }
   LEAVE;
+}
+
+
+QMP_status_t
+QMP_change_address_array (QMP_msghandle_t msg,void *addr[], int num)
+{
+
+  Message_Handle_t mh = (Message_Handle_t)msg;
+  Message_Memory_t mm = (Message_Memory_t) mh->mm;
+  QMP_status_t ret_val = QMP_SUCCESS;
+  int i, err_code;
+  MPI_Aint tdisp[2], *disp;
+
+  if (num != mm->narray) 
+    QMP_FATAL("QMP_change_address_array: number of entries does not mach");
+
+  disp=(MPI_Aint *) malloc(mm->narray);
+
+#define check_error if(err_code!=MPI_SUCCESS) { \
+      QMP_SET_STATUS_CODE (QMP_ERROR);		\
+	  ret_val = QMP_ERROR;     \
+      goto leave;				\
+    }
+
+  if(mh->num==0) 
+      QMP_FATAL("error: attempt to change base address of one message handle of a multiple");
+  ENTER;
+  switch(mm->type) {
+	case MM_strided_array_buf:
+ 	  MPI_Request_free(&mh->request);
+      for(i=0;i<num;i++){
+        err_code = MPI_Address(addr[i], &disp[i]);
+        check_error;
+      }
+
+      err_code = MPI_Type_struct(num, mm->nblocks, disp, mm->dt, &(mm->mpi_type));
+      check_error;
+	  err_code = MPI_Type_commit(&(mm->mpi_type));
+      check_error;
+
+	  switch(mh->type){
+		case MH_recv:
+		  MPI_Recv_init(MPI_BOTTOM, 1,
+                    mm->mpi_type,
+                    mh->srce_node, mh->tag,
+                    QMP_COMM_WORLD, &mh->request);
+		  break;
+		case MH_send:
+		  MPI_Send_init(MPI_BOTTOM, 1,
+                    mm->mpi_type,
+                    mh->dest_node, mh->tag,
+                    QMP_COMM_WORLD, &mh->request);
+		  break;
+		default:
+		  QMP_FATAL("QMP_change_address_array: message type not supported");
+		  break;
+	  }
+	  break;
+	default:
+	  QMP_FATAL("QMP_change_address_array:  memory type not supported");
+	  break;
+  }
+#undef check_error
+ leave:
+  LEAVE;
+  return ret_val;
+}
+
+QMP_status_t
+QMP_change_address (QMP_msghandle_t msg,void *addr)
+{
+
+  Message_Handle_t mh = (Message_Handle_t)msg;
+  Message_Memory_t mm = (Message_Memory_t) mh->mm;
+  QMP_status_t ret_val = QMP_SUCCESS;
+  if(mh->num==0) 
+      QMP_FATAL("error: attempt to change base address of one message handle of a multiple");
+  ENTER;
+  switch(mm->type) {
+	case MM_user_buf:
+ 	  MPI_Request_free(&mh->request);
+	  mm->mem = addr;
+	  switch(mh->type){
+		case MH_recv:
+		  MPI_Recv_init(mm->mem, mm->nbytes,
+		    MPI_BYTE, mh->srce_node, mh->tag,
+		    QMP_COMM_WORLD, &mh->request);
+		  break;
+		case MH_send:
+		  MPI_Send_init(mm->mem, mm->nbytes,
+		    MPI_BYTE, mh->dest_node, mh->tag,
+		    QMP_COMM_WORLD, &mh->request);
+		  break;
+		default:
+		  QMP_FATAL("QMP_change_address: message type not supported");
+		  break;
+	  }
+	  break;
+	case MM_strided_buf:
+ 	  MPI_Request_free(&mh->request);
+	  mm->mem = addr;
+	  switch(mh->type){
+		case MH_recv:
+		  MPI_Recv_init(mm->mem, 1,
+		    mm->mpi_type,
+		    mh->srce_node, mh->tag,
+		    QMP_COMM_WORLD, &mh->request);
+		  break;
+		case MH_send:
+		  MPI_Send_init(mm->mem, 1,
+		    mm->mpi_type,
+		    mh->dest_node, mh->tag,
+		    QMP_COMM_WORLD, &mh->request);
+		  break;
+		default:
+		  QMP_FATAL("QMP_change_address: message type not supported");
+		  break;
+	  }
+	  break;
+	default:
+	  QMP_FATAL("QMP_change_address:  memory type not supported");
+	  break;
+  }
+  return ret_val;
 }
 
 QMP_msghandle_t

@@ -16,7 +16,10 @@
  *      Jefferson Lab HPC Group
  *
  * Revision History:
- *   $Log: not supported by cvs2svn $
+ *   $Log: QMP_init_mpi.c,v $
+ *   Revision 1.16  2008/03/06 17:28:42  osborn
+ *   fixes to mapping options
+ *
  *   Revision 1.15  2008/03/06 08:06:56  osborn
  *   testing
  *

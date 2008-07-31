@@ -17,7 +17,10 @@
  *      James Osborn (BU)
  *
  * Revision History:
- *   $Log: not supported by cvs2svn $
+ *   $Log: QMP_topology.c,v $
+ *   Revision 1.12  2008/03/06 17:28:42  osborn
+ *   fixes to mapping options
+ *
  *   Revision 1.11  2008/03/06 07:54:11  osborn
  *   added -qmp-alloc-map command line argument
  *
