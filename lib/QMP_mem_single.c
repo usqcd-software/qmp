@@ -220,3 +220,13 @@ QMP_free_msghandle (QMP_msghandle_t msgh)
   QMP_abort(1);
   LEAVE;
 }
+
+QMP_status_t
+QMP_change_address (QMP_msghandle_t msg, void *addr)
+{
+  ENTER;
+  QMP_error("QMP_change_address: passed QMP_msghandle_t not allocated\n");
+  QMP_abort(1);
+  LEAVE;
+  return QMP_ERROR;
+}
