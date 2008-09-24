@@ -16,7 +16,10 @@
  *      Jefferson Lab HPC Group
  *
  * Revision History:
- *   $Log: not supported by cvs2svn $
+ *   $Log: QMP_grid_test.c,v $
+ *   Revision 1.5  2006/01/05 03:12:56  osborn
+ *   Added --enable-bgl compilation option.
+ *
  *   Revision 1.4  2004/06/14 20:36:30  osborn
  *   Updated to API version 2 and added single node target
  *

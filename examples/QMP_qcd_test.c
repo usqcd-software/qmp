@@ -16,7 +16,10 @@
  *      Jefferson Lab HPC Group
  *
  * Revision History:
- *   $Log: not supported by cvs2svn $
+ *   $Log: QMP_qcd_test.c,v $
+ *   Revision 1.5  2004/12/16 02:44:12  osborn
+ *   Changed QMP_mem_t structure, fixed strided memory and added test.
+ *
  *   Revision 1.4  2004/06/14 20:36:30  osborn
  *   Updated to API version 2 and added single node target
  *
@@ -173,10 +176,19 @@ int main (int argc, char** argv)
   }
 
   /* If this is the root node, get dimension information from key board */
+#if 0
   if (QMP_is_primary_node()) {
     QMP_fprintf (stderr, "Enter dimension information (Nx Ny Nz Nt)\n");
     scanf ("%d %d %d %d", &dims[0],&dims[1], &dims[2], &dims[3]);
   }
+#else
+  int a_ndim = QMP_get_allocated_number_of_dimensions();
+  int *a_dims = QMP_get_allocated_dimensions ();
+  for(i<0;i<4;i++)
+	if(i<a_ndim) dims[i] = a_dims[i];
+	else dims[i] = 1;
+ 
+#endif
   
   if (QMP_broadcast (dims, sizeof(int)*4) != QMP_SUCCESS) 
     QMP_abort_string (1, "Cannot do broadcast, Quit\n");

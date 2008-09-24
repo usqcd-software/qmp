@@ -16,7 +16,10 @@
  *      Jefferson Lab HPC Group
  *
  * Revision History:
- *   $Log: not supported by cvs2svn $
+ *   $Log: QMP_P_MPI.h,v $
+ *   Revision 1.5  2008/03/05 17:49:29  osborn
+ *   added QMP_show_geom example and prepare for adding new command line options
+ *
  *   Revision 1.4  2005/08/18 05:53:09  osborn
  *   Changed to use persistent communication requests.
  *

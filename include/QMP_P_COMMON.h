@@ -16,7 +16,10 @@
  *      Jefferson Lab HPC Group
  *
  * Revision History:
- *   $Log: not supported by cvs2svn $
+ *   $Log: QMP_P_COMMON.h,v $
+ *   Revision 1.10  2008/03/06 17:28:42  osborn
+ *   fixes to mapping options
+ *
  *   Revision 1.9  2008/03/06 07:54:10  osborn
  *   added -qmp-alloc-map command line argument
  *

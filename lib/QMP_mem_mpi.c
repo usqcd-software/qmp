@@ -16,7 +16,10 @@
  *      Jefferson Lab HPC Group
  *
  * Revision History:
- *   $Log: not supported by cvs2svn $
+ *   $Log: QMP_mem_mpi.c,v $
+ *   Revision 1.6  2006/03/10 08:38:07  osborn
+ *   Added timing routines.
+ *
  *   Revision 1.6  2006/03/10 08:38:07  osborn
  *   Added timing routines.
  *
@@ -384,6 +387,87 @@ QMP_free_msghandle (QMP_msghandle_t msgh)
     }
   }
   LEAVE;
+}
+
+QMP_status_t
+QMP_change_address (QMP_msghandle_t msg,void *addr)
+{
+
+  Message_Handle_t mh = (Message_Handle_t)msg;
+  Message_Memory_t mm = (Message_Memory_t) mh->mm;
+  QMP_status_t ret_val = QMP_SUCCESS;
+  if(mh->num==0) 
+      QMP_FATAL("error: attempt to change base address of one message handle of a multiple");
+  ENTER;
+  switch(mm->type) {
+	case MM_user_buf:
+ 	  MPI_Request_free(&mh->request);
+	  mm->mem = addr;
+	  switch(mh->type){
+		case MH_recv:
+		  MPI_Recv_init(mm->mem, mm->nbytes,
+		    MPI_BYTE, mh->srce_node, mh->tag,
+		    QMP_COMM_WORLD, &mh->request);
+		  break;
+		case MH_send:
+		  MPI_Send_init(mm->mem, mm->nbytes,
+		    MPI_BYTE, mh->dest_node, mh->tag,
+		    QMP_COMM_WORLD, &mh->request);
+		  break;
+		default:
+		  QMP_FATAL("QMP_change_address: message type not supported");
+		  break;
+	  }
+	  break;
+
+	case MM_strided_buf:
+ 	  MPI_Request_free(&mh->request);
+	  mm->mem = addr;
+	  switch(mh->type){
+		case MH_recv:
+		  MPI_Recv_init(mm->mem, 1,
+		    mm->mpi_type,
+		    mh->srce_node, mh->tag,
+		    QMP_COMM_WORLD, &mh->request);
+		  break;
+		case MH_send:
+		  MPI_Send_init(mm->mem, 1,
+		    mm->mpi_type,
+		    mh->dest_node, mh->tag,
+		    QMP_COMM_WORLD, &mh->request);
+		  break;
+		default:
+		  QMP_FATAL("QMP_change_address: message type not supported");
+		  break;
+	  }
+	  break;
+	case MM_strided_array_buf:
+ 	  MPI_Request_free(&mh->request);
+	  mm->mem = addr;
+	  switch(mh->type){
+		case MH_recv:
+		  MPI_Recv_init(mm->mem, 1,
+		    mm->mpi_type,
+		    mh->srce_node, mh->tag,
+		    QMP_COMM_WORLD, &mh->request);
+		  break;
+		case MH_send:
+		  MPI_Send_init(mm->mem, 1,
+		    mm->mpi_type,
+		    mh->dest_node, mh->tag,
+		    QMP_COMM_WORLD, &mh->request);
+		  break;
+		default:
+		  QMP_FATAL("QMP_change_address: message type not supported");
+		  break;
+	  }
+	  break;
+
+	default:
+	  QMP_FATAL("QMP_change_address:  memory type not supported");
+	  break;
+  }
+  return ret_val;
 }
 
 QMP_msghandle_t

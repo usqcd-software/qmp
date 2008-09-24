@@ -23,7 +23,10 @@
  *      Jefferson Lab
  *
  * Revision History:
- *   $Log: not supported by cvs2svn $
+ *   $Log: QMP_grid.c,v $
+ *   Revision 1.6  2006/06/13 17:43:09  bjoo
+ *   Removed some c99isms. Code  compiles on Cray at ORNL using pgcc
+ *
  *   Revision 1.5  2006/03/10 08:38:07  osborn
  *   Added timing routines.
  *

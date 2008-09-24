@@ -16,7 +16,10 @@
  *      Jefferson Lab HPC Group
  *
  * Revision History:
- *   $Log: not supported by cvs2svn $
+ *   $Log: QMP_machine.c,v $
+ *   Revision 1.4  2006/03/10 08:38:07  osborn
+ *   Added timing routines.
+ *
  *   Revision 1.3  2005/06/21 20:18:39  osborn
  *   Added -qmp-geom command line argument to force grid-like behavior.
  *

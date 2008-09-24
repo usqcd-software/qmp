@@ -16,7 +16,10 @@
  *      Jefferson Lab HPC Group
  *
  * Revision History:
- *   $Log: not supported by cvs2svn $
+ *   $Log: QMP_comm_mpi.c,v $
+ *   Revision 1.7  2006/06/13 17:43:09  bjoo
+ *   Removed some c99isms. Code  compiles on Cray at ORNL using pgcc
+ *
  *   Revision 1.7  2006/06/13 17:43:09  bjoo
  *   Removed some c99isms. Code  compiles on Cray at ORNL using pgcc
  *

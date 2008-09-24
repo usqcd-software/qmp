@@ -7,7 +7,10 @@
  *      James C. Osborn
  *
  * Revision History:
- *   $Log: not supported by cvs2svn $
+ *   $Log: QMP_P_SINGLE.h,v $
+ *   Revision 1.6  2008/03/05 17:49:29  osborn
+ *   added QMP_show_geom example and prepare for adding new command line options
+ *
  *   Revision 1.5  2005/06/20 22:20:59  osborn
  *   Fixed inclusion of profiling header.
  *

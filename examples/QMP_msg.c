@@ -16,7 +16,10 @@
  *      Jefferson Lab HPC Group
  *
  * Revision History:
- *   $Log: not supported by cvs2svn $
+ *   $Log: QMP_msg.c,v $
+ *   Revision 1.5  2004/12/16 02:44:12  osborn
+ *   Changed QMP_mem_t structure, fixed strided memory and added test.
+ *
  *   Revision 1.4  2004/06/14 20:36:30  osborn
  *   Updated to API version 2 and added single node target
  *

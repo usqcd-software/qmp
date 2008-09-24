@@ -16,7 +16,10 @@
  *      Jefferson Lab HPC Group
  *
  * Revision History:
- *   $Log: not supported by cvs2svn $
+ *   $Log: QMP_perf.c,v $
+ *   Revision 1.5  2006/10/03 21:31:14  osborn
+ *   Added "-qmp-geom native" command line option for BG/L.
+ *
  *   Revision 1.5  2006/10/03 21:31:14  osborn
  *   Added "-qmp-geom native" command line option for BG/L.
  *
