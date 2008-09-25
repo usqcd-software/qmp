@@ -89,14 +89,14 @@ int main (int argc, char** argv)
   dest = (rank+1)%nodes;
   src = (rank+nodes-1)%nodes;
 
-  smem = QMP_allocate_memory(ns*sizeof(int));
+  smem = QMP_allocate_memory(ns*2*sizeof(int));
   if (!smem) {
     QMP_fprintf (stderr, "cannot allocate sending memory\n");
     exit (1);
   }
 
   svec = (int *) QMP_get_memory_pointer(smem);
-  for(i=0; i<ns; i++) {
+  for(i=0; i<ns*2; i++) {
     svec[i] = i;
   }
 
@@ -116,7 +116,7 @@ int main (int argc, char** argv)
   }
 
   for(i=0;i<2;i++){
-	base[i]=(void*)svec;
+	base[i]=(void*)(svec+i);
     blksize[i]=sizeof(int);
     nblocks[i]=nr;
     stride[i]=2*sizeof(int);
@@ -144,7 +144,7 @@ int main (int argc, char** argv)
   }
 
 
-  rmem = QMP_allocate_memory(ns*sizeof(int));
+  rmem = QMP_allocate_memory(2*ns*sizeof(int));
   if (!rmem) {
     QMP_fprintf (stderr, "cannot allocate receiving memory\n");
     exit (1);
@@ -159,7 +159,7 @@ int main (int argc, char** argv)
     }
 
   for(i=0;i<2;i++){
-	base[i]=(void*)rvec;
+	base[i]=(void*)(rvec+i*nr);
     blksize[i]=sizeof(int);
     nblocks[i]=nr;
     stride[i]=sizeof(int);
@@ -207,12 +207,8 @@ for (iter=0;iter<1000;iter++){
     rvec[i]=0;
   }
 
-  base[0]=(void *)svec;
-  base[1]=(void *)(svec+1);
-  QMP_change_address_array(sendh2,base,2);
-  base[0]=(void *)rvec;
-  base[1]=(void *)(rvec+nr);
-  QMP_change_address_array(recvh2,base,2);
+  QMP_change_address(sendh2,svec);
+  QMP_change_address(recvh2,rvec);
 
   send_recv (sendh2,recvh2,iter*4+2);
 
@@ -221,18 +217,14 @@ for (iter=0;iter<1000;iter++){
     rvec[i]=0;
   }
 
-  base[0]=(void *)(svec+1);
-  base[1]=(void *)(svec);
-  QMP_change_address_array(sendh2,base,2);
-  base[0]=(void *)(rvec+nr);
-  base[1]=(void *)(rvec);
-  QMP_change_address_array(recvh2,base,2);
+  QMP_change_address(sendh2,svec+ns);
+  QMP_change_address(recvh2,rvec+ns);
 
   send_recv (sendh2,recvh2,iter*4+3);
 
   for(i=0; i<ns; i++) {
-    QMP_printf("%d: sent=%d rec=%d", i, svec[i],rvec[i]);
-    rvec[i]=0;
+    QMP_printf("%d: sent=%d rec=%d", i, svec[i+ns],rvec[i+ns]);
+    rvec[i+ns]=0;
   }
 }
 
