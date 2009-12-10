@@ -16,7 +16,10 @@
  *      Jefferson Lab HPC Group
  *
  * Revision History:
- *   $Log: not supported by cvs2svn $
+ *   $Log: QMP_test.c,v $
+ *   Revision 1.4  2004/06/14 20:36:30  osborn
+ *   Updated to API version 2 and added single node target
+ *
  *   Revision 1.3  2003/02/13 16:23:04  chen
  *   qmp version 1.2
  *
@@ -67,8 +70,8 @@ int main (int argc, char** argv)
   int dims[4] = {2, 2, 4, 2};
   int ndims = 4;
   */
-  int dims[1] = {2};
-  int ndims = 1;
+  int dims[2] = {2,2};
+  int ndims = 2;
 
   QMP_mem_t *rmem[NUM_HANDLES], *smem[NUM_HANDLES];
   QMP_msgmem_t recvmem[NUM_HANDLES];

@@ -7,7 +7,10 @@
  *      James C. Osborn
  *
  * Revision History:
- *   $Log: not supported by cvs2svn $
+ *   $Log: QMP_mem_single.c,v $
+ *   Revision 1.6  2006/03/10 08:38:07  osborn
+ *   Added timing routines.
+ *
  *   Revision 1.5  2005/06/20 22:20:59  osborn
  *   Fixed inclusion of profiling header.
  *
@@ -216,4 +219,14 @@ QMP_free_msghandle (QMP_msghandle_t msgh)
   QMP_error("QMP_free_msghandle: passed QMP_msghandle_t not allocated\n");
   QMP_abort(1);
   LEAVE;
+}
+
+QMP_status_t
+QMP_change_address (QMP_msghandle_t msg, void *addr)
+{
+  ENTER;
+  QMP_error("QMP_change_address: passed QMP_msghandle_t not allocated\n");
+  QMP_abort(1);
+  LEAVE;
+  return QMP_ERROR;
 }

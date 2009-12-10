@@ -16,7 +16,10 @@
  *      Jefferson Lab HPC Group
  *
  * Revision History:
- *   $Log: not supported by cvs2svn $
+ *   $Log: qmp.h,v $
+ *   Revision 1.6  2006/03/10 08:38:07  osborn
+ *   Added timing routines.
+ *
  *   Revision 1.5  2005/08/27 19:49:16  osborn
  *   Removed a '//' to make people who don't want to use C99 happy.
  *
@@ -547,6 +550,8 @@ extern QMP_msghandle_t    QMP_declare_send_to     (QMP_msgmem_t m,
 extern QMP_msghandle_t    QMP_declare_receive_from(QMP_msgmem_t m, 
 						   int rem_node_rank,
 						   int priority);
+
+QMP_status_t QMP_change_address(QMP_msghandle_t msg, void *addr);
 
 /**
  * Free a message handle.

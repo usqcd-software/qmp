@@ -7,7 +7,10 @@
  *      James C. Osborn
  *
  * Revision History:
- *   $Log: not supported by cvs2svn $
+ *   $Log: QMP_comm_single.c,v $
+ *   Revision 1.6  2006/05/25 21:09:06  edwards
+ *   Changed error string to match function name.
+ *
  *   Revision 1.5  2006/03/10 08:38:07  osborn
  *   Added timing routines.
  *
