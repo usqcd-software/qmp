@@ -109,6 +109,42 @@ QMP_get_node_number(void)
   return QMP_global_m->nodeid;
 }
 
+/* Return the total number of nodes within the machine */
+int
+QMP_get_number_of_jobs(void)
+{
+  ENTER;
+  LEAVE;
+  return QMP_global_m->num_jobs;
+}
+
+/* Return the nodeid within the machine */
+int
+QMP_get_job_number(void)
+{
+  ENTER;
+  LEAVE;
+  return QMP_global_m->jobid;
+}
+
+/* Return the number of job geometry dimensions */
+int
+QMP_get_number_of_job_geometry_dimensions(void)
+{
+  ENTER;
+  LEAVE;
+  return QMP_global_m->njobdim;
+}
+
+/* Return the job geometry */
+int *
+QMP_get_job_geometry(void)
+{
+  ENTER;
+  LEAVE;
+  return QMP_global_m->jobgeom;
+}
+
 /* Is this the primary node in the machine? */
 QMP_bool_t
 QMP_is_primary_node(void)

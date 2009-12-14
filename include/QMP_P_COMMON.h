@@ -130,6 +130,12 @@ typedef struct QMP_machine
   int lmaplen;
   int *lmap;
 
+  /* job partition information */
+  int num_jobs;
+  int jobid;
+  int njobdim;
+  int *jobgeom;
+
   /* verbose level                                           */
   int verbose;
 
@@ -141,7 +147,7 @@ typedef struct QMP_machine
 
 } *QMP_machine_t;
 #define QMP_MACHINE_INIT {0.0, 0, QMP_SWITCH, NULL, 0, QMP_FALSE, 0, 0, 0,  \
-	                  NULL, NULL, NULL, 0, NULL, 0, 0, QMP_SUCCESS}
+      NULL, NULL, NULL, 0, NULL, 1, 0, 0, NULL, 0, 0, QMP_SUCCESS}
 
 extern QMP_machine_t QMP_global_m;
 

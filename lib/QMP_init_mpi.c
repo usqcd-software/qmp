@@ -268,25 +268,133 @@ permute(int *a, int *p, int n)
   for(i=0; i<n; i++) a[i] = t[p[i]];
 }
 
-/**
- * Populate this machine information.
- */
-static void
-QMP_init_machine_i(int* argc, char*** argv)
+static int 
+lex_rank(const int coords[], int dim, int size[])
 {
-  ENTER_INIT;
+  int d;
+  int rank = coords[dim-1];
 
-  /* get host name of this machine */
-  /*gethostname (QMP_global_m->host, sizeof (QMP_global_m->host));*/
-  QMP_global_m->host = (char *) malloc(MPI_MAX_PROCESSOR_NAME);
-  MPI_Get_processor_name(QMP_global_m->host, &QMP_global_m->hostlen);
+  for(d = dim-2; d >= 0; d--){
+    rank = rank * size[d] + coords[d];
+  }
+  return rank;
+}
 
-  /* find QMP command line arguments */
-  int nd, na, nl;
+/* Create partitions of equal size from the allocated machine, based
+   on num_jobs */
+static void
+repartition_switch_machine(void){
+  int jobid, localnodeid;
+  int num_jobs = QMP_global_m->num_jobs;
+  int num_nodes = QMP_global_m->num_nodes;
+  int nodeid = QMP_global_m->nodeid;
+  MPI_Comm jobcomm;
+  int localgeom;
+
+  /* localgeom gives the number of nodes in the job partition */
+  if(num_nodes % num_jobs != 0){
+    fprintf(stderr, "num_jobs %i must divide number of nodes %i\n",
+	    num_jobs, num_nodes);
+    QMP_abort(-1);
+  }
+  localgeom = num_nodes/num_jobs;
+  jobid = nodeid/localgeom;
+
+  /* Split the communicator */
+
+  if( MPI_Comm_split(QMP_COMM_WORLD, jobid, 0, &jobcomm) != MPI_SUCCESS){
+    QMP_abort_string (-1, "MPI_Comm_split failed");
+  }
+
+  if (MPI_Comm_rank(jobcomm, &localnodeid) != MPI_SUCCESS)
+    QMP_abort_string (-1, "MPI_Comm_rank failed");
+
+  /* Make QMP on this node think I live in just this one job partition */
+
+  if( MPI_Comm_free(&QMP_COMM_WORLD) != MPI_SUCCESS){
+    QMP_abort_string (-1, "MPI_Comm_free failed");
+  }
+  QMP_COMM_WORLD = jobcomm;
+  QMP_global_m->num_nodes = localgeom;
+  QMP_global_m->nodeid = localnodeid;
+  QMP_global_m->jobid = jobid;
+}
+
+/* Create partitions of equal size from the allocated machine, based
+   on jobgeom */
+static void
+repartition_mesh_machine(void){
+  int i;
+  int jobid, localnodeid;
+  int nd = QMP_global_m->ndim;
+  int num_jobs = QMP_global_m->num_jobs;
+  int *jobgeom = QMP_global_m->jobgeom;
+  int *geom = QMP_global_m->geom;
+  MPI_Comm jobcomm;
+  int *jobcoord, *localgeom, *localcoord;
+  int *worldcoord = QMP_global_m->coord;
+
+  if(jobgeom == NULL)return;
+
+  /* localgeom gives the node dimensions of the job partition */
+  localgeom = (int *)malloc(sizeof(int)*nd);
+  for(i=0; i<nd; i++){
+    if(geom[i] % jobgeom[i] != 0){
+      fprintf(stderr, "job partition[%i] = %i must divide machine geometry %i\n",
+	      i, jobgeom[i], geom[i]);
+      QMP_abort(-1);
+    }
+    localgeom[i] = geom[i]/jobgeom[i];
+  }
+
+  /* jobcoord locates my job partition in the world of job partitions */
+  /* localcoord locates my node within the job partition */
+  jobcoord = (int *)malloc(sizeof(int)*nd);
+  localcoord = (int *)malloc(sizeof(int)*nd);
+
+  for(i=0; i<nd; i++){
+    localcoord[i] = worldcoord[i]%localgeom[i];
+    jobcoord[i]   = worldcoord[i]/localgeom[i];
+  }
+
+  jobid = lex_rank(jobcoord, nd, jobgeom);
+
+  /* Split the communicator */
+
+  if( MPI_Comm_split(QMP_COMM_WORLD, jobid, 0, &jobcomm) != MPI_SUCCESS){
+    QMP_abort_string (-1, "MPI_Comm_split failed");
+  }
+
+  if (MPI_Comm_rank(jobcomm, &localnodeid) != MPI_SUCCESS)
+    QMP_abort_string (-1, "MPI_Comm_rank failed");
+
+  /* Make QMP on this node think I live in just this one job partition */
+
+  if( MPI_Comm_free(&QMP_COMM_WORLD) != MPI_SUCCESS){
+    QMP_abort_string (-1, "MPI_Comm_free failed");
+  }
+  QMP_COMM_WORLD = jobcomm;
+  QMP_global_m->num_nodes = QMP_global_m->num_nodes/num_jobs;
+  QMP_global_m->nodeid = localnodeid;
+  QMP_global_m->jobid = jobid;
+  for(i=0; i<nd; i++){
+    QMP_global_m->coord[i] = localcoord[i];
+    QMP_global_m->geom[i]  = localgeom[i];
+  }
+
+  free(localcoord);
+  free(jobcoord);
+  free(localgeom);
+}
+
+static int 
+process_qmp_alloc_map(int* argc, char*** argv){
+  int na;
   int first, last, *a=NULL;
   char *c=NULL;
 
-  /* process -qmp-alloc-map */
+  /* Specifies a permutation of the machine axes */
+  /* Syntax -qmp-alloc-map a[0] a[1] ... */
   get_arg(*argc, *argv, "-qmp-alloc-map", &first, &last, &c, &a);
   //printf("%i %i %p %p\n", first, last, c, a);
   if( c ) {
@@ -301,8 +409,18 @@ QMP_init_machine_i(int* argc, char*** argv)
   }
   remove_from_args(argc, argv, first, last);
 
-  /* process -qmp-logic-map */
-  get_arg(*argc, *argv, "-qmp-logic-map", &first, &last, &c, &a);
+  return na;
+}
+
+static void
+process_qmp_logic_map(int *argc, char ***argv){
+  int nl;
+  int first, last, *a=NULL;
+  char *c=NULL;
+
+  /* Specifies logical machine dimensions */
+  /* Syntax -qmp-logic-map a[0] a[1] ... */
+   get_arg(*argc, *argv, "-qmp-logic-map", &first, &last, &c, &a);
   //printf("%i %i %p %p\n", first, last, c, a);
   if( c ) {
     fprintf(stderr, "unknown argument to -qmp-logic-map: %s\n", c);
@@ -317,8 +435,16 @@ QMP_init_machine_i(int* argc, char*** argv)
     QMP_global_m->lmap = a;
   }
   remove_from_args(argc, argv, first, last);
+}
 
-  /* process -qmp-geom */
+static void 
+process_qmp_geom(int* argc, char*** argv, int na){
+  int nd;
+  int first, last, *a=NULL;
+  char *c=NULL;
+
+  /* Specifies physical machine dimensions */
+  /* Syntax -qmp-geom a[0] a[1] ... */
   get_arg(*argc, *argv, "-qmp-geom", &first, &last, &c, &a);
   //printf("%i %i %p %p\n", first, last, c, a);
   if( c && strcmp(c, "native")!=0 ) {
@@ -370,8 +496,101 @@ QMP_init_machine_i(int* argc, char*** argv)
     }
   }
   remove_from_args(argc, argv, first, last);
+}
 
-  /* QMP_printf("allocated dimensions = %i\n", QMP_global_m->ndim); */
+static void 
+process_qmp_jobs(int *argc, char ***argv){
+  int nj;
+  int nd = QMP_global_m->ndim;
+  int first, last, *a=NULL;
+  char *c=NULL;
+
+  /* Specifies job partitions */
+  /* Syntax mesh view: -qmp-jobs a[0] a[1] ... 
+     (Mesh view requires -qmp-geom.) */
+  /* OR switch view:   -qmp-jobs a[0] */
+
+  /* This option causes the allocated machine to be subdivided into independent
+     partitions in which separate jobs run with the same executable. */
+
+  /* The integer a[i] specifies the number of divisions of the ith geom dimension */
+  /* The default a[i] = 1 for all i implies no subdivision */
+
+  /* default settings */
+  QMP_global_m->jobid = 0;
+  QMP_global_m->num_jobs = 1;
+  QMP_global_m->jobgeom = NULL;
+  QMP_global_m->njobdim = 0;
+
+  get_arg(*argc, *argv, "-qmp-jobs", &first, &last, &c, &a);
+  // printf("%i %i %p %p\n", first, last, c, a);
+  if( c ) {
+    fprintf(stderr, "unknown argument to -qmp-jobs: %s\n", c);
+    QMP_abort(-1);
+  }
+  nj = last - first;
+  if(nj) {
+    int i;
+    QMP_global_m->jobgeom = a;
+    QMP_global_m->njobdim = nj;
+    /* Check sanity of job partition divisions */
+    /* For a swich-based machine we allow only nj = 1 */
+    if(nj != 1 && !QMP_global_m->geom){
+      fprintf(stderr, "-qmp-jobs requires -qmp-geom\n");
+      QMP_abort(-1);
+    }
+    if(QMP_global_m->geom && nj!=nd) {
+      fprintf(stderr, "allocated number dimensions %i != job partition dimensions %i\n", nd, nj);
+      QMP_abort(-1);
+    }
+    for(i=0; i<nj; i++){
+      if(QMP_global_m->jobgeom[i]<=0){
+	fprintf(stderr, "job partition division[%i] = %i <= 0\n",
+		i, QMP_global_m->jobgeom[i]);
+	QMP_abort(-1);
+      }
+      QMP_global_m->num_jobs *= QMP_global_m->jobgeom[i];
+    }
+  }
+  remove_from_args(argc, argv, first, last);
+}
+
+/**
+ * Populate this machine information.
+ */
+static void
+QMP_init_machine_i(int* argc, char*** argv)
+{
+  ENTER_INIT;
+
+  /* get host name of this machine */
+  /*gethostname (QMP_global_m->host, sizeof (QMP_global_m->host));*/
+  QMP_global_m->host = (char *) malloc(MPI_MAX_PROCESSOR_NAME);
+  MPI_Get_processor_name(QMP_global_m->host, &QMP_global_m->hostlen);
+
+  /* Process QMP command line arguments */
+
+  /* -qmp-alloc-map */
+  int na = process_qmp_alloc_map(argc, argv);
+
+  /* -qmp-logic-map */
+  process_qmp_logic_map(argc, argv);
+
+  /* -qmp-geom */
+  process_qmp_geom(argc, argv, na);
+
+  /* -qmp-jobs */
+  process_qmp_jobs(argc, argv);
+
+  /* Repartition the machine if requested */
+
+  if(QMP_global_m->jobgeom){
+    if(QMP_global_m->njobdim==1)
+      repartition_switch_machine();
+    else
+      repartition_mesh_machine();
+  }
+
   LEAVE_INIT;
 }
 

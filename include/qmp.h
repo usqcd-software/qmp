@@ -268,6 +268,34 @@ extern int                QMP_get_number_of_nodes (void);
 extern int                QMP_get_node_number (void);
 
 /**
+ * Get number of jobs
+ *
+ * @return number of job partitions.
+ */
+extern int                QMP_get_number_of_jobs (void);
+
+/**
+ * Get the job number of this partition
+ *
+ * @return the unique jobid for this partition.
+ */
+extern int                QMP_get_job_number (void);
+
+/**
+ * Get number of job geometry dimensions
+ *
+ * @return job geometry dimensions.
+ */
+extern int                QMP_get_number_of_job_geometry_dimensions(void);
+
+/**
+ * Get job geometry
+ *
+ * @return job geometry array.
+ */
+extern int *              QMP_get_job_geometry(void);
+
+/**
  * Check whether a node is the physical root node or not.
  */
 extern QMP_bool_t         QMP_is_primary_node (void);
