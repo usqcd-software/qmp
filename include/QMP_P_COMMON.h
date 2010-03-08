@@ -9,11 +9,12 @@
 #include "QMP_profiling.h"
 #include "qmp.h"
 
-#ifdef HAVE_BGL
-#include "QMP_P_BGL.h"
-#elif defined(HAVE_BGP)
-#include "QMP_P_BGP.h"
-#elif defined(HAVE_MPI)
+//#ifdef HAVE_BGL
+//#include "QMP_P_BGL.h"
+//#elif defined(HAVE_BGP)
+//#include "QMP_P_BGP.h"
+//#elif defined(HAVE_MPI)
+#if defined(HAVE_MPI)
 #include "QMP_P_MPI.h"
 #endif
 
@@ -109,8 +110,13 @@ struct QMP_comm_struct {
 
   QMP_logical_topology_t *topo;
 
+#ifdef COMM_TYPES
   COMM_TYPES
+#endif
 };
+#ifndef COMM_TYPES_INIT
+#define COMM_TYPES_INIT
+#endif
 #define QMP_COMM_INIT 0,0,0,0,0,NULL COMM_TYPES_INIT
 #define QMP_topo_declared(comm) ((comm)->topo==NULL?QMP_FALSE:QMP_TRUE)
 
@@ -175,7 +181,9 @@ struct QMP_msgmem_struct
     struct mm_sa sa;
     struct mm_in in;
   };
+#ifdef MM_TYPES
   MM_TYPES
+#endif
 };
 
 struct QMP_msghandle_struct {
@@ -194,7 +202,9 @@ struct QMP_msghandle_struct {
   QMP_communicator_t comm;
   QMP_status_t err_code;
   QMP_msghandle_t next;
+#ifdef MH_TYPES
   MH_TYPES
+#endif
 };
 
 #define QMP_assert(x) if(!(x)) QMP_FATAL("assert failed "#x)
