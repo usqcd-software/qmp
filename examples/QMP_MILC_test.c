@@ -192,8 +192,8 @@ main (int argc, char** argv)
 		 pargv.size, bw);
   }
   
+  QMP_free_memory (mem);
   QMP_finalize_msg_passing ();
 
-  QMP_free_memory (mem);
   return 0;
 }

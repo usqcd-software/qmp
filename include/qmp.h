@@ -169,17 +169,22 @@ typedef enum QMP_thread_level
 /**
  * Memory type 
  */
-typedef struct QMP_mem_struct_t QMP_mem_t;
+typedef struct QMP_mem_struct QMP_mem_t;
 
 /**
  * Message Memory type 
  */
-typedef void* QMP_msgmem_t;
+typedef struct QMP_msgmem_struct * QMP_msgmem_t;
+
+/**
+ * Communicator
+ */
+typedef struct QMP_comm_struct * QMP_communicator_t;
 
 /**
  * Message handle
  */
-typedef void* QMP_msghandle_t;
+typedef struct QMP_msghandle_struct * QMP_msghandle_t;
 
 /**
  * binary reduction function.
@@ -243,6 +248,67 @@ extern void               QMP_abort (int error_code);
 extern void               QMP_abort_string (int error_code, char *message);
 
 
+/***************************
+ *  Communicator routines  *
+ ***************************/
+
+/**
+ * Get the allocated communicator.
+ */
+extern QMP_communicator_t QMP_comm_get_allocated(void);
+
+/**
+ * Set the allocated communicator.
+ */
+extern QMP_status_t QMP_comm_set_allocated(QMP_communicator_t comm);
+
+/**
+ * Get the job communicator.
+ */
+extern QMP_communicator_t QMP_comm_get_job(void);
+
+/**
+ * Set the job communicator.
+ */
+extern QMP_status_t QMP_comm_set_job(QMP_communicator_t comm);
+
+/**
+ * Get the default communicator.
+ */
+extern QMP_communicator_t QMP_comm_get_default(void);
+
+/**
+ * Set the default communicator.
+ */
+extern QMP_status_t QMP_comm_set_default(QMP_communicator_t comm);
+
+/**
+ * Split a communicator into one or more disjoint communicators.
+ */
+extern QMP_status_t QMP_comm_split(QMP_communicator_t comm, int color, int key,
+				   QMP_communicator_t *newcomm);
+
+/**
+ * Free a communicator.
+ */
+extern QMP_status_t QMP_comm_free(QMP_communicator_t comm);
+
+/**
+ * Get the number of distinct colors used to create communicator
+ */
+extern int QMP_comm_get_number_of_colors (QMP_communicator_t comm);
+
+/**
+ * Get the color used to create communicator
+ */
+extern int QMP_comm_get_color (QMP_communicator_t comm);
+
+/**
+ * Get the key used to create communicator
+ */
+extern int QMP_comm_get_key (QMP_communicator_t comm);
+
+
 /********************************
  *  Allocated machine routines  *
  ********************************/
@@ -256,16 +322,30 @@ extern QMP_ictype_t       QMP_get_msg_passing_type (void);
 /**
  * Get number of physical nodes available
  *
- * @return number of allocated nodes for this job.
+ * @return number of nodes in default communicator.
  */
 extern int                QMP_get_number_of_nodes (void);
 
 /**
- * Get node number of this machine
+ * Get number of physical nodes available
  *
- * @return node number of this machine
+ * @return number of nodes in specified communicator.
+ */
+extern int                QMP_comm_get_number_of_nodes (QMP_communicator_t comm);
+
+/**
+ * Get node number of this process
+ *
+ * @return node number of this process in default communicator
  */
 extern int                QMP_get_node_number (void);
+
+/**
+ * Get node number of this process
+ *
+ * @return node number of this process in specified communicator
+ */
+extern int                QMP_comm_get_node_number (QMP_communicator_t comm);
 
 /**
  * Get number of jobs
@@ -293,12 +373,17 @@ extern int                QMP_get_number_of_job_geometry_dimensions(void);
  *
  * @return job geometry array.
  */
-extern int *              QMP_get_job_geometry(void);
+extern const int *        QMP_get_job_geometry(void);
 
 /**
- * Check whether a node is the physical root node or not.
+ * Check whether a node is the physical root node or not in default communictor
  */
 extern QMP_bool_t         QMP_is_primary_node (void);
+
+/**
+ * Check whether a node is the physical root node or not in specified communicator
+ */
+extern QMP_bool_t         QMP_comm_is_primary_node (QMP_communicator_t comm);
 
 /**
  * Get number of allocated dimensions.
@@ -359,8 +444,42 @@ extern int                QMP_master_io_node(void);
  * @param ndim number of logical dimensions.
  * @return QMP_TRUE: if success, otherwise return QMP_FALSE
  */
-extern QMP_status_t       QMP_declare_logical_topology (const int dims[],
-							int ndim);
+extern QMP_status_t       QMP_declare_logical_topology (const int dims[], int ndim);
+
+/**
+ * Forces the logical topology to be a simple grid of given dimensions.
+ *
+ * @param communicator
+ * @param dims size of each dimension.
+ * @param ndim number of logical dimensions.
+ * @return QMP_TRUE: if success, otherwise return QMP_FALSE
+ */
+extern QMP_status_t       QMP_comm_declare_logical_topology (QMP_communicator_t comm,
+							     const int dims[], int ndim);
+
+/**
+ * Forces the logical topology to be a simple grid of given dimensions
+ *  with a given permutation map of the axes.
+ *
+ * @param dims size of each dimension.
+ * @param ndim number of logical dimensions.
+ * @return QMP_TRUE: if success, otherwise return QMP_FALSE
+ */
+extern QMP_status_t       QMP_declare_logical_topology_map (const int dims[], int ndim,
+							    const int map[], int mapdim);
+
+/**
+ * Forces the logical topology to be a simple grid of given dimensions
+ *  with a given permutation map of the axes.
+ *
+ * @param communicator
+ * @param dims size of each dimension.
+ * @param ndim number of logical dimensions.
+ * @return QMP_TRUE: if success, otherwise return QMP_FALSE
+ */
+extern QMP_status_t       QMP_comm_declare_logical_topology_map (QMP_communicator_t comm,
+								 const int dims[], int ndim,
+								 const int map[], int mapdim);
 
 /**
  * Check whether a logical topology is declared or not.
@@ -371,11 +490,30 @@ extern QMP_status_t       QMP_declare_logical_topology (const int dims[],
 extern QMP_bool_t         QMP_logical_topology_is_declared (void);
 
 /**
+ * Check whether a logical topology is declared or not.
+ *
+ * @param communicator
+ * @return QMP_TRUE if a logical topology is declared, 
+ * otherwise return QMP_FALSE
+ */
+extern QMP_bool_t         QMP_comm_logical_topology_is_declared (QMP_communicator_t comm);
+
+/**
  * Get number of dimensions of logical topology.
+ *
  * @return dimensionality of the logical topology. If there is no
  * logical topology, return physical topology information.
  */
 extern int                QMP_get_logical_number_of_dimensions (void);
+
+/**
+ * Get number of dimensions of logical topology.
+ *
+ * @param communicator
+ * @return dimensionality of the logical topology. If there is no
+ * logical topology, return physical topology information.
+ */
+extern int                QMP_comm_get_logical_number_of_dimensions (QMP_communicator_t comm);
 
 /**
  * Get dimension size information for a logical topology.
@@ -386,8 +524,16 @@ extern int                QMP_get_logical_number_of_dimensions (void);
 extern const int*         QMP_get_logical_dimensions (void);
 
 /**
- * Get coordinate of this node within the logical topology.
+ * Get dimension size information for a logical topology.
  *
+ * @param communicator
+ * @return dimension size of the logical topology. If there is no logical 
+ * topology, return information from physical geometry.
+ */
+extern const int*         QMP_comm_get_logical_dimensions (QMP_communicator_t comm);
+
+/**
+ * Get coordinate of this node within the logical topology.
  *
  * @return coordinate of this node. If no logical topology declared, 
  * return information from physical geometry.
@@ -395,8 +541,16 @@ extern const int*         QMP_get_logical_dimensions (void);
 extern const int*         QMP_get_logical_coordinates (void);
 
 /**
- * Get a logical coordinate from a node number.
+ * Get coordinate of this node within the logical topology.
  *
+ * @param communicator
+ * @return coordinate of this node. If no logical topology declared, 
+ * return information from physical geometry.
+ */
+extern const int*         QMP_comm_get_logical_coordinates (QMP_communicator_t comm);
+
+/**
+ * Get a logical coordinate from a node number.
  *
  * @return a coordinate. If no logical topology declared, 
  * return information from physical geometry. Callers should free
@@ -405,10 +559,31 @@ extern const int*         QMP_get_logical_coordinates (void);
 extern int*               QMP_get_logical_coordinates_from (int node);
 
 /**
+ * Get a logical coordinate from a node number.
+ *
+ * @param communicator
+ * @return a coordinate. If no logical topology declared, 
+ * return information from physical geometry. Callers should free
+ * memory of the returned pointer.
+ */
+extern int*               QMP_comm_get_logical_coordinates_from (QMP_communicator_t comm,
+								 int node);
+
+/**
  * Get the node number from its logical coordinates.
+ *
  * @return node number.
  */
 extern int                QMP_get_node_number_from (const int coordinates[]);
+
+/**
+ * Get the node number from its logical coordinates.
+ *
+ * @param communicator
+ * @return node number.
+ */
+extern int                QMP_comm_get_node_number_from (QMP_communicator_t comm,
+							 const int coordinates[]);
 
 
 /**********************************************
@@ -500,6 +675,15 @@ extern QMP_msgmem_t   QMP_declare_strided_array_msgmem (void* base[],
 							int num);
 
 /**
+ * Declare a indexed memory.
+ */
+extern QMP_msgmem_t QMP_declare_indexed_msgmem (void* base, 
+						int blocklen[],
+						int index[],
+						int elemsize,
+						int count);
+
+/**
  * Free memory pointed by QMP_msgmem_t pointer
  * Any call using a QMP_msgmem_t after it has been freed will
  * produce unpredictable results.
@@ -532,6 +716,12 @@ extern QMP_msghandle_t    QMP_declare_receive_relative (QMP_msgmem_t m,
 							int dir,
 							int priority);
 
+extern QMP_msghandle_t    QMP_comm_declare_receive_relative (QMP_communicator_t comm,
+							     QMP_msgmem_t m, 
+							     int axis,
+							     int dir,
+							     int priority);
+
 /**
  * Declares an endpoint for a message channel of sending operations
  * between this node and it's neighbor
@@ -551,6 +741,12 @@ extern QMP_msghandle_t    QMP_declare_send_relative    (QMP_msgmem_t m,
 							int dir,
 							int priority);
 
+extern QMP_msghandle_t    QMP_comm_declare_send_relative (QMP_communicator_t comm,
+							  QMP_msgmem_t m,
+							  int axis,
+							  int dir,
+							  int priority);
+
 /**
  * Declare an endpoint for message send channel operation using remote
  * node's number.
@@ -564,6 +760,11 @@ extern QMP_msghandle_t    QMP_declare_send_relative    (QMP_msgmem_t m,
 extern QMP_msghandle_t    QMP_declare_send_to     (QMP_msgmem_t m, 
 						   int rem_node_rank,
 						   int priority);
+
+extern QMP_msghandle_t    QMP_comm_declare_send_to (QMP_communicator_t comm,
+						    QMP_msgmem_t m, 
+						    int rem_node_rank,
+						    int priority);
 
 /**
  * Declare an endpoint for message channel receiving operation using remote
@@ -579,7 +780,13 @@ extern QMP_msghandle_t    QMP_declare_receive_from(QMP_msgmem_t m,
 						   int rem_node_rank,
 						   int priority);
 
-QMP_status_t QMP_change_address(QMP_msghandle_t msg, void *addr);
+extern QMP_msghandle_t    QMP_comm_declare_receive_from(QMP_communicator_t comm,
+							QMP_msgmem_t m, 
+							int rem_node_rank,
+							int priority);
+
+extern QMP_status_t QMP_change_address(QMP_msghandle_t msg, void *addr);
+extern QMP_status_t QMP_change_address_multiple(QMP_msghandle_t msg, void *addr[], int naddr);
 
 /**
  * Free a message handle.
@@ -600,6 +807,9 @@ extern void               QMP_free_msghandle (QMP_msghandle_t h);
  */
 extern QMP_msghandle_t    QMP_declare_multiple (QMP_msghandle_t msgh[], 
 						int num);
+
+extern QMP_msghandle_t QMP_declare_send_recv_pairs(QMP_msghandle_t msgh[], 
+						   int num);
 
 /**
  * Start a communication for a message handle.
@@ -654,6 +864,8 @@ extern QMP_bool_t         QMP_is_complete (QMP_msghandle_t h);
  */
 extern QMP_status_t       QMP_barrier (void);
 
+extern QMP_status_t       QMP_comm_barrier (QMP_communicator_t comm);
+
 /**
  * Broadcast bytes from a node. This routine is a blocking routine.
  *
@@ -664,6 +876,9 @@ extern QMP_status_t       QMP_barrier (void);
  */
 extern QMP_status_t       QMP_broadcast (void* buffer, size_t nbytes);
 
+extern QMP_status_t       QMP_comm_broadcast (QMP_communicator_t comm,
+					      void* buffer, size_t nbytes);
+
 /**
  * Global in place sum of an integer 
  * @param value a pointer to a integer.
@@ -671,6 +886,8 @@ extern QMP_status_t       QMP_broadcast (void* buffer, size_t nbytes);
  * @return QMP_SUCCESS when a global sum is success. 
  */
 extern QMP_status_t       QMP_sum_int (int *value);
+
+extern QMP_status_t       QMP_comm_sum_int (QMP_communicator_t comm, int *value);
 
 /**
  * Global in place sum of a float.
@@ -680,6 +897,8 @@ extern QMP_status_t       QMP_sum_int (int *value);
  */
 extern QMP_status_t       QMP_sum_float (float *value);
 
+extern QMP_status_t       QMP_comm_sum_float (QMP_communicator_t comm, float *value);
+
 /**
  * Global in place sum of a double.
  * @param value a pointer to a double.
@@ -687,6 +906,8 @@ extern QMP_status_t       QMP_sum_float (float *value);
  * @return QMP_SUCCESS when a global sum is success. 
  */
 extern QMP_status_t       QMP_sum_double (double *value);
+
+extern QMP_status_t       QMP_comm_sum_double (QMP_communicator_t comm, double *value);
 
 /**
  * Global in place sum of a double. Intermediate values kept in extended
@@ -697,6 +918,9 @@ extern QMP_status_t       QMP_sum_double (double *value);
  */
 extern QMP_status_t       QMP_sum_double_extended (double *value);
 
+extern QMP_status_t       QMP_comm_sum_double_extended (QMP_communicator_t comm,
+							double *value);
+
 /**
  * Global in place sum of a float array.
  * @param value a pointer to a float array.
@@ -705,6 +929,9 @@ extern QMP_status_t       QMP_sum_double_extended (double *value);
  * @return QMP_SUCCESS when the global sum is a success.
  */
 extern QMP_status_t       QMP_sum_float_array (float value[], int length);
+
+extern QMP_status_t       QMP_comm_sum_float_array (QMP_communicator_t comm,
+						    float value[], int length);
 
 /**
  * Global in place sum of a double array.
@@ -715,30 +942,43 @@ extern QMP_status_t       QMP_sum_float_array (float value[], int length);
  */
 extern QMP_status_t       QMP_sum_double_array (double value[], int length);
 
+extern QMP_status_t       QMP_comm_sum_double_array (QMP_communicator_t comm,
+						     double value[], int length);
+
 /**
  * Get maximum value of all floats.
  */
 extern QMP_status_t       QMP_max_float (float* value);
+
+extern QMP_status_t       QMP_comm_max_float (QMP_communicator_t comm, float* value);
 
 /**
  * Get maximum value of all doubles.
  */
 extern QMP_status_t       QMP_max_double (double* value);
 
+extern QMP_status_t       QMP_comm_max_double (QMP_communicator_t comm, double* value);
+
 /**
  * Get maximum value of all floats.
  */
 extern QMP_status_t       QMP_min_float (float* value);
+
+extern QMP_status_t       QMP_comm_min_float (QMP_communicator_t comm, float* value);
 
 /**
  * Get maximum value of all doubles.
  */
 extern QMP_status_t       QMP_min_double (double* value);
 
+extern QMP_status_t       QMP_comm_min_double (QMP_communicator_t comm, double* value);
+
 /**
  * Get the exclusive ored value of an unsigned long integer
  */
 extern QMP_status_t       QMP_xor_ulong (unsigned long* value);
+
+extern QMP_status_t       QMP_comm_xor_ulong (QMP_communicator_t comm, unsigned long* value);
 
 /**
  * Global binary reduction using a user provided function.
@@ -751,6 +991,10 @@ extern QMP_status_t       QMP_xor_ulong (unsigned long* value);
  */
 extern QMP_status_t       QMP_binary_reduction (void* lbuffer, size_t buflen,
 						QMP_binary_func bfunc);
+
+extern QMP_status_t       QMP_comm_binary_reduction (QMP_communicator_t comm,
+						     void* lbuffer, size_t buflen,
+						     QMP_binary_func bfunc);
 
 
 /*******************************
@@ -827,6 +1071,13 @@ extern int   QMP_error              (const char *format, ...);
 extern double QMP_time(void);
 extern void   QMP_reset_total_qmp_time(void);
 extern double QMP_get_total_qmp_time(void);
+
+/**
+ *  Version information
+ */
+
+extern const char * QMP_version_str(void);
+extern int QMP_version_int(void);
 
 #ifdef __cplusplus
 }

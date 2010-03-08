@@ -1,7 +1,7 @@
 QMP Authors
 ===========
 
-Main developers are Jie Chen <chen@jlab.org>, Robert Edwards <edwards@jlab.org>
+Original developers are Jie Chen <chen@jlab.org>, Robert Edwards <edwards@jlab.org>
 and Chip Watson <watson@jlab.org>, all at Jefferson Lab.  This software
 is part of the National Computational Infrastructure for Lattice Gauge Theory
 (http://www.lqcd.org/) so other members of the Software Committee
@@ -10,5 +10,5 @@ made significant contributions to the QMP API design.
 Incorporation of autoconf and automake into the build system was done
 by Balint Joo <bj@ph.ed.ac.uk> and George Fleming <flemingg@jlab.org>.
 
-Update to API version 2 and addition of single node target was done by
-James Osborn (josborn at physics.bu.edu).
+Update to API version 2 and addition of single node target, and many
+further improvements done by James Osborn (josborn at physics.bu.edu).

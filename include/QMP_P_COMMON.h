@@ -1,80 +1,3 @@
-/*----------------------------------------------------------------------------
- * Copyright (c) 2001      Southeastern Universities Research Association,
- *                         Thomas Jefferson National Accelerator Facility
- *
- * This software was developed under a United States Government license
- * described in the NOTICE file included as part of this distribution.
- *
- * Jefferson Lab HPC Group, 12000 Jefferson Ave., Newport News, VA 23606
- *----------------------------------------------------------------------------
- *
- * Description:
- *      Private header file for QMP over MPI implementation
- *
- * Author:  
- *      Robert Edwards, Jie Chen and Chip Watson
- *      Jefferson Lab HPC Group
- *
- * Revision History:
- *   $Log: QMP_P_COMMON.h,v $
- *   Revision 1.10  2008/03/06 17:28:42  osborn
- *   fixes to mapping options
- *
- *   Revision 1.9  2008/03/06 07:54:10  osborn
- *   added -qmp-alloc-map command line argument
- *
- *   Revision 1.8  2008/03/05 17:49:29  osborn
- *   added QMP_show_geom example and prepare for adding new command line options
- *
- *   Revision 1.7  2006/03/10 08:38:07  osborn
- *   Added timing routines.
- *
- *   Revision 1.6  2006/01/04 20:27:01  osborn
- *   Removed C99 named initializer.
- *
- *   Revision 1.5  2005/06/21 20:18:39  osborn
- *   Added -qmp-geom command line argument to force grid-like behavior.
- *
- *   Revision 1.4  2005/06/20 22:20:59  osborn
- *   Fixed inclusion of profiling header.
- *
- *   Revision 1.3  2005/06/20 21:14:53  osborn
- *   Moved autoconf defines into qmp_config.h to make XLC happy.
- *
- *   Revision 1.2  2004/12/19 07:28:54  morten
- *   Added the include statement for QMP_profiling.h
- *
- *   Revision 1.1  2004/10/08 04:49:34  osborn
- *   Split src directory into include and lib.
- *
- *   Revision 1.1  2004/06/14 20:36:30  osborn
- *   Updated to API version 2 and added single node target
- *
- *   Revision 1.4  2004/04/08 09:00:20  bjoo
- *   Added experimental support for strided msgmem
- *
- *   Revision 1.3  2003/02/19 20:37:44  chen
- *   Make QMP_is_complete a polling function
- *
- *   Revision 1.2  2003/02/11 03:39:24  flemingg
- *   GTF: Update of automake and autoconf files to use qmp-config in lieu
- *        of qmp_build_env.sh
- *
- *   Revision 1.1.1.1  2003/01/27 19:31:36  chen
- *   check into lattice group
- *
- *   Revision 1.3  2002/07/18 18:10:24  chen
- *   Fix broadcasting bug and add several public functions
- *
- *   Revision 1.2  2002/04/26 18:35:44  chen
- *   Release 1.0.0
- *
- *   Revision 1.1  2002/04/22 20:28:40  chen
- *   Version 0.95 Release
- *
- *
- *
- */
 #ifndef _QMP_P_COMMON_H
 #define _QMP_P_COMMON_H
 
@@ -85,11 +8,34 @@
 #include "qmp_config.h"
 #include "QMP_profiling.h"
 #include "qmp.h"
-#ifdef HAVE_MPI
+
+#ifdef HAVE_BGL
+#include "QMP_P_BGL.h"
+#elif defined(HAVE_BGP)
+#include "QMP_P_BGP.h"
+#elif defined(HAVE_MPI)
 #include "QMP_P_MPI.h"
-#else
-#include "QMP_P_SINGLE.h"
 #endif
+
+typedef struct {
+  /* allocated geometry */
+  int geomlen, *geom;
+
+  /* allocated geometry mapping */
+  int amaplen, *amap;
+
+  /* logical geometry mapping */
+  int lmaplen, *lmap;
+
+  /* job partition information */
+  int num_jobs;
+  int jobid;
+  int njobdim;
+  int *jobgeom;
+} QMP_args_t;
+#define QMP_ARGS_INIT 0,NULL,0,NULL,0,NULL,0,0,0,NULL
+extern QMP_args_t *QMP_args;
+
 /**
  * Simple information holder for this machine
  */
@@ -108,33 +54,8 @@ typedef struct QMP_machine
   /* whether this machine is initialized                     */
   QMP_bool_t inited;
 
-  /* Total number of nodes */
-  int num_nodes; 
-
-  /* My node id */
-  int nodeid;
-
-  /* number of dimensions if acting like mesh */
-  int ndim;
-
-  /* geometry if acting like mesh */
-  int *geom;
-
-  /* my coordinate if acting like mesh */
-  int *coord;
-
-  /* allocated geometry mapping */
-  int *amap;
-
-  /* logical geometry mapping */
-  int lmaplen;
-  int *lmap;
-
-  /* job partition information */
-  int num_jobs;
-  int jobid;
-  int njobdim;
-  int *jobgeom;
+  // machine nodeid and number of nodes
+  int mnodes, mnodeid;
 
   /* verbose level                                           */
   int verbose;
@@ -145,13 +66,10 @@ typedef struct QMP_machine
   /* last error code                                         */
   QMP_status_t err_code;
 
-} *QMP_machine_t;
-#define QMP_MACHINE_INIT {0.0, 0, QMP_SWITCH, NULL, 0, QMP_FALSE, 0, 0, 0,  \
-      NULL, NULL, NULL, 0, NULL, 1, 0, 0, NULL, 0, 0, QMP_SUCCESS}
-
-extern QMP_machine_t QMP_global_m;
-
-
+  QMP_thread_level_t thread_level;
+} QMP_machine_t;
+#define QMP_MACHINE_INIT 0.0, 0, QMP_SWITCH, NULL, 0, QMP_FALSE, 0, 0, QMP_SUCCESS, QMP_THREAD_SINGLE
+extern QMP_machine_t *QMP_machine;
 
 /*
  * Logical machine topology
@@ -167,26 +85,128 @@ typedef struct QMP_logical_topology
   /* My logical coordinates */
   int *logical_coord;
 
+  // permutation map of coordinate axes
+  int mapdim, *map;
+
   /* Neighboring nodes of the form */
   /* neigh(isign,direction)   */ 
   /*  where  isign    = +1 : plus direction */
   /*                  =  0 : negative direction */
   /*  where  dir      = 0 .. dimension-1 */
   int *neigh[2];
+} QMP_logical_topology_t;
 
-  /* keep track if logical topology is declared yet */
-  QMP_bool_t topology_declared;
+struct QMP_comm_struct {
+  /* Total number of nodes */
+  int num_nodes; 
 
-} *QMP_logical_topology_t;
+  /* My node id */
+  int nodeid;
 
-/* topology pointer */
-extern QMP_logical_topology_t QMP_topo;
+  int ncolors;
+  int color;
+  int key;
+
+  QMP_logical_topology_t *topo;
+
+  COMM_TYPES
+};
+#define QMP_COMM_INIT 0,0,0,0,0,NULL COMM_TYPES_INIT
+#define QMP_topo_declared(comm) ((comm)->topo==NULL?QMP_FALSE:QMP_TRUE)
+
+// predefined communicators
+extern QMP_communicator_t QMP_allocated_comm;
+extern QMP_communicator_t QMP_job_comm;
+extern QMP_communicator_t QMP_default_comm;
+
+/* Message Memory structure */
+struct QMP_mem_struct {
+  void *aligned_ptr;
+  void *allocated_ptr;
+};
+
+
+enum MM_type
+{
+  MM_user_buf,
+  MM_strided_buf,
+  MM_strided_array_buf,
+  MM_indexed_buf
+};
+
+enum MH_type
+{
+  MH_empty,
+  MH_freed,
+  MH_multiple,
+  MH_send,
+  MH_recv
+};
+
+struct mm_st {
+  size_t blksize;
+  int nblocks;
+  ptrdiff_t stride;
+};
+
+struct mm_sa {
+  ptrdiff_t *disp;
+  size_t *blksize;
+  int *nblocks;
+  ptrdiff_t *stride;
+  int narray;
+};
+
+struct mm_in {
+  int *blocklen;
+  int *index;
+  int elemsize;
+  int count;
+};
+
+/* Message Memory structure */
+struct QMP_msgmem_struct
+{
+  enum MM_type type;
+  void *mem;
+  int   nbytes;
+  union {
+    struct mm_st st;
+    struct mm_sa sa;
+    struct mm_in in;
+  };
+  MM_TYPES
+};
+
+struct QMP_msghandle_struct {
+  enum MH_type type;
+  int          activeP;     /* Indicate whether the message is active */
+  int          num;
+  QMP_msgmem_t mm;
+  int          dest_node;
+  int          srce_node;
+  int          uses;
+  int axis;
+  int dir;
+  int priority;
+  int paired;
+  char *base;
+  QMP_communicator_t comm;
+  QMP_status_t err_code;
+  QMP_msghandle_t next;
+  MH_TYPES
+};
+
+#define QMP_assert(x) if(!(x)) QMP_FATAL("assert failed "#x)
+#define QMP_alloc(v,t,n) v = (t *) malloc((n)*sizeof(t))
+#define QMP_free(x) free(x)
+
 
 
 /**
  * Get and set error code macros.
  */
-#define QMP_SET_STATUS_CODE(code) (QMP_global_m->err_code = code)
+#define QMP_SET_STATUS_CODE(code) (QMP_machine->err_code = code)
 
 /**
  * Trace macro
@@ -196,8 +216,9 @@ extern QMP_logical_topology_t QMP_topo;
 #else
 #define QMP_TRACE(x)
 #endif
- 
- 
+
+#define TRACE { printf("TRACE: file %s func %s line %i\n", __FILE__, __func__, __LINE__); fflush(stdout); QMP_barrier(); }
+
 /**
  * Fatal error macro
  */
@@ -212,21 +233,22 @@ extern QMP_logical_topology_t QMP_topo;
 /**
  *  entry and exit to init and final functions
  */
-#define ENTER_INIT START_DEBUG
-#define LEAVE_INIT END_DEBUG
+#define ENTER_INIT
+#define LEAVE_INIT
 
 /**
  *  entry and exit to all other functions
  */
-#define ENTER START_DEBUG START_TIMING
+#define ENTER START_DEBUG START_TIMING CHECKS
 #define LEAVE END_DEBUG   END_TIMING
 
 /**
  *  turn on function debugging
  */
 #ifdef _QMP_DEBUG
-#define START_DEBUG { QMP_info("Starting %s", __func__); }
-#define END_DEBUG   { QMP_info("Finished %s", __func__); }
+extern int QMP_stack_level;
+#define START_DEBUG { QMP_info("%*s-> %s", QMP_stack_level, "", __func__); QMP_stack_level+=2; }
+#define END_DEBUG   { QMP_stack_level-=2; QMP_info("%*s<- %s", QMP_stack_level, "", __func__); }
 #else
 #define START_DEBUG
 #define END_DEBUG
@@ -249,6 +271,14 @@ extern QMP_logical_topology_t QMP_topo;
 #else
 #define START_TIMING
 #define END_TIMING
+#endif
+
+#if 0
+#define CHECKS
+#else
+#define CHECKS { 				\
+    QMP_assert(QMP_machine->inited==QMP_TRUE)	\
+  }
 #endif
 
 #endif /* _QMP_P_COMMON_H */

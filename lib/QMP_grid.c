@@ -1,81 +1,3 @@
-/*----------------------------------------------------------------------------
- * Copyright (c) 2001      Southeastern Universities Research Association,
- *                         Thomas Jefferson National Accelerator Facility
- *
- * This software was developed under a United States Government license
- * described in the NOTICE file included as part of this distribution.
- *
- * Jefferson Lab HPC Group, 12000 Jefferson Ave., Newport News, VA 23606
- *----------------------------------------------------------------------------
- *
- * Description:
- *      MPMPI: Level 1 Message Passing API routines implemented over MPI
- *
- *      The basic structure is from highest to lowest 
- *           Virtual
- *           Logical
- *           Physical
- *
- * This file implements the Virtual level. 
- *
- * Author:  
- *      Robert Edwards
- *      Jefferson Lab
- *
- * Revision History:
- *   $Log: QMP_grid.c,v $
- *   Revision 1.6  2006/06/13 17:43:09  bjoo
- *   Removed some c99isms. Code  compiles on Cray at ORNL using pgcc
- *
- *   Revision 1.5  2006/03/10 08:38:07  osborn
- *   Added timing routines.
- *
- *   Revision 1.4  2005/06/21 20:18:39  osborn
- *   Added -qmp-geom command line argument to force grid-like behavior.
- *
- *   Revision 1.3  2005/06/20 22:20:59  osborn
- *   Fixed inclusion of profiling header.
- *
- *   Revision 1.2  2004/12/16 02:44:12  osborn
- *   Changed QMP_mem_t structure, fixed strided memory and added test.
- *
- *   Revision 1.1  2004/10/08 04:49:34  osborn
- *   Split src directory into include and lib.
- *
- *   Revision 1.7  2004/09/04 03:33:29  edwards
- *   Changed QMP_layout_grid to take a const qualifier on args.
- *
- *   Revision 1.6  2004/06/14 20:36:31  osborn
- *   Updated to API version 2 and added single node target
- *
- *   Revision 1.5  2004/02/05 02:28:08  edwards
- *   Blanked out debugging section.
- *
- *   Revision 1.4  2003/07/21 02:19:19  edwards
- *   Cleaned up some int* to unsigned int*.
- *
- *   Revision 1.3  2003/02/13 16:22:23  chen
- *   qmp version 1.2
- *
- *   Revision 1.2  2003/02/11 03:39:24  flemingg
- *   GTF: Update of automake and autoconf files to use qmp-config in lieu
- *        of qmp_build_env.sh
- *
- *   Revision 1.1.1.1  2003/01/27 19:31:36  chen
- *   check into lattice group
- *
- *   Revision 1.3  2002/07/18 18:10:24  chen
- *   Fix broadcasting bug and add several public functions
- *
- *   Revision 1.2  2002/04/26 18:35:44  chen
- *   Release 1.0.0
- *
- *   Revision 1.1  2002/04/22 20:28:41  chen
- *   Version 0.95 Release
- *
- *
- *
- */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -118,21 +40,20 @@ is_factor(unsigned a, unsigned b)
 QMP_status_t
 QMP_layout_grid (const int *dims, int ndim)
 {
-  /* int squaresize[ndim], nsquares[ndim]; */
-  int i;
   QMP_status_t status = QMP_SUCCESS;
+  ENTER;
+  int i;
   int *squaresize;
   int *nsquares;
-  ENTER;
 
-  squaresize=(int *)malloc(ndim * sizeof(int));
-  nsquares  =(int *)malloc(ndim * sizeof(int));
+  QMP_alloc(squaresize, int, ndim);
+  QMP_alloc(nsquares, int, ndim);
   if(nsquares == NULL || squaresize == NULL) {
      QMP_FATAL("Unable to malloc in QMP_layout_grid");
   }
 
-  if(QMP_global_m->ic_type!=QMP_SWITCH) {
-    QMP_declare_logical_topology(QMP_global_m->geom, QMP_global_m->ndim);
+  if(QMP_machine->ic_type!=QMP_SWITCH) {
+    QMP_declare_logical_topology(QMP_get_job_geometry(), QMP_get_number_of_job_geometry_dimensions());
   }
 
   /* If logical topology not set, this machine allows configuration of size */
@@ -145,7 +66,7 @@ QMP_layout_grid (const int *dims, int ndim)
       nsquares[i] = 1;
     }
 
-    n = QMP_global_m->num_nodes;
+    n = QMP_get_number_of_nodes();
     k = MAXPRIMES-1;
     while(n>1) {
       /* figure out which prime to divide by starting with largest */
@@ -189,15 +110,15 @@ QMP_layout_grid (const int *dims, int ndim)
 
   } else {  /* Logical topology is already declared */
 
-    if(ndim < QMP_topo->dimension) {
+    if(ndim < QMP_get_logical_number_of_dimensions()) {
       QMP_error("grid dimension is less than logical dimension\n");
       status = QMP_ERROR;
       goto leave;
     }
 
     /* copy logical size and pad with ones */
-    for(i=0; i<QMP_topo->dimension; i++) {
-      nsquares[i] = QMP_topo->logical_size[i];
+    for(i=0; i<QMP_get_logical_number_of_dimensions(); i++) {
+      nsquares[i] = QMP_get_logical_dimensions()[i];
     }
     for( ; i<ndim; i++) nsquares[i] = 1;
 
@@ -214,7 +135,7 @@ QMP_layout_grid (const int *dims, int ndim)
   }
 
   /* now we should have the layout done so we just set the results */
-  subgrid.length = (int *) malloc(ndim*sizeof(int));
+  QMP_alloc(subgrid.length, int, ndim);
 
   subgrid.vol = 1;
   for(i=0; i<ndim; i++) {
@@ -223,8 +144,8 @@ QMP_layout_grid (const int *dims, int ndim)
   }
 
  leave:
-  free(squaresize);
-  free(nsquares);
+  QMP_free(squaresize);
+  QMP_free(nsquares);
   LEAVE;
   return status;
 }

@@ -49,7 +49,7 @@ int main (int argc, char** argv)
   int i;
   int verbose;
   QMP_status_t status;
-  int  rank;
+  int  rank, rankto, rankfrom;
   QMP_status_t err;
   int dims[1];
   int ndims = 1;
@@ -63,11 +63,6 @@ int main (int argc, char** argv)
   QMP_msgmem_t sendmem;
   QMP_msghandle_t sendh;
 
-  verbose = 0;
-  if (argc > 1 && strcmp (argv[1], "-v") == 0)
-    verbose = 1;
-
-  QMP_verbose (verbose);
   req = QMP_THREAD_SINGLE;
   status = QMP_init_msg_passing (&argc, &argv, req, &prv);
 
@@ -75,6 +70,11 @@ int main (int argc, char** argv)
     QMP_printf("QMP_init failed\n");
     return -1;
   }
+
+  verbose = 0;
+  if (argc > 1 && strcmp (argv[1], "-v") == 0)
+    verbose = 1;
+  QMP_verbose (verbose);
 
   andims = QMP_get_allocated_number_of_dimensions();
   adims = QMP_get_allocated_dimensions();
@@ -96,6 +96,8 @@ int main (int argc, char** argv)
     QMP_printf ("Declare logical topology ok\n");
 
   rank = QMP_get_node_number ();
+  rankto = (rank+1)%QMP_get_number_of_nodes();
+  rankfrom = (rank-1+QMP_get_number_of_nodes())%QMP_get_number_of_nodes();
 
   /* allocate memory */
   rmem = QMP_allocate_memory (10234);
@@ -122,14 +124,14 @@ int main (int argc, char** argv)
     exit (1);
   }
 
-  recvh = QMP_declare_receive_from (recvmem, rank, 0);
+  recvh = QMP_declare_receive_from (recvmem, rankfrom, 0);
   if (!recvh) {
     QMP_printf ("Recv from Handle Error: %s\n", QMP_get_error_string(0));      
     exit (1);
   }
 
   /* create message handle */
-  sendh = QMP_declare_send_to (sendmem, rank, 0);
+  sendh = QMP_declare_send_to (sendmem, rankto, 0);
   if (!sendh) {
     QMP_printf ("Send to Handle Error: %s\n", QMP_get_error_string(0));
     exit (1);
@@ -175,6 +177,3 @@ int main (int argc, char** argv)
 
   return 0;
 }
-
-
-  

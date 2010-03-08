@@ -6,32 +6,32 @@ AM_CFLAGS=$(INCFLAGS) @QMP_COMMS_CFLAGS@
 
 lib_LIBRARIES = libqmp.a
 
-QMP_SINGLE_SRC = QMP_comm_single.c  \
-                 QMP_error_single.c \
-                 QMP_init_single.c  \
-                 QMP_mem_single.c   \
-                 $(INCDIR)/QMP_P_SINGLE.h
+QMP_SRC = QMP_comm.c  \
+          QMP_error.c \
+	  QMP_grid.c     \
+          QMP_init.c  \
+          QMP_machine.c  \
+          QMP_mem.c   \
+          QMP_split.c   \
+          QMP_topology.c \
+          QMP_util.c     \
+	  $(INCDIR)/QMP_P_COMMON.h \
+          $(INCDIR)/qmp.h
 
-QMP_MPI_SRC = QMP_comm_mpi.c  \
-              QMP_error_mpi.c \
-              QMP_init_mpi.c  \
-              QMP_mem_mpi.c   \
+QMP_MPI_SRC = mpi/QMP_comm_mpi.c  \
+              mpi/QMP_error_mpi.c \
+              mpi/QMP_init_mpi.c  \
+              mpi/QMP_mem_mpi.c   \
+              mpi/QMP_split_mpi.c   \
+	      mpi/QMP_topology_mpi.c \
               $(INCDIR)/QMP_P_MPI.h
 
-QMP_COMMON_SRC = QMP_grid.c     \
-                 QMP_machine.c  \
-                 QMP_topology.c \
-                 QMP_util.c     \
-	         $(INCDIR)/QMP_P_COMMON.h \
-                 $(INCDIR)/qmp.h
 
-if QMP_SINGLE
-  libqmp_a_SOURCES = $(QMP_SINGLE_SRC) $(QMP_COMMON_SRC)
-  EXTRA_libqmp_a_SOURCES = $(QMP_MPI_SRC)
-endif
+libqmp_a_SOURCES = $(QMP_SRC)
+EXTRA_libqmp_a_SOURCES =
 
 if QMP_MPI
-  libqmp_a_SOURCES = $(QMP_MPI_SRC) $(QMP_COMMON_SRC)
-  EXTRA_libqmp_a_SOURCES = $(QMP_SINGLE_SRC)
+  libqmp_a_SOURCES += $(QMP_MPI_SRC)
+else
+  EXTRA_libqmp_a_SOURCES += $(QMP_MPI_SRC)
 endif
-

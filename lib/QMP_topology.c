@@ -1,98 +1,3 @@
-/*----------------------------------------------------------------------------
- * Copyright (c) 2001      Southeastern Universities Research Association,
- *                         Thomas Jefferson National Accelerator Facility
- *
- * This software was developed under a United States Government license
- * described in the NOTICE file included as part of this distribution.
- *
- * Jefferson Lab HPC Group, 12000 Jefferson Ave., Newport News, VA 23606
- *----------------------------------------------------------------------------
- *
- * Description:
- *      QMP logical topology code
- *
- * Author:  
- *      Jie Chen, Robert Edwards and Chip Watson
- *      Jefferson Lab HPC Group
- *      James Osborn (BU)
- *
- * Revision History:
- *   $Log: QMP_topology.c,v $
- *   Revision 1.12  2008/03/06 17:28:42  osborn
- *   fixes to mapping options
- *
- *   Revision 1.11  2008/03/06 07:54:11  osborn
- *   added -qmp-alloc-map command line argument
- *
- *   Revision 1.10  2008/01/29 02:53:21  osborn
- *   Fixed single node version.  Bumped version to 2.2.0.
- *
- *   Revision 1.9  2008/01/25 20:07:39  osborn
- *   Added BG/P personality info.  Now uses MPI_Cart_create to layout logical
- *   topology.
- *
- *   Revision 1.8  2006/10/03 21:31:14  osborn
- *   Added "-qmp-geom native" command line option for BG/L.
- *
- *   Revision 1.7  2006/06/13 17:43:09  bjoo
- *   Removed some c99isms. Code  compiles on Cray at ORNL using pgcc
- *
- *   Revision 1.6  2006/03/10 08:38:07  osborn
- *   Added timing routines.
- *
- *   Revision 1.5  2006/01/05 19:32:09  osborn
- *   Fixes to BG/L personality code.  Ready for version 2.1.3.
- *
- *   Revision 1.4  2006/01/05 03:12:56  osborn
- *   Added --enable-bgl compilation option.
- *
- *   Revision 1.3  2005/06/21 20:18:39  osborn
- *   Added -qmp-geom command line argument to force grid-like behavior.
- *
- *   Revision 1.2  2005/06/20 22:20:59  osborn
- *   Fixed inclusion of profiling header.
- *
- *   Revision 1.1  2004/10/08 04:49:34  osborn
- *   Split src directory into include and lib.
- *
- *   Revision 1.1  2004/06/14 20:36:31  osborn
- *   Updated to API version 2 and added single node target
- *
- *   Revision 1.7  2004/02/05 02:33:37  edwards
- *   Removed a debugging statement.
- *
- *   Revision 1.6  2003/11/04 02:14:55  edwards
- *   Bug fix. The malloc in QMP_get_logical_coordinates_from had
- *   an invalid argument.
- *
- *   Revision 1.5  2003/11/04 01:04:32  edwards
- *   Changed QMP_get_logical_coordinates_from to not have const modifier.
- *   Now, user must explicitly call "free".
- *
- *   Revision 1.4  2003/06/04 19:19:39  edwards
- *   Added a QMP_abort() function.
- *
- *   Revision 1.3  2003/02/13 16:22:23  chen
- *   qmp version 1.2
- *
- *   Revision 1.2  2003/02/11 03:39:24  flemingg
- *   GTF: Update of automake and autoconf files to use qmp-config in lieu
- *        of qmp_build_env.sh
- *
- *   Revision 1.1.1.1  2003/01/27 19:31:36  chen
- *   check into lattice group
- *
- *   Revision 1.3  2002/07/18 18:10:24  chen
- *   Fix broadcasting bug and add several public functions
- *
- *   Revision 1.2  2002/04/26 18:35:44  chen
- *   Release 1.0.0
- *
- *   Revision 1.1  2002/04/22 20:28:42  chen
- *   Version 0.95 Release
- *
- *
- */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -102,226 +7,299 @@
 
 #include "QMP_P_COMMON.h"
 
-#ifdef HAVE_MPI
-#include "QMP_P_MPI.h"
-
-static MPI_Comm comm_cart;
-static int *c2w, *w2c;
-
-static void
-sumint(int *v, int n)
+static QMP_status_t
+QMP_set_topo(QMP_communicator_t comm, const int* dims, int ndim, const int *map, int nmap)
 {
-  int i, *t;
-  t = malloc(n*sizeof(int));
-  MPI_Allreduce((void *)v, (void *)t, n, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
-  for(i=0; i<n; i++) v[i] = t[i];
-  free(t);
-}
-
-static void
-remap_mpi(int *dims, int ndim)
-{
-  int i, periods[ndim], reorder=1, rankc, rankw, size;
-
-  for(i=0; i<ndim; i++) periods[i]=1;
-  MPI_Cart_create(QMP_COMM_WORLD, ndim, dims, periods, reorder, &comm_cart);
-  MPI_Comm_rank(comm_cart, &rankc);
-  rankw = QMP_global_m->nodeid;
-  size = QMP_global_m->num_nodes;
-
-  c2w = malloc(size*sizeof(int));
-  w2c = malloc(size*sizeof(int));
-  for(i=0; i<size; i++) c2w[i] = w2c[i] = 0;
-  c2w[rankc] = rankw;
-  w2c[rankw] = rankc;
-  sumint(c2w, size);
-  sumint(w2c, size);
-}
-#endif
-
-static void
-get_coord(int *x, int n)
-{
-  int i;
-  int nd = QMP_topo->dimension;
-  int *l = QMP_topo->logical_size;
-  int *p = QMP_global_m->lmap;
-
-  for(i=0; i<nd; i++) {
-    int k;
-    if(p) k = p[i]; else k = i;
-    x[k] = n % l[k];
-    n /= l[k];
-  }
-}
-
-static int
-get_rank(int *x)
-{
-  int i, n;
-  int nd = QMP_topo->dimension;
-  int *l = QMP_topo->logical_size;
-  int *p = QMP_global_m->lmap;
-
-  n = 0;
-  for(i=nd-1; i>=0; i--) {
-    int k;
-    if(p) k = p[i]; else k = i;
-    n = (n*l[k]) + x[k];
-  }
-  return n;
-}
-
-/* This is called by all children */
-QMP_status_t
-QMP_declare_logical_topology (const int* dims, int ndim)
-{
-  int i;
-  int num_nodes = 1;
-  int *coord;
   QMP_status_t status = QMP_SUCCESS;
   ENTER;
-
-  if (ndim < 0) {
-    QMP_error ("QMP_declare_logical_topology: invalid ndim = %d\n", ndim);
-    status = QMP_INVALID_ARG;
-    goto leave;
-  }
-  for(i=0; i < ndim; ++i) {
+  int i;
+  int num_nodes = 1;
+  for(i=0; i<ndim; ++i) {
     if (dims[i] < 1) {
       QMP_error ("QMP_declare_logical_topology: invalid length\n");
       status = QMP_INVALID_ARG;
       goto leave;
     }
-
     num_nodes *= dims[i];
   }
-  if (num_nodes != QMP_global_m->num_nodes) {
+  if (num_nodes != QMP_comm_get_number_of_nodes(comm)) {
     QMP_error ("QMP_declare_logical_topology: requested machine size not equal to number of nodes\n");
     status = QMP_INVALID_ARG;
     goto leave;
   }
-  if ( QMP_global_m->lmaplen && (ndim != QMP_global_m->lmaplen) ) {
-    QMP_error ("QMP_declare_logical_topology: logical topology dimension not equal to logical map dimension\n");
-    status = QMP_INVALID_ARG;
-    goto leave;
+  QMP_assert(QMP_comm_logical_topology_is_declared(comm)==QMP_FALSE);
+
+  QMP_logical_topology_t *topo;
+  QMP_alloc(topo, QMP_logical_topology_t, 1);
+  comm->topo = topo;
+
+  topo->dimension = ndim;
+  QMP_alloc(topo->logical_size, int, ndim);
+  for(i=0; i < ndim; ++i) topo->logical_size[i] = dims[i];
+
+  topo->mapdim = nmap;
+  topo->map = NULL;
+  if(map) {
+    QMP_assert(nmap==ndim);
+    QMP_alloc(topo->map, int, nmap);
+    for(i=0; i<nmap; ++i) topo->map[i] = map[i];
   }
 
-#ifdef HAVE_MPI
-  //remap_mpi((int *)dims, ndim);
+#ifdef QMP_SET_TOPO
+  status = QMP_SET_TOPO(comm);
 #endif
 
-  QMP_topo->dimension = ndim;
-  QMP_topo->logical_size = (int *) malloc(ndim*sizeof(int));
-  for(i=0; i < ndim; ++i) QMP_topo->logical_size[i] = dims[i];
+  QMP_barrier();
 
-  QMP_topo->logical_coord = QMP_get_logical_coordinates_from(QMP_global_m->nodeid);
+  topo->logical_coord = QMP_comm_get_logical_coordinates_from(comm, comm->nodeid);
 
-  QMP_topo->neigh[0] = (int *) malloc(2*ndim*sizeof(int));
-  QMP_topo->neigh[1] = QMP_topo->neigh[0] + ndim;
-  for(i=0; i < ndim; ++i)
-  {
+  QMP_alloc(topo->neigh[0], int, 2*ndim);
+  topo->neigh[1] = topo->neigh[0] + ndim;
+  int *coord;
+  QMP_alloc(coord, int, ndim);
+  for(i=0; i < ndim; ++i) {
     int m;
+    for(m=0; m < ndim; ++m) coord[m] = topo->logical_coord[m];
 
-    coord = (int *)malloc(ndim*sizeof(int));
-    if(coord == NULL) { 
-      QMP_FATAL("Couldnt alloc coord\n");
-    }
+    coord[i] = (topo->logical_coord[i] - 1 + dims[i]) % dims[i];
+    topo->neigh[0][i] = QMP_comm_get_node_number_from(comm, coord);
 
-    for(m=0; m < ndim; ++m)
-      coord[m] = QMP_topo->logical_coord[m];
-
-    coord[i] = (QMP_topo->logical_coord[i] - 1 + dims[i]) % dims[i];
-    QMP_topo->neigh[0][i] = QMP_get_node_number_from(coord);
-
-    coord[i] = (QMP_topo->logical_coord[i] + 1) % dims[i];
-    QMP_topo->neigh[1][i] = QMP_get_node_number_from(coord);
-
-    free(coord);
+    coord[i] = (topo->logical_coord[i] + 1) % dims[i];
+    topo->neigh[1][i] = QMP_comm_get_node_number_from(comm, coord);
   }
+  QMP_free(coord);
 
-  QMP_topo->topology_declared = QMP_TRUE;
+  QMP_barrier();
 
  leave:
   LEAVE;
   return status;
 }
 
+static QMP_status_t
+QMP_set_topo_native(QMP_communicator_t comm, const int *map, int nmap)
+{
+  QMP_status_t status = QMP_SUCCESS;
+  ENTER;
+#ifdef QMP_SET_TOPO_NATIVE
+  status = QMP_SET_TOPO_NATIVE(comm);
+#else
+  QMP_FATAL("native topology unknown");
+#endif
+  LEAVE;
+  return status;
+}
+
+/* This is called by members of the communicator */
+QMP_status_t
+QMP_comm_declare_logical_topology_map (QMP_communicator_t comm, const int* dims, int ndim,
+				       const int *map, int nmap)
+{
+  QMP_status_t status = QMP_SUCCESS;
+  ENTER;
+
+  QMP_barrier();
+
+  QMP_assert(nmap>=0);
+  QMP_assert((nmap==0&&map==NULL)||(nmap>0&&map!=NULL));
+
+  if(ndim>0) {  /// use dims
+    QMP_assert(dims!=NULL);
+    status = QMP_set_topo(comm, dims, ndim, map, nmap);
+  } else if(ndim==-1) {  /// native
+    status = QMP_set_topo_native(comm, map, nmap);
+  } else {
+    if(ndim!=0) { // ndim==0 is allowed and does nothing
+      QMP_error ("QMP_declare_logical_topology: invalid ndim = %d\n", ndim);
+      status = QMP_INVALID_ARG;
+    }
+  }
+
+  LEAVE;
+  return status;
+}
+
+QMP_status_t
+QMP_comm_declare_logical_topology (QMP_communicator_t comm, const int* dims, int ndim)
+{
+  QMP_status_t r;
+  ENTER;
+  r = QMP_comm_declare_logical_topology_map (QMP_comm_get_default(), dims, ndim, NULL, 0);
+  LEAVE;
+  return r;
+}
+
+QMP_status_t
+QMP_declare_logical_topology_map (const int* dims, int ndim, const int *map, int nmap)
+{
+  QMP_status_t r;
+  ENTER;
+  r = QMP_comm_declare_logical_topology_map (QMP_comm_get_default(), dims, ndim, map, nmap);
+  LEAVE;
+  return r;
+}
+
+QMP_status_t
+QMP_declare_logical_topology (const int* dims, int ndim)
+{
+  QMP_status_t r;
+  ENTER;
+  r = QMP_comm_declare_logical_topology_map (QMP_comm_get_default(), dims, ndim, NULL, 0);
+  LEAVE;
+  return r;
+}
+
+
 /* Is the logical topology declared? */
+QMP_bool_t
+QMP_comm_logical_topology_is_declared (QMP_communicator_t comm)
+{
+  ENTER;
+  LEAVE;
+  return QMP_topo_declared(comm);
+}
+
 QMP_bool_t
 QMP_logical_topology_is_declared (void)
 {
+  QMP_bool_t r;
   ENTER;
+  r = QMP_comm_logical_topology_is_declared (QMP_comm_get_default());
   LEAVE;
-  return  QMP_topo->topology_declared;
+  return  r;
 }
+
 
 /* Return the logical size of the machine */
 int
+QMP_comm_get_logical_number_of_dimensions(QMP_communicator_t comm)
+{
+  int ndim = 0;
+  ENTER;
+  if(QMP_comm_logical_topology_is_declared(comm)) {
+    ndim = comm->topo->dimension;
+  }
+  LEAVE;
+  return ndim;
+}
+
+int
 QMP_get_logical_number_of_dimensions(void)
 {
+  int nd;
   ENTER;
+  nd = QMP_comm_get_logical_number_of_dimensions(QMP_comm_get_default());
   LEAVE;
-  return QMP_topo->dimension;
+  return nd;
 }
+
 
 /* Return the logical size of the machine */
 const int *
+QMP_comm_get_logical_dimensions(QMP_communicator_t comm)
+{
+  const int *dims = NULL;
+  ENTER;
+  if(QMP_comm_logical_topology_is_declared(comm)) {
+    dims = comm->topo->logical_size;
+  }
+  LEAVE;
+  return dims;
+}
+
+const int *
 QMP_get_logical_dimensions(void)
 {
+  const int *size;
   ENTER;
+  size = QMP_comm_get_logical_dimensions(QMP_comm_get_default());
   LEAVE;
-  return QMP_topo->logical_size;
+  return size;
 }
+
 
 /* Return the coordinate of the underlying grid */
 const int *
-QMP_get_logical_coordinates(void)
+QMP_comm_get_logical_coordinates(QMP_communicator_t comm)
 {
   ENTER;
+  QMP_assert(QMP_comm_logical_topology_is_declared(comm));
   LEAVE;
-  return QMP_topo->logical_coord;
+  return comm->topo->logical_coord;
 }
+
+const int *
+QMP_get_logical_coordinates(void)
+{
+  const int *coord;
+  ENTER;
+  coord = QMP_comm_get_logical_coordinates(QMP_comm_get_default());
+  LEAVE;
+  return coord;
+}
+
 
 /* Return logical coordinate from a node id */
 int *
-QMP_get_logical_coordinates_from (int node)
+QMP_comm_get_logical_coordinates_from (QMP_communicator_t comm, int node)
 {
-  int *nc, nd;
+  int *c;
   ENTER;
 
-  nd = QMP_topo->dimension;
-  nc = (int *) malloc(nd*sizeof(int));
-#ifdef HAVE_MPI
-  //int cart_node = w2c[node];
-  //MPI_Cart_coords(comm_cart, cart_node, nd, nc);
-  get_coord(nc, node);
-#else /* single node version */
+  QMP_assert(QMP_comm_logical_topology_is_declared(comm));
+
+  int nd = QMP_comm_get_logical_number_of_dimensions(comm);
+  QMP_alloc(c, int, nd);
+
+#ifdef QMP_COMM_GET_LOGICAL_COORDINATES_FROM
+  QMP_COMM_GET_LOGICAL_COORDINATES_FROM(c, nd, comm, node);
+#else
   int i;
-  for(i=0; i<nd; i++) nc[i] = 0;
+  for(i=0; i<nd; i++) c[i] = 0;
 #endif
 
   LEAVE;
-  return nc;
+  return c;
 }
+
+int *
+QMP_get_logical_coordinates_from (int node)
+{
+  int *c;
+  ENTER;
+
+  c = QMP_comm_get_logical_coordinates_from (QMP_comm_get_default(), node);
+
+  LEAVE;
+  return c;
+}
+
 
 /**
  * Return a node number from a logical coordinate.
  */
 int 
+QMP_comm_get_node_number_from (QMP_communicator_t comm, const int* coordinates)
+{
+  int world_node = 0;
+  ENTER;
+  QMP_assert(QMP_comm_logical_topology_is_declared(comm));
+
+#ifdef QMP_COMM_GET_NODE_NUMBER_FROM
+  world_node = QMP_COMM_GET_NODE_NUMBER_FROM(comm, coordinates);
+#endif
+
+  LEAVE;
+  return world_node;
+}
+
+int 
 QMP_get_node_number_from (const int* coordinates)
 {
-  int world_node;
+  int world_node = 0;
   ENTER;
 
-#ifdef HAVE_MPI
-  //int cart_node;
-  //MPI_Cart_rank(comm_cart, (int *)coordinates, &cart_node);
-  //world_node = c2w[cart_node];
-  world_node = get_rank(coordinates);
-#else
-  world_node = 0;
-#endif
+  world_node = QMP_comm_get_node_number_from(QMP_comm_get_default(), coordinates);
 
   LEAVE;
   return world_node;

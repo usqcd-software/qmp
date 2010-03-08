@@ -112,6 +112,7 @@ void init_wnxtsu3dslash(void)
 
   for(mu=0; mu < Nd; ++mu)
   {
+    //QMP_printf("setup dir %i size %i", mu, size[mu]);
     if(size[mu] > 1)
     {
       forw_mem[num][0] = QMP_allocate_memory (mem_size);
@@ -152,14 +153,14 @@ int main (int argc, char** argv)
   double it, ft, dt, bwval;
   QMP_thread_level_t req, prv;
 
-  int dims[4];
+  int dims[4] = {1,1,1,1};
   int ndims = 4;
 
   req = QMP_THREAD_SINGLE;
   status = QMP_init_msg_passing (&argc, &argv, req, &prv);
-
   if (argc < 3) {
-    fprintf (stderr, "Usage: %s numloops msgsize [-v]\n", argv[0]);
+    if (QMP_is_primary_node())
+      fprintf (stderr, "Usage: %s numloops msgsize [-v]\n", argv[0]);
     exit (1);
   }
 
@@ -175,22 +176,22 @@ int main (int argc, char** argv)
     QMP_abort(1);
   }
 
-  /* If this is the root node, get dimension information from key board */
-#if 0
-  if (QMP_is_primary_node()) {
-    QMP_fprintf (stderr, "Enter dimension information (Nx Ny Nz Nt)\n");
-    scanf ("%d %d %d %d", &dims[0],&dims[1], &dims[2], &dims[3]);
+  {
+    int k=ndims-1;
+    int nodes = QMP_get_number_of_nodes();
+    while( (nodes&1) == 0 ) {
+      dims[k] *= 2;
+      nodes /= 2;
+      k = (k+ndims-1)%ndims;
+    }
+    if(nodes != 1) {
+      QMP_error("invalid number of nodes %i", QMP_get_number_of_nodes());
+      QMP_error(" must power of 2");
+      QMP_abort(1);
+    }
   }
-#else
-  int a_ndim = QMP_get_allocated_number_of_dimensions();
-  int *a_dims = QMP_get_allocated_dimensions ();
-  for(i<0;i<4;i++)
-	if(i<a_ndim) dims[i] = a_dims[i];
-	else dims[i] = 1;
- 
-#endif
-  
-  if (QMP_broadcast (dims, sizeof(int)*4) != QMP_SUCCESS) 
+
+  if (QMP_broadcast (dims, ndims*sizeof(int)) != QMP_SUCCESS) 
     QMP_abort_string (1, "Cannot do broadcast, Quit\n");
 
   status = QMP_declare_logical_topology (dims, ndims);
@@ -214,9 +215,13 @@ int main (int argc, char** argv)
       }
     }
 
+    //fflush(stdout); QMP_barrier();
+
     if ((err = QMP_start (forw_all_mh))!= QMP_SUCCESS)
       QMP_printf ("Start forward operations failed: %s\n", 
 		  QMP_error_string(err));
+
+    //fflush(stdout); QMP_barrier();
 
     if (QMP_wait (forw_all_mh) != QMP_SUCCESS)
       QMP_printf ("Error in sending %d\n", i);

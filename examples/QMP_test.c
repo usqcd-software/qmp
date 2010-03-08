@@ -66,12 +66,10 @@ int main (int argc, char** argv)
   QMP_bool_t status, sender, verbose;
   int  rank;
   QMP_status_t err;
-  /*
-  int dims[4] = {2, 2, 4, 2};
+  int dims[4] = {1, 1, 1, 1};
   int ndims = 4;
-  */
-  int dims[2] = {2,2};
-  int ndims = 2;
+  //int dims[2] = {2,2};
+  //int ndims = 2;
 
   QMP_mem_t *rmem[NUM_HANDLES], *smem[NUM_HANDLES];
   QMP_msgmem_t recvmem[NUM_HANDLES];
@@ -85,18 +83,34 @@ int main (int argc, char** argv)
    */
   QMP_msghandle_t comp_sendh, comp_recvh;
 
+  req = QMP_THREAD_SINGLE;
+  status = QMP_init_msg_passing (&argc, &argv, req, &prv);
+  if (status != QMP_SUCCESS) {
+    QMP_fprintf(stderr, "QMP_init failed\n");
+    return -1;
+  }
 
   verbose = QMP_FALSE;  
   if (argc > 1 && strcmp (argv[1], "-v") == 0)
     verbose = QMP_TRUE;
-
   QMP_verbose (verbose);
-  req = QMP_THREAD_SINGLE;
-  status = QMP_init_msg_passing (&argc, &argv, req, &prv);
 
-  if (status != QMP_SUCCESS) {
-    QMP_fprintf(stderr, "QMP_init failed\n");
-    return -1;
+  QMP_printf("QMP version str %s", QMP_version_str());
+  QMP_printf("QMP version int %i", QMP_version_int());
+
+  {
+    int k=ndims-1;
+    int nodes = QMP_get_number_of_nodes();
+    while( (nodes&1) == 0 ) {
+      dims[k] *= 2;
+      nodes /= 2;
+      k = (k+ndims-1)%ndims;
+    }
+    if(nodes != 1) {
+      QMP_error("invalid number of nodes %i", QMP_get_number_of_nodes());
+      QMP_error(" must power of 2");
+      QMP_abort(1);
+    }
   }
 
   status = QMP_declare_logical_topology (dims, ndims);
@@ -142,8 +156,9 @@ int main (int argc, char** argv)
   }
 
 
+  int sdir = ndims-1;
   for (i = 0; i < NUM_HANDLES; i++) {
-    sendh[i] = QMP_declare_send_relative (sendmem[i], 0, -1, 0);
+    sendh[i] = QMP_declare_send_relative (sendmem[i], sdir, -1, 0);
     if (!sendh[i]) {
       QMP_fprintf (stderr, "Send Handle Error: %s\n", QMP_get_error_string(0));
       exit (1);
@@ -151,7 +166,7 @@ int main (int argc, char** argv)
   }
 
   for (i = 0; i < NUM_HANDLES; i++) {
-    recvh[i] = QMP_declare_receive_relative (recvmem[i], 0, 1, 0);
+    recvh[i] = QMP_declare_receive_relative (recvmem[i], sdir, 1, 0);
     if (!recvh[i]) {
       QMP_fprintf (stderr, "Recv Handle Error: %s\n", 
 		   QMP_get_error_string(0));      
