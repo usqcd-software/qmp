@@ -93,7 +93,7 @@ QMP_wait_all(QMP_msghandle_t mh[], int num)
 
 /* Global barrier */
 QMP_status_t
-QMP_comm_barrier(QMP_communicator_t comm)
+QMP_comm_barrier(QMP_comm_t comm)
 {
   QMP_status_t status = QMP_SUCCESS;
   ENTER;
@@ -121,7 +121,7 @@ QMP_barrier(void)
 
 /* Broadcast via interface specific routines */
 QMP_status_t
-QMP_comm_broadcast(QMP_communicator_t comm, void *send_buf, size_t count)
+QMP_comm_broadcast(QMP_comm_t comm, void *send_buf, size_t count)
 {
   QMP_status_t err = QMP_SUCCESS;
   ENTER;
@@ -149,7 +149,7 @@ QMP_broadcast(void *send_buf, size_t count)
 
 /* Global sums */
 QMP_status_t
-QMP_comm_sum_int (QMP_communicator_t comm, int *value)
+QMP_comm_sum_int (QMP_comm_t comm, int *value)
 {
   QMP_status_t err;
   ENTER;
@@ -175,7 +175,7 @@ QMP_sum_int (int *value)
 }
 
 QMP_status_t
-QMP_comm_sum_float (QMP_communicator_t comm, float *value)
+QMP_comm_sum_float (QMP_comm_t comm, float *value)
 {
   QMP_status_t err;
   ENTER;
@@ -201,7 +201,7 @@ QMP_sum_float (float *value)
 }
 
 QMP_status_t
-QMP_comm_sum_double (QMP_communicator_t comm, double *value)
+QMP_comm_sum_double (QMP_comm_t comm, double *value)
 {
   QMP_status_t err = QMP_SUCCESS;
   ENTER;
@@ -227,7 +227,7 @@ QMP_sum_double (double *value)
 }
 
 QMP_status_t
-QMP_comm_sum_double_extended (QMP_communicator_t comm, double *value)
+QMP_comm_sum_double_extended (QMP_comm_t comm, double *value)
 {
   QMP_status_t err;
   ENTER;
@@ -251,7 +251,7 @@ QMP_sum_double_extended (double *value)
 }
 
 QMP_status_t
-QMP_comm_sum_float_array (QMP_communicator_t comm, float value[], int count)
+QMP_comm_sum_float_array (QMP_comm_t comm, float value[], int count)
 {
   QMP_status_t err = QMP_SUCCESS;
   ENTER;
@@ -277,7 +277,7 @@ QMP_sum_float_array (float value[], int count)
 }
 
 QMP_status_t
-QMP_comm_sum_double_array (QMP_communicator_t comm, double value[], int count)
+QMP_comm_sum_double_array (QMP_comm_t comm, double value[], int count)
 {
   QMP_status_t err = QMP_SUCCESS;
   ENTER;
@@ -303,7 +303,7 @@ QMP_sum_double_array (double value[], int count)
 }
 
 QMP_status_t
-QMP_comm_max_float (QMP_communicator_t comm, float *value)
+QMP_comm_max_float (QMP_comm_t comm, float *value)
 {
   QMP_status_t err;
   ENTER;
@@ -329,7 +329,7 @@ QMP_max_float (float *value)
 }
 
 QMP_status_t
-QMP_comm_min_float (QMP_communicator_t comm, float *value)
+QMP_comm_min_float (QMP_comm_t comm, float *value)
 {
   QMP_status_t err;
   ENTER;
@@ -355,7 +355,7 @@ QMP_min_float (float *value)
 }
 
 QMP_status_t
-QMP_comm_max_double (QMP_communicator_t comm, double *value)
+QMP_comm_max_double (QMP_comm_t comm, double *value)
 {
   QMP_status_t err = QMP_SUCCESS;
   ENTER;
@@ -381,7 +381,7 @@ QMP_max_double (double *value)
 }
 
 QMP_status_t
-QMP_comm_min_double (QMP_communicator_t comm, double *value)
+QMP_comm_min_double (QMP_comm_t comm, double *value)
 {
   QMP_status_t err = QMP_SUCCESS;
   ENTER;
@@ -407,7 +407,7 @@ QMP_min_double (double *value)
 }
 
 QMP_status_t
-QMP_comm_xor_ulong (QMP_communicator_t comm, unsigned long *value)
+QMP_comm_xor_ulong (QMP_comm_t comm, unsigned long *value)
 {
   QMP_status_t err = QMP_SUCCESS;
   ENTER;
@@ -433,7 +433,7 @@ QMP_xor_ulong (unsigned long *value)
 }
 
 QMP_status_t
-QMP_comm_binary_reduction (QMP_communicator_t comm, void *lbuffer, size_t count, QMP_binary_func bfunc)
+QMP_comm_binary_reduction (QMP_comm_t comm, void *lbuffer, size_t count, QMP_binary_func bfunc)
 {
   QMP_status_t err = QMP_SUCCESS;
   ENTER;

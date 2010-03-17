@@ -83,7 +83,7 @@ QMP_wait_mpi(QMP_msghandle_t mh)
 
 
 QMP_status_t
-QMP_comm_barrier_mpi(QMP_communicator_t comm)
+QMP_comm_barrier_mpi(QMP_comm_t comm)
 {
   QMP_status_t status = QMP_SUCCESS;
 
@@ -95,7 +95,7 @@ QMP_comm_barrier_mpi(QMP_communicator_t comm)
 
 
 QMP_status_t
-QMP_comm_broadcast_mpi(QMP_communicator_t comm, void *send_buf, size_t count)
+QMP_comm_broadcast_mpi(QMP_comm_t comm, void *send_buf, size_t count)
 {
   QMP_status_t status = QMP_SUCCESS;
 
@@ -107,7 +107,7 @@ QMP_comm_broadcast_mpi(QMP_communicator_t comm, void *send_buf, size_t count)
 
 
 QMP_status_t
-QMP_comm_sum_double_mpi(QMP_communicator_t comm, double *value)
+QMP_comm_sum_double_mpi(QMP_comm_t comm, double *value)
 {
   QMP_status_t status = QMP_SUCCESS;
   ENTER;
@@ -124,7 +124,7 @@ QMP_comm_sum_double_mpi(QMP_communicator_t comm, double *value)
 
 
 QMP_status_t
-QMP_comm_sum_float_array_mpi(QMP_communicator_t comm, float value[], int count)
+QMP_comm_sum_float_array_mpi(QMP_comm_t comm, float value[], int count)
 {
   QMP_status_t status = QMP_SUCCESS;
   ENTER;
@@ -147,7 +147,7 @@ QMP_comm_sum_float_array_mpi(QMP_communicator_t comm, float value[], int count)
 
 
 QMP_status_t
-QMP_comm_sum_double_array_mpi(QMP_communicator_t comm, double value[], int count)
+QMP_comm_sum_double_array_mpi(QMP_comm_t comm, double value[], int count)
 {
   QMP_status_t status = QMP_SUCCESS;
   ENTER;
@@ -170,7 +170,7 @@ QMP_comm_sum_double_array_mpi(QMP_communicator_t comm, double value[], int count
 
 
 QMP_status_t
-QMP_comm_max_double_mpi(QMP_communicator_t comm, double *value)
+QMP_comm_max_double_mpi(QMP_comm_t comm, double *value)
 {
   QMP_status_t status = QMP_SUCCESS;
   ENTER;
@@ -187,7 +187,7 @@ QMP_comm_max_double_mpi(QMP_communicator_t comm, double *value)
 
 
 QMP_status_t
-QMP_comm_min_double_mpi(QMP_communicator_t comm, double *value)
+QMP_comm_min_double_mpi(QMP_comm_t comm, double *value)
 {
   QMP_status_t status = QMP_SUCCESS;
   ENTER;
@@ -204,7 +204,7 @@ QMP_comm_min_double_mpi(QMP_communicator_t comm, double *value)
 
 
 QMP_status_t
-QMP_comm_xor_ulong_mpi(QMP_communicator_t comm, unsigned long *value)
+QMP_comm_xor_ulong_mpi(QMP_comm_t comm, unsigned long *value)
 {
   QMP_status_t status = QMP_SUCCESS;
   ENTER;
@@ -239,7 +239,7 @@ qmp_bfunc_mpi(void* in, void* inout, int* len, MPI_Datatype* type)
 }
 
 QMP_status_t
-QMP_comm_binary_reduction_mpi(QMP_communicator_t comm, void *lbuffer, size_t count, QMP_binary_func bfunc)
+QMP_comm_binary_reduction_mpi(QMP_comm_t comm, void *lbuffer, size_t count, QMP_binary_func bfunc)
 {
   QMP_status_t status = QMP_SUCCESS;
   ENTER;

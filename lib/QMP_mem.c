@@ -328,7 +328,7 @@ QMP_free_msghandle (QMP_msghandle_t msgh)
 
 
 static QMP_msghandle_t
-declare_receive(QMP_communicator_t comm, QMP_msgmem_t mm, int sourceNode, int axis, int dir, int priority)
+declare_receive(QMP_comm_t comm, QMP_msgmem_t mm, int sourceNode, int axis, int dir, int priority)
 {
   QMP_msghandle_t mh;
   ENTER;
@@ -368,7 +368,7 @@ declare_receive(QMP_communicator_t comm, QMP_msgmem_t mm, int sourceNode, int ax
 
 
 static QMP_msghandle_t
-declare_send(QMP_communicator_t comm, QMP_msgmem_t mm, int destNode, int axis, int dir, int priority)
+declare_send(QMP_comm_t comm, QMP_msgmem_t mm, int destNode, int axis, int dir, int priority)
 {
   QMP_msghandle_t mh;
   ENTER;
@@ -409,7 +409,7 @@ declare_send(QMP_communicator_t comm, QMP_msgmem_t mm, int destNode, int axis, i
 
 /* Message handle routines */
 QMP_msghandle_t
-QMP_comm_declare_receive_from (QMP_communicator_t comm, QMP_msgmem_t mm, int sourceNode, int priority)
+QMP_comm_declare_receive_from (QMP_comm_t comm, QMP_msgmem_t mm, int sourceNode, int priority)
 {
   QMP_msghandle_t mh;
   ENTER;
@@ -433,7 +433,7 @@ QMP_declare_receive_from (QMP_msgmem_t mm, int sourceNode, int priority)
 }
 
 QMP_msghandle_t
-QMP_comm_declare_receive_relative(QMP_communicator_t comm, QMP_msgmem_t mm, int dir, int isign, int priority)
+QMP_comm_declare_receive_relative(QMP_comm_t comm, QMP_msgmem_t mm, int dir, int isign, int priority)
 {
   QMP_msghandle_t mh;
   ENTER;
@@ -464,7 +464,7 @@ QMP_declare_receive_relative(QMP_msgmem_t mm, int dir, int isign, int priority)
 
 
 QMP_msghandle_t
-QMP_comm_declare_send_to (QMP_communicator_t comm, QMP_msgmem_t mm, int destNode, int priority)
+QMP_comm_declare_send_to (QMP_comm_t comm, QMP_msgmem_t mm, int destNode, int priority)
 {
   QMP_msghandle_t mh;
   ENTER;
@@ -490,7 +490,7 @@ QMP_declare_send_to (QMP_msgmem_t mm, int destNode, int priority)
 
 
 QMP_msghandle_t
-QMP_comm_declare_send_relative (QMP_communicator_t comm, QMP_msgmem_t mm, int dir, int isign, int priority)
+QMP_comm_declare_send_relative (QMP_comm_t comm, QMP_msgmem_t mm, int dir, int isign, int priority)
 {
   QMP_msghandle_t mh;
   ENTER;

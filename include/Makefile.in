@@ -164,9 +164,8 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 include_HEADERS = qmp.h
-EXTRA_DIST = qmp.hpp \
+EXTRA_DIST = \
 	QMP_P_COMMON.h \
-	QMP_P_SINGLE.h \
 	QMP_P_MPI.h \
 	QMP_profiling.h
 

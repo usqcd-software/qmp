@@ -1,7 +1,7 @@
 #include "QMP_P_COMMON.h"
 
 QMP_status_t
-QMP_comm_split_mpi(QMP_communicator_t comm, QMP_communicator_t newcomm)
+QMP_comm_split_mpi(QMP_comm_t comm, QMP_comm_t newcomm)
 {
   QMP_status_t status = QMP_SUCCESS;
 
@@ -22,7 +22,7 @@ QMP_comm_split_mpi(QMP_communicator_t comm, QMP_communicator_t newcomm)
 }
 
 QMP_status_t
-QMP_comm_free_mpi(QMP_communicator_t comm)
+QMP_comm_free_mpi(QMP_comm_t comm)
 {
   QMP_status_t status = QMP_SUCCESS;
 

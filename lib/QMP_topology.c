@@ -8,7 +8,7 @@
 #include "QMP_P_COMMON.h"
 
 static QMP_status_t
-QMP_set_topo(QMP_communicator_t comm, const int* dims, int ndim, const int *map, int nmap)
+QMP_set_topo(QMP_comm_t comm, const int* dims, int ndim, const int *map, int nmap)
 {
   QMP_status_t status = QMP_SUCCESS;
   ENTER;
@@ -77,7 +77,7 @@ QMP_set_topo(QMP_communicator_t comm, const int* dims, int ndim, const int *map,
 }
 
 static QMP_status_t
-QMP_set_topo_native(QMP_communicator_t comm, const int *map, int nmap)
+QMP_set_topo_native(QMP_comm_t comm, const int *map, int nmap)
 {
   QMP_status_t status = QMP_SUCCESS;
   ENTER;
@@ -92,7 +92,7 @@ QMP_set_topo_native(QMP_communicator_t comm, const int *map, int nmap)
 
 /* This is called by members of the communicator */
 QMP_status_t
-QMP_comm_declare_logical_topology_map (QMP_communicator_t comm, const int* dims, int ndim,
+QMP_comm_declare_logical_topology_map (QMP_comm_t comm, const int* dims, int ndim,
 				       const int *map, int nmap)
 {
   QMP_status_t status = QMP_SUCCESS;
@@ -120,7 +120,7 @@ QMP_comm_declare_logical_topology_map (QMP_communicator_t comm, const int* dims,
 }
 
 QMP_status_t
-QMP_comm_declare_logical_topology (QMP_communicator_t comm, const int* dims, int ndim)
+QMP_comm_declare_logical_topology (QMP_comm_t comm, const int* dims, int ndim)
 {
   QMP_status_t r;
   ENTER;
@@ -152,7 +152,7 @@ QMP_declare_logical_topology (const int* dims, int ndim)
 
 /* Is the logical topology declared? */
 QMP_bool_t
-QMP_comm_logical_topology_is_declared (QMP_communicator_t comm)
+QMP_comm_logical_topology_is_declared (QMP_comm_t comm)
 {
   ENTER;
   LEAVE;
@@ -172,7 +172,7 @@ QMP_logical_topology_is_declared (void)
 
 /* Return the logical size of the machine */
 int
-QMP_comm_get_logical_number_of_dimensions(QMP_communicator_t comm)
+QMP_comm_get_logical_number_of_dimensions(QMP_comm_t comm)
 {
   int ndim = 0;
   ENTER;
@@ -196,7 +196,7 @@ QMP_get_logical_number_of_dimensions(void)
 
 /* Return the logical size of the machine */
 const int *
-QMP_comm_get_logical_dimensions(QMP_communicator_t comm)
+QMP_comm_get_logical_dimensions(QMP_comm_t comm)
 {
   const int *dims = NULL;
   ENTER;
@@ -220,7 +220,7 @@ QMP_get_logical_dimensions(void)
 
 /* Return the coordinate of the underlying grid */
 const int *
-QMP_comm_get_logical_coordinates(QMP_communicator_t comm)
+QMP_comm_get_logical_coordinates(QMP_comm_t comm)
 {
   ENTER;
   QMP_assert(QMP_comm_logical_topology_is_declared(comm));
@@ -241,7 +241,7 @@ QMP_get_logical_coordinates(void)
 
 /* Return logical coordinate from a node id */
 int *
-QMP_comm_get_logical_coordinates_from (QMP_communicator_t comm, int node)
+QMP_comm_get_logical_coordinates_from (QMP_comm_t comm, int node)
 {
   int *c;
   ENTER;
@@ -279,7 +279,7 @@ QMP_get_logical_coordinates_from (int node)
  * Return a node number from a logical coordinate.
  */
 int 
-QMP_comm_get_node_number_from (QMP_communicator_t comm, const int* coordinates)
+QMP_comm_get_node_number_from (QMP_comm_t comm, const int* coordinates)
 {
   int world_node = 0;
   ENTER;

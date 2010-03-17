@@ -121,9 +121,9 @@ struct QMP_comm_struct {
 #define QMP_topo_declared(comm) ((comm)->topo==NULL?QMP_FALSE:QMP_TRUE)
 
 // predefined communicators
-extern QMP_communicator_t QMP_allocated_comm;
-extern QMP_communicator_t QMP_job_comm;
-extern QMP_communicator_t QMP_default_comm;
+extern QMP_comm_t QMP_allocated_comm;
+extern QMP_comm_t QMP_job_comm;
+extern QMP_comm_t QMP_default_comm;
 
 /* Message Memory structure */
 struct QMP_mem_struct {
@@ -199,7 +199,7 @@ struct QMP_msghandle_struct {
   int priority;
   int paired;
   char *base;
-  QMP_communicator_t comm;
+  QMP_comm_t comm;
   QMP_status_t err_code;
   QMP_msghandle_t next;
 #ifdef MH_TYPES

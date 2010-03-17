@@ -62,14 +62,14 @@ get_rank(const int *x, int *l, int *p, int nd)
 }
 
 QMP_status_t
-QMP_set_topo_mpi(QMP_communicator_t comm)
+QMP_set_topo_mpi(QMP_comm_t comm)
 {
   //remap_mpi((int *)dims, ndim);
   return QMP_SUCCESS;
 }
 
 void
-QMP_comm_get_logical_coordinates_from_mpi(int *c, int nd, QMP_communicator_t comm, int node)
+QMP_comm_get_logical_coordinates_from_mpi(int *c, int nd, QMP_comm_t comm, int node)
 {
   //int cart_node = w2c[node];
   //MPI_Cart_coords(comm_cart, cart_node, nd, nc);
@@ -77,7 +77,7 @@ QMP_comm_get_logical_coordinates_from_mpi(int *c, int nd, QMP_communicator_t com
 }
 
 int 
-QMP_comm_get_node_number_from_mpi(QMP_communicator_t comm, const int* coords)
+QMP_comm_get_node_number_from_mpi(QMP_comm_t comm, const int* coords)
 {
   //int cart_node;
   //MPI_Cart_rank(comm_cart, (int *)coordinates, &cart_node);

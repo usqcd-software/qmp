@@ -10,7 +10,7 @@
  * Get the number of distinct colors used to create communicator
  */
 int
-QMP_comm_get_number_of_colors (QMP_communicator_t comm)
+QMP_comm_get_number_of_colors (QMP_comm_t comm)
 {
   ENTER;
   LEAVE;
@@ -22,7 +22,7 @@ QMP_comm_get_number_of_colors (QMP_communicator_t comm)
  * Get the color used to create communicator
  */
 int
-QMP_comm_get_color (QMP_communicator_t comm)
+QMP_comm_get_color (QMP_comm_t comm)
 {
   ENTER;
   LEAVE;
@@ -34,7 +34,7 @@ QMP_comm_get_color (QMP_communicator_t comm)
  * Get the key used to create communicator
  */
 int
-QMP_comm_get_key (QMP_communicator_t comm)
+QMP_comm_get_key (QMP_comm_t comm)
 {
   ENTER;
   LEAVE;
@@ -46,8 +46,8 @@ QMP_comm_get_key (QMP_communicator_t comm)
  * Split a communicator into one or more disjoint communicators.
  */
 QMP_status_t
-QMP_comm_split(QMP_communicator_t comm, int color, int key,
-	       QMP_communicator_t *newcomm)
+QMP_comm_split(QMP_comm_t comm, int color, int key,
+	       QMP_comm_t *newcomm)
 {
   QMP_status_t status = QMP_SUCCESS;
   ENTER;
@@ -82,7 +82,7 @@ QMP_comm_split(QMP_communicator_t comm, int color, int key,
 }
 
 QMP_status_t
-QMP_comm_free(QMP_communicator_t comm)
+QMP_comm_free(QMP_comm_t comm)
 {
   QMP_status_t status = QMP_SUCCESS;
   ENTER;

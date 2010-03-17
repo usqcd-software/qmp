@@ -60,19 +60,19 @@ void QMP_finalize_msg_passing_mpi (void);
 void QMP_abort_mpi (int error_code);
 
 #define QMP_COMM_SPLIT_MPI QMP_comm_split_mpi
-QMP_status_t QMP_comm_split_mpi(QMP_communicator_t comm, QMP_communicator_t newcomm);
+QMP_status_t QMP_comm_split_mpi(QMP_comm_t comm, QMP_comm_t newcomm);
 
 #define QMP_COMM_FREE_MPI QMP_comm_free_mpi
-QMP_status_t QMP_comm_free_mpi(QMP_communicator_t comm);
+QMP_status_t QMP_comm_free_mpi(QMP_comm_t comm);
 
 #define QMP_SET_TOPO_MPI QMP_set_topo_mpi
-QMP_status_t QMP_set_topo_mpi(QMP_communicator_t comm);
+QMP_status_t QMP_set_topo_mpi(QMP_comm_t comm);
 
 #define QMP_COMM_GET_LOGICAL_COORDINATES_FROM_MPI QMP_comm_get_logical_coordinates_from_mpi
-void QMP_comm_get_logical_coordinates_from_mpi(int *c, int nd, QMP_communicator_t comm, int node);
+void QMP_comm_get_logical_coordinates_from_mpi(int *c, int nd, QMP_comm_t comm, int node);
 
 #define QMP_COMM_GET_NODE_NUMBER_FROM_MPI QMP_comm_get_node_number_from_mpi
-int QMP_comm_get_node_number_from_mpi(QMP_communicator_t comm, const int* coords);
+int QMP_comm_get_node_number_from_mpi(QMP_comm_t comm, const int* coords);
 
 #define QMP_ERROR_STRING_MPI QMP_error_string_mpi
 const char* QMP_error_string_mpi(QMP_status_t code);
@@ -111,30 +111,30 @@ QMP_bool_t QMP_is_complete_mpi(QMP_msghandle_t mh);
 QMP_status_t QMP_wait_mpi(QMP_msghandle_t mh);
 
 #define QMP_COMM_BARRIER_MPI QMP_comm_barrier_mpi
-QMP_status_t QMP_comm_barrier_mpi(QMP_communicator_t comm);
+QMP_status_t QMP_comm_barrier_mpi(QMP_comm_t comm);
 
 #define QMP_COMM_BROADCAST_MPI QMP_comm_broadcast_mpi
-QMP_status_t QMP_comm_broadcast_mpi(QMP_communicator_t comm, void *send_buf, size_t count);
+QMP_status_t QMP_comm_broadcast_mpi(QMP_comm_t comm, void *send_buf, size_t count);
 
 #define QMP_COMM_SUM_DOUBLE_MPI QMP_comm_sum_double_mpi
-QMP_status_t QMP_comm_sum_double_mpi(QMP_communicator_t comm, double *value);
+QMP_status_t QMP_comm_sum_double_mpi(QMP_comm_t comm, double *value);
 
 #define QMP_COMM_SUM_FLOAT_ARRAY_MPI QMP_comm_sum_float_array_mpi
-QMP_status_t QMP_comm_sum_float_array_mpi(QMP_communicator_t comm, float value[], int count);
+QMP_status_t QMP_comm_sum_float_array_mpi(QMP_comm_t comm, float value[], int count);
 
 #define QMP_COMM_SUM_DOUBLE_ARRAY_MPI QMP_comm_sum_double_array_mpi
-QMP_status_t QMP_comm_sum_double_array_mpi(QMP_communicator_t comm, double value[], int count);
+QMP_status_t QMP_comm_sum_double_array_mpi(QMP_comm_t comm, double value[], int count);
 
 #define QMP_COMM_MAX_DOUBLE_MPI QMP_comm_max_double_mpi
-QMP_status_t QMP_comm_max_double_mpi(QMP_communicator_t comm, double *value);
+QMP_status_t QMP_comm_max_double_mpi(QMP_comm_t comm, double *value);
 
 #define QMP_COMM_MIN_DOUBLE_MPI QMP_comm_min_double_mpi
-QMP_status_t QMP_comm_min_double_mpi(QMP_communicator_t comm, double *value);
+QMP_status_t QMP_comm_min_double_mpi(QMP_comm_t comm, double *value);
 
 #define QMP_COMM_XOR_ULONG_MPI QMP_comm_xor_ulong_mpi
-QMP_status_t QMP_comm_xor_ulong_mpi(QMP_communicator_t comm, unsigned long *value);
+QMP_status_t QMP_comm_xor_ulong_mpi(QMP_comm_t comm, unsigned long *value);
 
 #define QMP_COMM_BINARY_REDUCTION_MPI QMP_comm_binary_reduction_mpi
-QMP_status_t QMP_comm_binary_reduction_mpi(QMP_communicator_t comm, void *lbuffer, size_t count, QMP_binary_func bfunc);
+QMP_status_t QMP_comm_binary_reduction_mpi(QMP_comm_t comm, void *lbuffer, size_t count, QMP_binary_func bfunc);
 
 #endif /* _QMP_P_MPI_H */

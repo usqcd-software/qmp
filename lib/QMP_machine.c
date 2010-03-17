@@ -20,7 +20,7 @@ QMP_get_msg_passing_type (void)
 
 /* Return the total number of nodes within the machine */
 int
-QMP_comm_get_number_of_nodes(QMP_communicator_t comm)
+QMP_comm_get_number_of_nodes(QMP_comm_t comm)
 {
   ENTER;
   LEAVE;
@@ -40,7 +40,7 @@ QMP_get_number_of_nodes(void)
 
 /* Return the nodeid within the machine */
 int
-QMP_comm_get_node_number(QMP_communicator_t comm)
+QMP_comm_get_node_number(QMP_comm_t comm)
 {
   ENTER;
   LEAVE;
@@ -108,7 +108,7 @@ QMP_get_job_geometry(void)
 
 /* Is this the primary node in the machine? */
 QMP_bool_t
-QMP_comm_is_primary_node(QMP_communicator_t comm)
+QMP_comm_is_primary_node(QMP_comm_t comm)
 {
   QMP_bool_t r;
   ENTER;

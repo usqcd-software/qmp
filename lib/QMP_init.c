@@ -16,15 +16,15 @@ static QMP_machine_t QMP_machine_s = {QMP_MACHINE_INIT};
 QMP_machine_t *QMP_machine = &QMP_machine_s;
 
 static struct QMP_comm_struct QMP_allocated_comm_s = {QMP_COMM_INIT};
-QMP_communicator_t QMP_allocated_comm = &QMP_allocated_comm_s;
+QMP_comm_t QMP_allocated_comm = &QMP_allocated_comm_s;
 
 //static struct QMP_comm_struct QMP_job_comm_s = {QMP_COMM_INIT};
-//QMP_communicator_t QMP_job_comm = &QMP_job_comm_s;
-QMP_communicator_t QMP_job_comm = &QMP_allocated_comm_s;
+//QMP_comm_t QMP_job_comm = &QMP_job_comm_s;
+QMP_comm_t QMP_job_comm = &QMP_allocated_comm_s;
 
 //static struct QMP_comm_struct QMP_default_comm_s = {QMP_COMM_INIT};
-//QMP_communicator_t QMP_default_comm = &QMP_default_comm_s;
-QMP_communicator_t QMP_default_comm = &QMP_allocated_comm_s;
+//QMP_comm_t QMP_default_comm = &QMP_default_comm_s;
+QMP_comm_t QMP_default_comm = &QMP_allocated_comm_s;
 
 // for debugging
 int QMP_stack_level = 0;
@@ -32,7 +32,7 @@ int QMP_stack_level = 0;
 /**
  * Get the allocated communicator.
  */
-QMP_communicator_t
+QMP_comm_t
 QMP_comm_get_allocated(void)
 {
   ENTER;
@@ -44,7 +44,7 @@ QMP_comm_get_allocated(void)
  * Set the allocated communicator.
  */
 QMP_status_t
-QMP_comm_set_allocated(QMP_communicator_t comm)
+QMP_comm_set_allocated(QMP_comm_t comm)
 {
   ENTER;
   QMP_allocated_comm = comm;
@@ -55,7 +55,7 @@ QMP_comm_set_allocated(QMP_communicator_t comm)
 /**
  * Get the job communicator.
  */
-QMP_communicator_t
+QMP_comm_t
 QMP_comm_get_job(void)
 {
   ENTER;
@@ -67,7 +67,7 @@ QMP_comm_get_job(void)
  * Set the job communicator.
  */
 QMP_status_t
-QMP_comm_set_job(QMP_communicator_t comm)
+QMP_comm_set_job(QMP_comm_t comm)
 {
   ENTER;
   QMP_job_comm = comm;
@@ -78,7 +78,7 @@ QMP_comm_set_job(QMP_communicator_t comm)
 /**
  * Get the default communicator.
  */
-QMP_communicator_t
+QMP_comm_t
 QMP_comm_get_default(void)
 {
   ENTER;
@@ -90,7 +90,7 @@ QMP_comm_get_default(void)
  * Set the default communicator.
  */
 QMP_status_t
-QMP_comm_set_default(QMP_communicator_t comm)
+QMP_comm_set_default(QMP_comm_t comm)
 {
   ENTER;
   QMP_default_comm = comm;
