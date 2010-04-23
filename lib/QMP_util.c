@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <ctype.h>
 #include <stdarg.h>
+#include <sys/time.h>
 
 #include "QMP_P_COMMON.h"
 
@@ -13,8 +14,6 @@
 QMP_bool_t
 QMP_is_initialized(void)
 {
-  ENTER;
-  LEAVE;
   return QMP_machine->inited;
 }
 
