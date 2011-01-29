@@ -454,8 +454,8 @@ extern QMP_status_t       QMP_declare_logical_topology (const int dims[], int nd
  * @param ndim number of logical dimensions.
  * @return QMP_TRUE: if success, otherwise return QMP_FALSE
  */
-extern QMP_status_t       QMP_comm_declare_logical_topology (QMP_comm_t comm,
-							     const int dims[], int ndim);
+extern QMP_status_t     QMP_comm_declare_logical_topology (QMP_comm_t comm,
+							   const int dims[], int ndim);
 
 /**
  * Forces the logical topology to be a simple grid of given dimensions
@@ -465,8 +465,8 @@ extern QMP_status_t       QMP_comm_declare_logical_topology (QMP_comm_t comm,
  * @param ndim number of logical dimensions.
  * @return QMP_TRUE: if success, otherwise return QMP_FALSE
  */
-extern QMP_status_t       QMP_declare_logical_topology_map (const int dims[], int ndim,
-							    const int map[], int mapdim);
+extern QMP_status_t      QMP_declare_logical_topology_map (const int dims[], int ndim,
+							   const int map[], int mapdim);
 
 /**
  * Forces the logical topology to be a simple grid of given dimensions
@@ -477,9 +477,9 @@ extern QMP_status_t       QMP_declare_logical_topology_map (const int dims[], in
  * @param ndim number of logical dimensions.
  * @return QMP_TRUE: if success, otherwise return QMP_FALSE
  */
-extern QMP_status_t       QMP_comm_declare_logical_topology_map (QMP_comm_t comm,
-								 const int dims[], int ndim,
-								 const int map[], int mapdim);
+extern QMP_status_t QMP_comm_declare_logical_topology_map (QMP_comm_t comm,
+							   const int dims[], int ndim,
+							   const int map[], int mapdim);
 
 /**
  * Check whether a logical topology is declared or not.
@@ -568,6 +568,26 @@ extern int*               QMP_get_logical_coordinates_from (int node);
  */
 extern int*               QMP_comm_get_logical_coordinates_from (QMP_comm_t comm,
 								 int node);
+
+/**
+ * Get a logical coordinate from a node number.
+ *
+ * @return a coordinate. If no logical topology declared, 
+ * return information from physical geometry. Callers should free
+ * memory of the returned pointer.
+ */
+extern void               QMP_get_logical_coordinates_from2 (int coords[], int node);
+
+/**
+ * Get a logical coordinate from a node number.
+ *
+ * @param communicator
+ * @return a coordinate. If no logical topology declared, 
+ * return information from physical geometry. Callers should free
+ * memory of the returned pointer.
+ */
+extern void             QMP_comm_get_logical_coordinates_from2 (QMP_comm_t comm,
+								int coords[], int node);
 
 /**
  * Get the node number from its logical coordinates.

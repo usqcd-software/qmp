@@ -262,6 +262,25 @@ QMP_comm_get_logical_coordinates_from (QMP_comm_t comm, int node)
   return c;
 }
 
+void
+QMP_comm_get_logical_coordinates_from2 (QMP_comm_t comm, int coords[], int node)
+{
+  ENTER;
+
+  QMP_assert(QMP_comm_logical_topology_is_declared(comm));
+
+  int nd = QMP_comm_get_logical_number_of_dimensions(comm);
+
+#ifdef QMP_COMM_GET_LOGICAL_COORDINATES_FROM
+  QMP_COMM_GET_LOGICAL_COORDINATES_FROM(coords, nd, comm, node);
+#else
+  int i;
+  for(i=0; i<nd; i++) coords[i] = 0;
+#endif
+
+  LEAVE;
+}
+
 int *
 QMP_get_logical_coordinates_from (int node)
 {
@@ -272,6 +291,16 @@ QMP_get_logical_coordinates_from (int node)
 
   LEAVE;
   return c;
+}
+
+void
+QMP_get_logical_coordinates_from2 (int coords[], int node)
+{
+  ENTER;
+
+  QMP_comm_get_logical_coordinates_from2 (QMP_comm_get_default(), coords, node);
+
+  LEAVE;
 }
 
 

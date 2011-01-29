@@ -125,9 +125,9 @@ QMP_declare_strided_msgmem (void* base,
       mem->type = MM_strided_buf;
       mem->mem = (char *)base;
       mem->nbytes = blksize*nblocks;
-      mem->st.blksize = blksize;
-      mem->st.nblocks = nblocks;
-      mem->st.stride = stride;
+      mem->mm.st.blksize = blksize;
+      mem->mm.st.nblocks = nblocks;
+      mem->mm.st.stride = stride;
 #ifdef QMP_DECLARE_MSGMEM
       QMP_DECLARE_MSGMEM(mem);
 #endif
@@ -162,18 +162,18 @@ QMP_declare_strided_array_msgmem (void* base[],
     if (mem) {
       mem->type = MM_strided_array_buf;
       mem->mem = (char *)base[0];
-      mem->sa.narray = narray;
-      QMP_alloc(mem->sa.disp, ptrdiff_t, narray);
-      QMP_alloc(mem->sa.blksize, size_t, narray);
-      QMP_alloc(mem->sa.nblocks, int, narray);
-      QMP_alloc(mem->sa.stride, ptrdiff_t, narray);
+      mem->mm.sa.narray = narray;
+      QMP_alloc(mem->mm.sa.disp, ptrdiff_t, narray);
+      QMP_alloc(mem->mm.sa.blksize, size_t, narray);
+      QMP_alloc(mem->mm.sa.nblocks, int, narray);
+      QMP_alloc(mem->mm.sa.stride, ptrdiff_t, narray);
       int i, nb=0;
       for(i=0; i<narray; i++) {
 	nb += blksize[i]*nblocks[i];
-	mem->sa.disp[i] = (ptrdiff_t)(((char *)base[i]) - ((char *)base[0]));
-	mem->sa.blksize[i] = blksize[i];
-	mem->sa.nblocks[i] = nblocks[i];
-	mem->sa.stride[i] = stride[i];
+	mem->mm.sa.disp[i] = (ptrdiff_t)(((char *)base[i]) - ((char *)base[0]));
+	mem->mm.sa.blksize[i] = blksize[i];
+	mem->mm.sa.nblocks[i] = nblocks[i];
+	mem->mm.sa.stride[i] = stride[i];
       }
       mem->nbytes = nb;
 #ifdef QMP_DECLARE_MSGMEM
@@ -206,14 +206,14 @@ QMP_declare_indexed_msgmem (void* base,
   if (mem) {
     mem->type = MM_indexed_buf;
     mem->mem = (char *)base;
-    mem->in.elemsize = elemsize;
-    mem->in.count = count;
-    QMP_alloc(mem->in.blocklen, int, count);
-    QMP_alloc(mem->in.index, int, count);
+    mem->mm.in.elemsize = elemsize;
+    mem->mm.in.count = count;
+    QMP_alloc(mem->mm.in.blocklen, int, count);
+    QMP_alloc(mem->mm.in.index, int, count);
     int i, nb=0;
     for(i=0; i<count; i++) {
-      mem->in.blocklen[i] = blocklen[i];
-      mem->in.index[i] = index[i];
+      mem->mm.in.blocklen[i] = blocklen[i];
+      mem->mm.in.index[i] = index[i];
       nb += elemsize*blocklen[i];
     }
     mem->nbytes = nb;
@@ -240,12 +240,12 @@ QMP_free_msgmem(QMP_msgmem_t mem)
   QMP_FREE_MSGMEM(mem);
 #endif
   if ( mem->type == MM_indexed_buf) {
-    QMP_free(mem->in.index);
+    QMP_free(mem->mm.in.index);
   } else if ( mem->type == MM_strided_array_buf) {
-    QMP_free(mem->sa.disp);
-    QMP_free(mem->sa.blksize);
-    QMP_free(mem->sa.nblocks);
-    QMP_free(mem->sa.stride);
+    QMP_free(mem->mm.sa.disp);
+    QMP_free(mem->mm.sa.blksize);
+    QMP_free(mem->mm.sa.nblocks);
+    QMP_free(mem->mm.sa.stride);
   }
   QMP_free(mem);
 

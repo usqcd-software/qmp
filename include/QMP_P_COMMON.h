@@ -149,13 +149,13 @@ enum MH_type
   MH_recv
 };
 
-struct mm_st {
+struct mm_st { // strided
   size_t blksize;
   int nblocks;
   ptrdiff_t stride;
 };
 
-struct mm_sa {
+struct mm_sa { // strided array
   ptrdiff_t *disp;
   size_t *blksize;
   int *nblocks;
@@ -163,7 +163,7 @@ struct mm_sa {
   int narray;
 };
 
-struct mm_in {
+struct mm_in { // indexed
   int *blocklen;
   int *index;
   int elemsize;
@@ -180,7 +180,7 @@ struct QMP_msgmem_struct
     struct mm_st st;
     struct mm_sa sa;
     struct mm_in in;
-  };
+  } mm;
 #ifdef MM_TYPES
   MM_TYPES
 #endif

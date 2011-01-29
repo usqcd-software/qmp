@@ -16,7 +16,7 @@ QMP_declare_msgmem_mpi(QMP_msgmem_t mem)
 
   case MM_strided_buf: {
     int err;
-    err = MPI_Type_vector(mem->st.nblocks, mem->st.blksize, mem->st.stride,
+    err = MPI_Type_vector(mem->mm.st.nblocks, mem->mm.st.blksize, mem->mm.st.stride,
 			  MPI_BYTE, &(mem->mpi_type));
     QMP_assert(err==MPI_SUCCESS);
     err = MPI_Type_commit(&(mem->mpi_type));
@@ -24,7 +24,7 @@ QMP_declare_msgmem_mpi(QMP_msgmem_t mem)
   } break;
 
   case MM_strided_array_buf: {
-    int err, i, *ones, n = mem->sa.narray;
+    int err, i, *ones, n = mem->mm.sa.narray;
     MPI_Aint *disp;
     MPI_Datatype *dt;
     QMP_alloc(disp, MPI_Aint, n);
@@ -32,9 +32,9 @@ QMP_declare_msgmem_mpi(QMP_msgmem_t mem)
     QMP_alloc(ones, int, n);
     for(i=0; i<n; i++) {
       ones[i] = 1;
-      disp[i] = mem->sa.disp[i];
-      err = MPI_Type_vector(mem->sa.nblocks[i], mem->sa.blksize[i], mem->sa.stride[i],
-			    MPI_BYTE, &dt[i]);
+      disp[i] = mem->mm.sa.disp[i];
+      err = MPI_Type_vector(mem->mm.sa.nblocks[i], mem->mm.sa.blksize[i],
+			    mem->mm.sa.stride[i], MPI_BYTE, &dt[i]);
       QMP_assert(err==MPI_SUCCESS);
     }
     err = MPI_Type_struct(n, ones, disp, dt, &(mem->mpi_type));
@@ -51,18 +51,18 @@ QMP_declare_msgmem_mpi(QMP_msgmem_t mem)
   } break;
 
   case MM_indexed_buf: {
-    int err, freedt=0, n = mem->in.count;
+    int err, freedt=0, n = mem->mm.in.count;
     MPI_Datatype dt;
-    switch(mem->in.elemsize) {
+    switch(mem->mm.in.elemsize) {
     case sizeof(char): dt=MPI_BYTE; break;
     case sizeof(float): dt=MPI_FLOAT; break;
     case sizeof(double): dt=MPI_DOUBLE; break;
     default:
-      err = MPI_Type_contiguous(mem->in.elemsize, MPI_BYTE, &dt);
+      err = MPI_Type_contiguous(mem->mm.in.elemsize, MPI_BYTE, &dt);
       QMP_assert(err==MPI_SUCCESS);
       freedt = 1;
     }
-    err = MPI_Type_indexed(n, mem->in.blocklen, mem->in.index, dt, &(mem->mpi_type));
+    err = MPI_Type_indexed(n,mem->mm.in.blocklen,mem->mm.in.index,dt,&(mem->mpi_type));
     QMP_assert(err==MPI_SUCCESS);
     err = MPI_Type_commit(&(mem->mpi_type));
     QMP_assert(err==MPI_SUCCESS);
