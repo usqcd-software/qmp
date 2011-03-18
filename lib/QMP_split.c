@@ -52,7 +52,9 @@ QMP_comm_split(QMP_comm_t comm, int color, int key,
   QMP_status_t status = QMP_SUCCESS;
   ENTER;
 
-  QMP_alloc(*newcomm, struct QMP_comm_struct, 1);
+  struct QMP_comm_struct *ncstruct = (struct QMP_comm_struct *) newcomm;
+  QMP_alloc(ncstruct, struct QMP_comm_struct, 1);
+  *ncstruct = (struct QMP_comm_struct) {QMP_COMM_INIT};
   (*newcomm)->color = color;
   (*newcomm)->key = key;
   (*newcomm)->topo = NULL;

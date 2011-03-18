@@ -1,3 +1,7 @@
+3/18/2011 -- James Osborn
+
+	2.4.0-a4: fixed bug in QMP_comm_declare_logical_topology using wrong communicator
+
 1/28/2011 -- James Osborn
 
 	2.4.0-a3: removed anonymous union, added get_logical_coordinates_from2 functions

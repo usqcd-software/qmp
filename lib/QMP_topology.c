@@ -124,7 +124,7 @@ QMP_comm_declare_logical_topology (QMP_comm_t comm, const int* dims, int ndim)
 {
   QMP_status_t r;
   ENTER;
-  r = QMP_comm_declare_logical_topology_map (QMP_comm_get_default(), dims, ndim, NULL, 0);
+  r = QMP_comm_declare_logical_topology_map (comm, dims, ndim, NULL, 0);
   LEAVE;
   return r;
 }
