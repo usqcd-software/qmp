@@ -17,6 +17,9 @@
 #if defined(HAVE_MPI)
 #include "QMP_P_MPI.h"
 #endif
+#if defined(HAVE_BGSPI)
+#include "QMP_P_BGSPI.h"
+#endif
 
 typedef struct {
   /* allocated geometry */
@@ -189,6 +192,7 @@ struct QMP_msgmem_struct
 struct QMP_msghandle_struct {
   enum MH_type type;
   int          activeP;     /* Indicate whether the message is active */
+  int          clear_to_send;
   int          num;
   QMP_msgmem_t mm;
   int          dest_node;

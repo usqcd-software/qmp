@@ -6,6 +6,12 @@
 /* compiling for BG/P */
 #undef HAVE_BGP
 
+/* compiling for BG/Q */
+#undef HAVE_BGQ
+
+/* compiling for SPI */
+#undef HAVE_BGSPI
+
 /* compiling for MPI */
 #undef HAVE_MPI
 

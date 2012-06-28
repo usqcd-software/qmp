@@ -1,3 +1,12 @@
+6/27/2012 -- James Osborn
+
+	Added BG/Q SPI code.
+	Added new QMP_clear_to_send function.
+
+1/25/2012 -- James Osborn
+
+	Keep last element of argv NULL when removing arguments
+
 3/18/2011 -- James Osborn
 
 	2.4.0-a4: fixed bug in QMP_comm_declare_logical_topology using wrong communicator

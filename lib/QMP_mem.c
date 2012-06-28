@@ -116,7 +116,7 @@ QMP_declare_strided_msgmem (void* base,
   struct QMP_msgmem_struct *mem;
   ENTER;
 
-  if( stride == blksize ) { /* Not really strided */
+  if( stride == blksize || nblocks == 1 ) { /* Not really strided */
     mem = QMP_declare_msgmem(base, blksize*nblocks);
   } else { /* Really strided */
     QMP_alloc(mem, struct QMP_msgmem_struct, 1);
@@ -264,6 +264,7 @@ alloc_msghandle(void)
   if (mh) {
     mh->type = MH_empty;
     mh->activeP = 0;
+    mh->clear_to_send = 0;
     mh->num = 0;
     mh->base = NULL;
     mh->mm = NULL;

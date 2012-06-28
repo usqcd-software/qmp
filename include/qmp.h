@@ -158,8 +158,18 @@ typedef enum QMP_thread_level
   QMP_THREAD_MULTIPLE
 }QMP_thread_level_t;
 
+/**
+ * Clear to send settings.
+ */
+typedef enum QMP_clear_to_send
+{
+  QMP_CTS_DISABLED = -1,
+  QMP_CTS_NOT_READY = 0,
+  QMP_CTS_READY = 1
+} QMP_clear_to_send_t;
+
 #define QMP_ALIGN_ANY     0
-#define QMP_ALIGN_DEFAULT 16
+#define QMP_ALIGN_DEFAULT 64
 
 #define QMP_MEM_NONCACHE  0x01
 #define QMP_MEM_COMMS     0x02
@@ -830,6 +840,14 @@ extern QMP_msghandle_t    QMP_declare_multiple (QMP_msghandle_t msgh[],
 
 extern QMP_msghandle_t QMP_declare_send_recv_pairs(QMP_msghandle_t msgh[], 
 						   int num);
+
+/**
+ * Declare a recv buffer ready for next message.
+ *
+ * @param mh a message handle.
+ * @return QMP_SUCCESS if now ready for message.
+ */
+extern QMP_status_t QMP_clear_to_send(QMP_msghandle_t mh, QMP_clear_to_send_t cts);
 
 /**
  * Start a communication for a message handle.

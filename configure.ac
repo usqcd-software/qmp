@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(qmp, 2.4.0-a4, [osborn at alcf.anl.gov])
+AC_INIT(qmp, 2.4.0-a5, [osborn at alcf.anl.gov])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_SRCDIR([lib/QMP_grid.c])
 AC_CONFIG_SRCDIR([examples/QMP_test.c])
@@ -137,6 +137,31 @@ AC_ARG_ENABLE(
   fi]
 )
 
+dnl --enable-bgq
+AC_ARG_ENABLE(
+  bgq,
+  AC_HELP_STRING([--enable-bgq],
+    [Use BG/Q personality to set native machine geometry.]),
+  [if test "X$enableval" != "Xno"; then
+    AC_DEFINE([HAVE_BGQ],[],[compiling for BG/Q])
+    AC_MSG_NOTICE([Using BG/Q personality.])
+    QMP_COMMS_CFLAGS="-I/bgsys/drivers/ppcfloor/spi/include $QMP_COMMS_CFLAGS"
+  fi]
+)
+
+dnl --enable-bgspi
+AC_ARG_ENABLE(
+  bgspi,
+  AC_HELP_STRING([--enable-bgspi],
+    [Use Blue Gene SPI low-level communications.]),
+  [if test "X$enableval" != "Xno"; then
+    AC_DEFINE([HAVE_BGSPI],[],[compiling for SPI])
+    AC_MSG_NOTICE([Using Blue Gene SPI.])
+    HAVE_BGSPI=1
+    #QMP_COMMS_CFLAGS="-I/bgsys/drivers/ppcfloor/spi/include $QMP_COMMS_CFLAGS"
+  fi]
+)
+
 AC_SUBST(QMP_COMMS_TYPE)
 AC_SUBST(QMP_COMMS_CFLAGS)
 AC_SUBST(QMP_COMMS_LDFLAGS)
@@ -144,6 +169,7 @@ AC_SUBST(QMP_COMMS_LIBS)
 
 AM_CONDITIONAL(QMP_SINGLE, [test "X${QMP_COMMS_TYPE}X" = "XSINGLEX"])
 AM_CONDITIONAL(QMP_MPI, [test "X${QMP_COMMS_TYPE}X" = "XMPIX"])
+AM_CONDITIONAL(QMP_BGSPI, [test "X${HAVE_BGSPI}X" = "X1X"])
 
 ############################################################
 # Support for memory debugging with DMALLOC

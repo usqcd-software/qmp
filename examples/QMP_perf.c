@@ -356,6 +356,8 @@ test_pingpong (int** smem,
   int nloops;
   int dsize;
   QMP_bool_t sender;
+  QMP_clear_to_send_t cts = QMP_CTS_READY;
+  //QMP_clear_to_send_t cts = QMP_CTS_DISABLED;
 
   nc = pargv->num_channels;
   nloops = pargv->loops;
@@ -376,6 +378,7 @@ test_pingpong (int** smem,
       for (j = 0; j < nc; j++) {
 	if (QMP_wait (sendh[j]) != QMP_SUCCESS)
 	  QMP_printf ("Error in sending %d\n", j );
+	QMP_clear_to_send(sendh[j], cts);
       }
 
       for (j = 0; j < nc; j++) {
@@ -387,6 +390,7 @@ test_pingpong (int** smem,
       for (j = 0; j < nc; j++) {
 	if (QMP_wait (recvh[j]) != QMP_SUCCESS)
 	  QMP_printf ("Error in receiving %d\n", j);
+	QMP_clear_to_send(recvh[j], cts);
       }
     }
     ft = get_current_time (); /* In milli seconds */
@@ -413,6 +417,7 @@ test_pingpong (int** smem,
       for (j = 0; j < nc; j++) {
 	if (QMP_wait (recvh[j]) != QMP_SUCCESS)
 	  QMP_printf ("Error in receiving %d\n", j);
+	QMP_clear_to_send(recvh[j], cts);
       }
 
       for (j = 0; j < nc; j++) {
@@ -424,6 +429,7 @@ test_pingpong (int** smem,
       for (j = 0; j < nc; j++) {
 	if (QMP_wait (sendh[j]) != QMP_SUCCESS)
 	  QMP_printf ("Error in sending %d\n", j );
+	QMP_clear_to_send(sendh[j], cts);
       }
     }
   }
@@ -581,7 +587,7 @@ void
 create_msgs(int **smem, int **rmem,
 	    QMP_msgmem_t *sendmem, QMP_msgmem_t *recvmem,
 	    QMP_msghandle_t *sendh, QMP_msghandle_t *recvh,
-	    int ndims, int nc, int size)
+	    int ndims, int nc, int size, struct perf_argv *pargv)
 {
   int i, j, n;
 
@@ -719,7 +725,7 @@ create_msgs(int **smem, int **rmem,
 
     }
 
-    if(ndims>1) {
+    if(ndims>0) {  // always use
       QMP_msghandle_t *tsend, *trecv;
       tsend = (QMP_msghandle_t *)malloc(ndims*sizeof(QMP_msghandle_t));
       trecv = (QMP_msghandle_t *)malloc(ndims*sizeof(QMP_msghandle_t));
@@ -735,12 +741,22 @@ create_msgs(int **smem, int **rmem,
 	  exit (1);
 	}
       }
-      recvh[i] = QMP_declare_multiple(trecv, ndims);
+      if(pargv->option & TEST_PINGPONG) {
+	if(pargv->sender) {
+	  sendh[i] = QMP_declare_send_recv_pairs(tsend, ndims);
+	  recvh[i] = QMP_declare_send_recv_pairs(trecv, ndims);
+	} else {
+	  recvh[i] = QMP_declare_send_recv_pairs(trecv, ndims);
+	  sendh[i] = QMP_declare_send_recv_pairs(tsend, ndims);
+	}
+      } else {
+	recvh[i] = QMP_declare_multiple(trecv, ndims);
+	sendh[i] = QMP_declare_multiple(tsend, ndims);
+      }
       if (!recvh[i]) {
 	QMP_printf ("Recv Handle Error: %s\n", QMP_get_error_string(0));
 	exit (1);
       }
-      sendh[i] = QMP_declare_multiple(tsend, ndims);
       if (!sendh[i]) {
 	QMP_printf ("Send Handle Error: %s\n", QMP_get_error_string(0));
 	exit (1);
@@ -930,7 +946,7 @@ main (int argc, char** argv)
       QMP_printf("starting simultaneous sends"); fflush(stdout);
     for(i=pargv.minsize; i<=pargv.maxsize; i*=pargv.facsize) {
       pargv.size = i;
-      create_msgs(smem, rmem, sendmem, recvmem, sendh, recvh, ndims, nc, i);
+      create_msgs(smem, rmem, sendmem, recvmem, sendh, recvh, ndims, nc, i, &pargv);
       test_simultaneous_send (smem, rmem, sendh, recvh, &pargv);
       check_mem(rmem, ndims, nc, i);
       free_msgs(smem, rmem, sendmem, recvmem, sendh, recvh, ndims, nc);
@@ -944,7 +960,7 @@ main (int argc, char** argv)
       QMP_printf("starting ping pong sends"); fflush(stdout);
     for(i=pargv.minsize; i<=pargv.maxsize; i*=pargv.facsize) {
       pargv.size = i;
-      create_msgs(smem, rmem, sendmem, recvmem, sendh, recvh, ndims, nc, i);
+      create_msgs(smem, rmem, sendmem, recvmem, sendh, recvh, ndims, nc, i, &pargv);
       if(pargv.verify)
 	test_pingpong_verify(smem, rmem, sendh, recvh, &pargv);
       else
@@ -961,7 +977,7 @@ main (int argc, char** argv)
       QMP_printf("starting one way sends"); fflush(stdout);
     for(i=pargv.minsize; i<=pargv.maxsize; i*=pargv.facsize) {
       pargv.size = i;
-      create_msgs(smem, rmem, sendmem, recvmem, sendh, recvh, ndims, nc, i);
+      create_msgs(smem, rmem, sendmem, recvmem, sendh, recvh, ndims, nc, i, &pargv);
       test_oneway (smem, rmem, sendh, recvh, &pargv);
       if(!pargv.sender) check_mem(rmem, ndims, nc, i);
       free_msgs(smem, rmem, sendmem, recvmem, sendh, recvh, ndims, nc);

@@ -9,7 +9,8 @@
 
 #define MM_TYPES MPI_Datatype mpi_type;
 
-#define MH_TYPES MPI_Request request, *request_array;
+#define MH_TYPES MH_TYPES_MPI
+#define MH_TYPES_MPI MPI_Request request, *request_array;
 
 #define COMM_TYPES MPI_Comm mpicomm;
 #define COMM_TYPES_INIT ,MPI_COMM_NULL

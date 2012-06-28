@@ -155,8 +155,8 @@ remove_from_args(int *argc, char ***argv, int first, int last)
 {
   int n = last - first;
   if(first>=0) {
-    int i;
-    for(i=last+1; i<*argc; i++) (*argv)[i-n-1] = (*argv)[i];
+    // shift arguments down including final NULL in *argc
+    for(int i=last+1; i<=*argc; i++) (*argv)[i-n-1] = (*argv)[i];
     *argc -= n + 1;
   }
 }

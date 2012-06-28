@@ -8,6 +8,24 @@
 
 
 QMP_status_t
+QMP_clear_to_send(QMP_msghandle_t mh, QMP_clear_to_send_t cts)
+{
+  QMP_status_t err = QMP_SUCCESS;
+  ENTER;
+
+  QMP_assert(mh!=NULL);
+  QMP_assert((mh->type==MH_send)||(mh->type==MH_recv)||(mh->type==MH_multiple));
+  QMP_assert(mh->activeP==0);
+  mh->clear_to_send = cts;
+#ifdef QMP_CLEAR_TO_SEND
+  err = QMP_CLEAR_TO_SEND(mh);
+#endif
+
+  LEAVE;
+  return err;
+}
+
+QMP_status_t
 QMP_start(QMP_msghandle_t mh)
 {
   QMP_status_t err = QMP_SUCCESS;
@@ -19,8 +37,9 @@ QMP_start(QMP_msghandle_t mh)
   mh->activeP = 1;
   mh->uses++;
 #ifdef QMP_START
-  QMP_START(mh);
+  err = QMP_START(mh);
 #endif
+  if(mh->clear_to_send==QMP_CTS_READY) mh->clear_to_send = QMP_CTS_NOT_READY;
 
   LEAVE;
   return err;
