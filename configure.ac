@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(qmp, 2.4.0-a5, [osborn at alcf.anl.gov])
+AC_INIT(qmp, 2.4.0-a6, [osborn at alcf.anl.gov])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_SRCDIR([lib/QMP_grid.c])
 AC_CONFIG_SRCDIR([examples/QMP_test.c])
@@ -12,7 +12,7 @@ AC_PROG_MAKE_SET
 dnl Define these as defaults 
 dnl Needed below to check if compiler works
 
-AC_PROG_CC(cc gcc)
+AC_PROG_CC(c99 cc gcc)
 AC_ISC_POSIX
 AC_PROG_RANLIB
 AC_CHECK_TOOL(AR, ar, [ar])
