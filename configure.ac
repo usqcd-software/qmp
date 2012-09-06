@@ -137,6 +137,21 @@ AC_ARG_ENABLE(
   fi]
 )
 
+
+dnl --enable-bgq
+AC_ARG_ENABLE(
+  bgq,
+  AC_HELP_STRING([--enable-bgq],
+    [Use BG/Q personality to set native machine geometry.]),
+  [if test "X$enableval" != "Xno"; then
+    AC_DEFINE([HAVE_BGQ],[],[compiling for BG/Q])
+    AC_MSG_NOTICE([Using BG/Q personality.])
+    QMP_COMMS_CFLAGS="-I/bgsys/drivers/ppcfloor/ -I/bgsys/drivers/ppcfloor/spi/include/kernel/cnk $QMP_COMMS_CFLAGS"
+#    QMP_COMMS_LDFLAGS="-L/bgsys/drivers/ppcfloor/spi/lib/ $QMP_COMMS_LDFLAGS"
+#    QMP_COMMS_LIBS="-lSPI -lSPI_cnk $QMP_COMMS_LIBS"
+  fi]
+)
+
 AC_SUBST(QMP_COMMS_TYPE)
 AC_SUBST(QMP_COMMS_CFLAGS)
 AC_SUBST(QMP_COMMS_LDFLAGS)

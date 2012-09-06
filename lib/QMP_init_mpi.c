@@ -199,7 +199,254 @@ set_native_machine(void)
   }
 }
 
-#else  /* native only supported on BG/L and BG/P */
+#elif defined(HAVE_BGQ)
+/*
+ * Peter Boyle, Oct 2010. Native map for BG/Q with 
+ * space filling dimension folding.
+ */ 
+#include <firmware/include/personality.h>
+#include <spi/include/kernel/process.h>
+#include <spi/include/kernel/location.h>
+#include <spi/include/mu/Descriptor.h>
+
+MUHWI_Destination_t QMP_neigh[8];
+MUHWI_Destination_t QMP_me;
+int                 QMP_Labcde[5];
+
+static const int X=0;
+static const int Y=1;
+static const int Z=2;
+static const int T=3;
+static const int A=0;
+static const int B=1;
+static const int C=2;
+static const int D=3;
+static const int E=4;
+
+static int bgq3d=0;
+static void BGQtoLogical(int * xyzt, int *Lxyzt, int *abcde, int *Labcde);
+static void BGQtoLogical3d(int * xyzt, int *Lxyzt, int *abcde, int *Labcde);
+static void BGQtoLogical4d(int * xyzt, int *Lxyzt, int *abcde, int *Labcde);
+static void LogicaltoBGQ(int * xyzt, int *abcde, int *Labcde);
+
+static void BGQtoLogical3d(int * xyzt, int *Lxyzt, int *abcde, int *Labcde)
+{
+  int Cny,Cnz;
+  int Cy,Cz;
+
+  Lxyzt[T] = 1;
+  xyzt[T]  = 0;
+
+  // Fold C into AB, E into D
+  if ( Labcde[C] == 1)      {Cny=1;Cnz=1;}
+  else if ( Labcde[C] == 2) {Cny=2;Cnz=1;}
+  else if ( Labcde[C] == 4) {Cny=2;Cnz=2;}
+  else {
+    printf("QMP: Cannot fold BG/Q to native3d for large C dimensions\n");
+    printf("QMP: try 4d \"-qmp-geom native\" instead\n");
+    QMP_abort(-1);
+  }
+
+  if ( abcde[C] == 0 ) { Cy=0;Cz=0;}
+  if ( abcde[C] == 1 ) { Cy=1;Cz=0;}
+  if ( abcde[C] == 2 ) { Cy=1;Cz=1;}
+  if ( abcde[C] == 3 ) { Cy=0;Cz=1;}
+
+  Lxyzt[X] = Labcde[E]*Labcde[D];
+  Lxyzt[Y] = Cny*Labcde[A];
+  Lxyzt[Z] = Cnz*Labcde[B];
+
+  if ( abcde[E] == 0 )    xyzt[X] = abcde[D];
+  else                    xyzt[X] = 2*Labcde[D]-1-abcde[D];
+
+  if ( Cy==0 )  xyzt[Y] = abcde[A];
+  else          xyzt[Y] = 2*Labcde[A]-1-abcde[A];
+
+  if ( Cz==0 )  xyzt[Z] = abcde[B];
+  else          xyzt[Z] = 2*Labcde[B]-1-abcde[B];
+
+
+}
+static void BGQtoLogical4d(int * xyzt, int *Lxyzt, int *abcde, int *Labcde)
+{
+  Lxyzt[X] = Labcde[A];
+  Lxyzt[Y] = Labcde[C];
+  Lxyzt[Z] = Labcde[D];
+  Lxyzt[T] = Labcde[E]*Labcde[B];
+
+  xyzt[X] = abcde[A];
+  xyzt[Y] = abcde[C];
+  xyzt[Z] = abcde[D];
+
+  if ( abcde[E] == 0 ) xyzt[T] = abcde[B];
+  else                 xyzt[T] = 2*Labcde[B]-1-abcde[B];
+
+}
+
+static void LogicalToBGQ(int * xyzt, int *abcde, int *Labcde)
+{
+  int xyzt_seek[4];
+  int lxyzt[4];
+
+  for(abcde[A]=0;abcde[A]<Labcde[A];abcde[A]++){
+  for(abcde[B]=0;abcde[B]<Labcde[B];abcde[B]++){
+  for(abcde[C]=0;abcde[C]<Labcde[C];abcde[C]++){
+  for(abcde[D]=0;abcde[D]<Labcde[D];abcde[D]++){
+  for(abcde[E]=0;abcde[E]<Labcde[E];abcde[E]++){
+    BGQtoLogical(xyzt_seek,lxyzt,abcde,Labcde);
+    if ( (xyzt[A] == xyzt_seek[A])
+      && (xyzt[B] == xyzt_seek[B])
+      && (xyzt[C] == xyzt_seek[C])
+      && (xyzt[D] == xyzt_seek[D])
+      && (xyzt[E] == xyzt_seek[E])
+	 ) { 
+      return;
+    }
+  }}}}}
+  printf("QMP: Logical error seeking node\n");
+  QMP_abort(-1);
+}
+static void BGQtoLogical(int * xyzt, int *Lxyzt, int *abcde, int *Labcde)
+{
+
+  if (bgq3d) BGQtoLogical3d(xyzt,Lxyzt,abcde,Labcde);
+  else BGQtoLogical4d(xyzt,Lxyzt,abcde,Labcde);
+
+}
+
+static void set_native_machine(void)
+{
+  int abcde[5];
+  int xyzt[4];
+  int neighbour[4];
+  int neigh_abcde[5];
+
+  int Labcde[5];
+  int Lxyzt[4];
+
+  int MPItasks, allNodes, tasksPerNode;
+
+  int nd,n,k;
+  int mu;
+
+  int tasks, taskInNode, dim;
+
+  Personality_t personality;
+  Kernel_GetPersonality(&personality, sizeof(personality));
+
+  Labcde[A] = personality.Network_Config.Anodes;
+  Labcde[B] = personality.Network_Config.Bnodes;
+  Labcde[C] = personality.Network_Config.Cnodes;
+  Labcde[D] = personality.Network_Config.Dnodes;
+  Labcde[E] = personality.Network_Config.Enodes;
+
+  abcde[A] = personality.Network_Config.Acoord;
+  abcde[B] = personality.Network_Config.Bcoord;
+  abcde[C] = personality.Network_Config.Ccoord;
+  abcde[D] = personality.Network_Config.Dcoord;
+  abcde[E] = personality.Network_Config.Ecoord;
+
+  BGQtoLogical(xyzt,Lxyzt,abcde,Labcde);
+
+  MPItasks = QMP_global_m->num_nodes;
+  allNodes = Lxyzt[X]*Lxyzt[Y]*Lxyzt[Z]*Lxyzt[T];
+  tasksPerNode = MPItasks/allNodes;
+
+  nd=4;
+  QMP_global_m->ndim = nd;
+  QMP_global_m->geom = (int *) malloc(nd*sizeof(int));
+  QMP_global_m->coord = (int *) malloc(nd*sizeof(int));
+
+  QMP_global_m->geom[0] = Lxyzt[X];
+  QMP_global_m->geom[1] = Lxyzt[Y];
+  QMP_global_m->geom[2] = Lxyzt[Z];
+  QMP_global_m->geom[3] = Lxyzt[T];
+
+  QMP_global_m->coord[0] = xyzt[X];
+  QMP_global_m->coord[1] = xyzt[Y];
+  QMP_global_m->coord[2] = xyzt[Z];
+  QMP_global_m->coord[3] = xyzt[T];
+
+  /*Assumes ranks go within node fastest, code strategy taken by Walkup*/
+  taskInNode = QMP_global_m->nodeid%allNodes;
+  dim=0;
+
+  while(tasksPerNode>1){
+    QMP_global_m->geom[dim]*=2;
+    QMP_global_m->coord[dim]*=2;
+    if ( taskInNode&0x1 ) {
+      QMP_global_m->coord[dim]++;
+    }
+    taskInNode>>=1;
+    tasksPerNode>>=1;
+    dim = (dim+1)%3;
+  }
+
+  QMP_me.Destination.Destination=0;
+  QMP_me.Destination.A_Destination=abcde[A];
+  QMP_me.Destination.B_Destination=abcde[B];
+  QMP_me.Destination.C_Destination=abcde[C];
+  QMP_me.Destination.D_Destination=abcde[D];
+  QMP_me.Destination.E_Destination=abcde[E];
+
+  for(mu=0;mu<5;mu++) QMP_Labcde[mu]=Labcde[mu];
+
+  // FIXME this mapping for SPI use is broken for more than 1 MPI task per node
+  for(mu=0;mu<4;mu++){
+    neighbour[X] = xyzt[X];
+    neighbour[Y] = xyzt[Y];
+    neighbour[Z] = xyzt[Z];
+    neighbour[T] = xyzt[T];
+
+    neighbour[mu]= (xyzt[mu]+Lxyzt[mu]-1)%Lxyzt[mu];
+    LogicalToBGQ(neighbour,neigh_abcde,Labcde);
+    QMP_neigh[mu*2].Destination.A_Destination=neigh_abcde[A];
+    QMP_neigh[mu*2].Destination.B_Destination=neigh_abcde[B];
+    QMP_neigh[mu*2].Destination.C_Destination=neigh_abcde[C];
+    QMP_neigh[mu*2].Destination.D_Destination=neigh_abcde[D];
+    QMP_neigh[mu*2].Destination.E_Destination=neigh_abcde[E];
+
+    neighbour[mu]= (xyzt[mu]+1)%Lxyzt[mu];
+    LogicalToBGQ(neighbour,neigh_abcde,Labcde);
+    QMP_neigh[mu*2+1].Destination.A_Destination=neigh_abcde[A];
+    QMP_neigh[mu*2+1].Destination.B_Destination=neigh_abcde[B];
+    QMP_neigh[mu*2+1].Destination.C_Destination=neigh_abcde[C];
+    QMP_neigh[mu*2+1].Destination.D_Destination=neigh_abcde[D];
+    QMP_neigh[mu*2+1].Destination.E_Destination=neigh_abcde[E];
+  }
+
+  if (QMP_global_m->nodeid==0) {
+    printf("*********************************\n");
+    printf("* QMP BlueGene/Q Native topology\n");
+    printf("*********************************\n");
+    printf("* Torus: %d x %d x %d x %d x%d \n",Labcde[A],Labcde[B],Labcde[C],Labcde[D],Labcde[E]);
+    printf("* SMP: %d tasks per node\n",tasksPerNode);
+    printf("* MPI: %d tasks\n",MPItasks);
+    printf("* Physical XxYxZxT = %dx%dx%dx%d\n",Lxyzt[X],Lxyzt[Y],Lxyzt[Z],Lxyzt[T]);
+    printf("* Logical  XxYxZxT = %dx%dx%dx%d\n",
+	   QMP_global_m->geom[0],QMP_global_m->geom[1],
+	   QMP_global_m->geom[2],QMP_global_m->geom[3]);
+    printf("*********************************\n");
+  }
+
+  n = 0;
+  for(k=nd-1;k>=0;k--){
+    n=n*QMP_global_m->geom[k]+QMP_global_m->coord[k];
+  }
+  QMP_global_m->nodeid=n;
+
+  //  printf("QMP MAP %d %d %d %d <==> %d %d %d %d %d Rank %d\n",xyzt[X],xyzt[Y],xyzt[Z],xyzt[T],
+  //	 abcde[A],abcde[B],abcde[C],abcde[D],abcde[E],n
+  //	 );
+
+  if ( MPI_Comm_split(MPI_COMM_WORLD,1,QMP_global_m->nodeid,&QMP_COMM_WORLD) != MPI_SUCCESS ) {
+    printf("* MPI_Comm_split failed\n");
+    QMP_abort_string (-1, "MPI_Comm_split failed");
+  }
+
+}
+
+#else  /* native only supported on BG/L and BG/P and BG/Q */
 
 static void
 set_native_machine(void)
@@ -470,6 +717,13 @@ process_qmp_geom(int* argc, char*** argv, int na){
 	permute(QMP_global_m->geom, QMP_global_m->amap, nd);
 	permute(QMP_global_m->coord, QMP_global_m->amap, nd);
       }
+#if defined(HAVE_BGQ)
+    } else if ( c && strcmp(c, "native3d")==0 ) {
+      bgq3d=1;
+      set_native_machine();
+      nd = QMP_global_m->ndim;
+      QMP_global_m->amap=0;
+#endif
     } else {
       int i, n;
       QMP_global_m->ndim = nd;
@@ -617,9 +871,15 @@ QMP_init_msg_passing (int* argc, char*** argv, QMP_thread_level_t required,
     QMP_abort_string (-1, "MPI_Init failed");
 #endif
 
-  *provided = QMP_THREAD_SINGLE;  /* just single for now */
+#if 1
+  if (MPI_Init_thread(argc, argv, QMP_THREAD_MULTIPLE, provided) != MPI_SUCCESS) 
+    QMP_abort_string (-1, "MPI_Init failed");
+  if (*provided != QMP_THREAD_MULTIPLE)
+    QMP_abort_string (-1, "MPI_Init provided != required,");
+#else
   if (MPI_Init(argc, argv) != MPI_SUCCESS) 
     QMP_abort_string (-1, "MPI_Init failed");
+#endif
   if (MPI_Comm_dup(MPI_COMM_WORLD, &QMP_COMM_WORLD) != MPI_SUCCESS)
     QMP_abort_string (-1, "MPI_Comm_dup failed");
   if (MPI_Comm_size(QMP_COMM_WORLD, &PAR_num_nodes) != MPI_SUCCESS)

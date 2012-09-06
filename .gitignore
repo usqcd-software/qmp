@@ -1,0 +1,13 @@
+*~
+*.h.in
+Makefile.in
+Makefile
+configure
+aclocal.m4
+autom4te.cache/
+doc/Makefile.in
+examples/Makefile.in
+lib/Makefile.in
+bin/Makefile.in
+include/Makefile.in
+include/qmp_config.h.in
