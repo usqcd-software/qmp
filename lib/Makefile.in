@@ -78,8 +78,9 @@ am__libqmp_a_SOURCES_DIST = QMP_comm.c QMP_error.c QMP_grid.c \
 	QMP_util.c $(INCDIR)/QMP_P_COMMON.h $(INCDIR)/qmp.h \
 	mpi/QMP_comm_mpi.c mpi/QMP_error_mpi.c mpi/QMP_init_mpi.c \
 	mpi/QMP_mem_mpi.c mpi/QMP_split_mpi.c mpi/QMP_topology_mpi.c \
-	$(INCDIR)/QMP_P_MPI.h bgspi/qspi.c bgspi/QMP_comm_bgspi.c \
-	bgspi/QMP_init_bgspi.c bgspi/QMP_mem_bgspi.c
+	$(INCDIR)/QMP_P_MPI.h bgspi/QMP_comm_bgspi.c \
+	bgspi/QMP_init_bgspi.c bgspi/QMP_mem_bgspi.c bgspi/qspi.c \
+	bgspi/qspi.h bgspi/qspi_internal.h $(INCDIR)/QMP_P_BGSPI.h
 am__objects_1 = QMP_comm.$(OBJEXT) QMP_error.$(OBJEXT) \
 	QMP_grid.$(OBJEXT) QMP_init.$(OBJEXT) QMP_machine.$(OBJEXT) \
 	QMP_mem.$(OBJEXT) QMP_split.$(OBJEXT) QMP_topology.$(OBJEXT) \
@@ -88,16 +89,17 @@ am__objects_2 = QMP_comm_mpi.$(OBJEXT) QMP_error_mpi.$(OBJEXT) \
 	QMP_init_mpi.$(OBJEXT) QMP_mem_mpi.$(OBJEXT) \
 	QMP_split_mpi.$(OBJEXT) QMP_topology_mpi.$(OBJEXT)
 @QMP_MPI_TRUE@am__objects_3 = $(am__objects_2)
-am__objects_4 = qspi.$(OBJEXT) QMP_comm_bgspi.$(OBJEXT) \
-	QMP_init_bgspi.$(OBJEXT) QMP_mem_bgspi.$(OBJEXT)
+am__objects_4 = QMP_comm_bgspi.$(OBJEXT) QMP_init_bgspi.$(OBJEXT) \
+	QMP_mem_bgspi.$(OBJEXT) qspi.$(OBJEXT)
 @QMP_BGSPI_TRUE@am__objects_5 = $(am__objects_4)
 am_libqmp_a_OBJECTS = $(am__objects_1) $(am__objects_3) \
 	$(am__objects_5)
 am__EXTRA_libqmp_a_SOURCES_DIST = mpi/QMP_comm_mpi.c \
 	mpi/QMP_error_mpi.c mpi/QMP_init_mpi.c mpi/QMP_mem_mpi.c \
 	mpi/QMP_split_mpi.c mpi/QMP_topology_mpi.c \
-	$(INCDIR)/QMP_P_MPI.h bgspi/qspi.c bgspi/QMP_comm_bgspi.c \
-	bgspi/QMP_init_bgspi.c bgspi/QMP_mem_bgspi.c
+	$(INCDIR)/QMP_P_MPI.h bgspi/QMP_comm_bgspi.c \
+	bgspi/QMP_init_bgspi.c bgspi/QMP_mem_bgspi.c bgspi/qspi.c \
+	bgspi/qspi.h bgspi/qspi_internal.h $(INCDIR)/QMP_P_BGSPI.h
 libqmp_a_OBJECTS = $(am_libqmp_a_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
@@ -228,9 +230,13 @@ QMP_MPI_SRC = mpi/QMP_comm_mpi.c  \
 	      mpi/QMP_topology_mpi.c \
               $(INCDIR)/QMP_P_MPI.h
 
-QMP_BGSPI_SRC = bgspi/qspi.c bgspi/QMP_comm_bgspi.c  \
-                bgspi/QMP_init_bgspi.c  \
-                bgspi/QMP_mem_bgspi.c
+QMP_BGSPI_SRC = bgspi/QMP_comm_bgspi.c \
+                bgspi/QMP_init_bgspi.c \
+                bgspi/QMP_mem_bgspi.c \
+                bgspi/qspi.c \
+                bgspi/qspi.h \
+                bgspi/qspi_internal.h \
+	        $(INCDIR)/QMP_P_BGSPI.h
 
 libqmp_a_SOURCES = $(QMP_SRC) $(am__append_1) $(am__append_3)
 EXTRA_libqmp_a_SOURCES = $(am__append_2) $(am__append_4)
@@ -429,20 +435,6 @@ QMP_topology_mpi.obj: mpi/QMP_topology_mpi.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o QMP_topology_mpi.obj `if test -f 'mpi/QMP_topology_mpi.c'; then $(CYGPATH_W) 'mpi/QMP_topology_mpi.c'; else $(CYGPATH_W) '$(srcdir)/mpi/QMP_topology_mpi.c'; fi`
 
-qspi.o: bgspi/qspi.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT qspi.o -MD -MP -MF $(DEPDIR)/qspi.Tpo -c -o qspi.o `test -f 'bgspi/qspi.c' || echo '$(srcdir)/'`bgspi/qspi.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/qspi.Tpo $(DEPDIR)/qspi.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bgspi/qspi.c' object='qspi.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o qspi.o `test -f 'bgspi/qspi.c' || echo '$(srcdir)/'`bgspi/qspi.c
-
-qspi.obj: bgspi/qspi.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT qspi.obj -MD -MP -MF $(DEPDIR)/qspi.Tpo -c -o qspi.obj `if test -f 'bgspi/qspi.c'; then $(CYGPATH_W) 'bgspi/qspi.c'; else $(CYGPATH_W) '$(srcdir)/bgspi/qspi.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/qspi.Tpo $(DEPDIR)/qspi.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bgspi/qspi.c' object='qspi.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o qspi.obj `if test -f 'bgspi/qspi.c'; then $(CYGPATH_W) 'bgspi/qspi.c'; else $(CYGPATH_W) '$(srcdir)/bgspi/qspi.c'; fi`
-
 QMP_comm_bgspi.o: bgspi/QMP_comm_bgspi.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT QMP_comm_bgspi.o -MD -MP -MF $(DEPDIR)/QMP_comm_bgspi.Tpo -c -o QMP_comm_bgspi.o `test -f 'bgspi/QMP_comm_bgspi.c' || echo '$(srcdir)/'`bgspi/QMP_comm_bgspi.c
 @am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/QMP_comm_bgspi.Tpo $(DEPDIR)/QMP_comm_bgspi.Po
@@ -484,6 +476,20 @@ QMP_mem_bgspi.obj: bgspi/QMP_mem_bgspi.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bgspi/QMP_mem_bgspi.c' object='QMP_mem_bgspi.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o QMP_mem_bgspi.obj `if test -f 'bgspi/QMP_mem_bgspi.c'; then $(CYGPATH_W) 'bgspi/QMP_mem_bgspi.c'; else $(CYGPATH_W) '$(srcdir)/bgspi/QMP_mem_bgspi.c'; fi`
+
+qspi.o: bgspi/qspi.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT qspi.o -MD -MP -MF $(DEPDIR)/qspi.Tpo -c -o qspi.o `test -f 'bgspi/qspi.c' || echo '$(srcdir)/'`bgspi/qspi.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/qspi.Tpo $(DEPDIR)/qspi.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bgspi/qspi.c' object='qspi.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o qspi.o `test -f 'bgspi/qspi.c' || echo '$(srcdir)/'`bgspi/qspi.c
+
+qspi.obj: bgspi/qspi.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT qspi.obj -MD -MP -MF $(DEPDIR)/qspi.Tpo -c -o qspi.obj `if test -f 'bgspi/qspi.c'; then $(CYGPATH_W) 'bgspi/qspi.c'; else $(CYGPATH_W) '$(srcdir)/bgspi/qspi.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/qspi.Tpo $(DEPDIR)/qspi.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bgspi/qspi.c' object='qspi.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o qspi.obj `if test -f 'bgspi/qspi.c'; then $(CYGPATH_W) 'bgspi/qspi.c'; else $(CYGPATH_W) '$(srcdir)/bgspi/qspi.c'; fi`
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \

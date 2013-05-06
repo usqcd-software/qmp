@@ -26,9 +26,13 @@ QMP_MPI_SRC = mpi/QMP_comm_mpi.c  \
 	      mpi/QMP_topology_mpi.c \
               $(INCDIR)/QMP_P_MPI.h
 
-QMP_BGSPI_SRC = bgspi/qspi.c bgspi/QMP_comm_bgspi.c  \
-                bgspi/QMP_init_bgspi.c  \
-                bgspi/QMP_mem_bgspi.c
+QMP_BGSPI_SRC = bgspi/QMP_comm_bgspi.c \
+                bgspi/QMP_init_bgspi.c \
+                bgspi/QMP_mem_bgspi.c \
+                bgspi/qspi.c \
+                bgspi/qspi.h \
+                bgspi/qspi_internal.h \
+	        $(INCDIR)/QMP_P_BGSPI.h
 
 libqmp_a_SOURCES = $(QMP_SRC)
 EXTRA_libqmp_a_SOURCES =

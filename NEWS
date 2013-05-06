@@ -1,5 +1,11 @@
+7/05/2012 -- James Osborn
+
+	2.4.0-a6
+	Added missing header to distribution.
+
 6/27/2012 -- James Osborn
 
+	2.4.0-a5
 	Added BG/Q SPI code.
 	Added new QMP_clear_to_send function.
 
