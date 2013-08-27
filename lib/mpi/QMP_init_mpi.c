@@ -11,18 +11,55 @@ QMP_status_t
 QMP_init_machine_mpi (int* argc, char*** argv, QMP_thread_level_t required,
 		      QMP_thread_level_t *provided)
 {
-#if 0
-  /* MPI_Init_thread seems to be broken on the Cray X1 so we will
-     use MPI_Init for now until we need real thread support */
+#if 1
+
   int mpi_req, mpi_prv;
-  mpi_req = MPI_THREAD_SINGLE;  /* just single for now */
+  switch ( required ) { 
+  case QMP_THREAD_SINGLE :
+    mpi_req = MPI_THREAD_SINGLE;
+    break;
+  case QMP_THREAD_FUNNELED : 
+    mpi_req = MPI_THREAD_FUNNELED;
+    break;
+  case QMP_THREAD_SERIALIZED :
+    mpi_req = MPI_THREAD_SERIALIZED;
+    break;
+  case QMP_THREAD_MULTIPLE:
+    mpi_req = MPI_THREAD_MULTIPLE;
+    break;
+  default:
+    QMP_abort_string(-1, "Invalid value for required QMP thread level");
+    break;
+  }
+
   if (MPI_Init_thread(argc, argv, mpi_req, &mpi_prv) != MPI_SUCCESS) 
     QMP_abort_string (-1, "MPI_Init failed");
+  
+  switch(mpi_prv) { 
+  case MPI_THREAD_SINGLE:
+    *provided = QMP_THREAD_SINGLE;
+    break;
+  case MPI_THREAD_FUNNELED:
+    *provided = QMP_THREAD_FUNNELED;
+    break;
+  case MPI_THREAD_SERIALIZED:
+    *provided = QMP_THREAD_SERIALIZED;
+    break;
+  case MPI_THREAD_MULTIPLE:
+    *provided = QMP_THREAD_MULTIPLE;
+    break;
+  default:
+    QMP_abort_string(-1, "MPI_Init returned unknown thread safety level");
+    break;
+  }
 #endif
 
+#if 0
+  // Old style of initialization
   *provided = QMP_THREAD_SINGLE;  /* just single for now */
   if (MPI_Init(argc, argv) != MPI_SUCCESS) 
     QMP_abort_string (-1, "MPI_Init failed");
+#endif
 
   MPI_Comm *mcomm = &QMP_allocated_comm->mpicomm;
   if (MPI_Comm_dup(MPI_COMM_WORLD, mcomm) != MPI_SUCCESS)
