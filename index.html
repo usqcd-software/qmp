@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>QMP by usqcd-software</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>QMP</h1>
+        <p>QMP Message Passing Library</p>
+
+        <p class="view"><a href="https://github.com/usqcd-software/qmp">View the Project on GitHub <small>usqcd-software/qmp</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/usqcd-software/qmp/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/usqcd-software/qmp/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/usqcd-software/qmp">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h3>
+<a name="lattice-qcd-message-passing-qmp" class="anchor" href="#lattice-qcd-message-passing-qmp"><span class="octicon octicon-link"></span></a>Lattice QCD Message Passing (QMP)</h3>
+
+<p>The QMP project is a national effort to provide a high performance message passing interface on various hardware platforms for Lattice QCD computing. This message passing interface aims to provide channel oriented communication end points to communication readers and writers with low latency and high bandwidth. QMP is tailored to the repetitive and predominantly nearest neighbor communication patterns of lattice QCD calculations.
+One of striking features of this messaging system is to allow writers to directly deposit contents to preallocated memory buffers of readers without costly synchronization mechanisms, yet gated by the reader. An established communication channel allows a reader and a writer to operate asynchronously so that slightly different operation rates between a reader and a writer will not yield low performance. Most memory copies are eliminated in the messaging system to improve latency.</p>
+
+<h2>
+<a name="qmp-version-2" class="anchor" href="#qmp-version-2"><span class="octicon octicon-link"></span></a>QMP Version 2</h2>
+
+<p>QMP version 2 has been defined, and implementations are in use</p>
+
+<p>QMP-2-0-Introduction (also available as PDF) gives an overview of the concepts as well as documentation of the API.</p>
+
+<p>QMP-2 Changes describes most of the differences between the two versions, including clarifications of the existing API, additions to the API, and a few corrections to the API. This document also describes the proposed evolution of the existing implementations.</p>
+
+<h2>
+<a name="qmp-implementations" class="anchor" href="#qmp-implementations"><span class="octicon octicon-link"></span></a>QMP Implementations</h2>
+
+<p>The sections below describing existing implementations of the first standardized version of QMP (version 2).</p>
+
+<ul>
+<li>QMP C Implementation over MPICH:
+Version (2.0) of QMP over MPICH is ready for downloading. The MPICH version has been tested using MPICH-CHP4, MPICH-SHMEM and MPICH-GM on the same platform. The most recent source is location on this <a href="http://usqcd-software.github.io/downloads/qmp">page</a>
+</li>
+</ul>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/usqcd-software">usqcd-software</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
