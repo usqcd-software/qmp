@@ -30,16 +30,16 @@ shmopen(int size)
   int h = blockhash();
   snprintf(shmfile, sizeof(shmfile), "/qspi%i", h);
   //fprintf(stderr, "%i: using shmfile %s\n", Kernel_GetRank(), shmfile);
-  shmfd = shm_open(shmfile, O_RDWR, 0600);
+  shmfd = shm_open(shmfile, O_RDWR|O_CREAT, 0600);
   if(shmfd<0) {
-    printf("shmfd = %i at %s: %i\n", shmfd, __func__, __LINE__);
+    printf("shmfd: %i errno: %i at %s: %i\n", shmfd, errno, __func__, __LINE__);
     exit(shmfd);
   }
   int rc = ftruncate(shmfd, size);
   CHECKRC(0);
   shmptr = mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_SHARED, shmfd, 0);
   if(shmptr==NULL) {
-    printf("shmptr = %p at %s: %i\n", shmptr, __func__, __LINE__);
+    printf("shmptr: %p errno: %i at %s: %i\n", shmptr, errno, __func__, __LINE__);
     exit(shmfd);
   }
   return shmptr;

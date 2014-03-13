@@ -942,6 +942,8 @@ main (int argc, char** argv)
   QMP_barrier();
   if(QMP_get_node_number()==0) printf("\n"); fflush(stdout);
   if(pargv.option & TEST_SIMUL) {
+    int opts = pargv.option;
+    pargv.option = TEST_SIMUL;
     if(QMP_get_node_number()==0)
       QMP_printf("starting simultaneous sends"); fflush(stdout);
     for(i=pargv.minsize; i<=pargv.maxsize; i*=pargv.facsize) {
@@ -953,9 +955,12 @@ main (int argc, char** argv)
     }
     if(QMP_get_node_number()==0)
       QMP_printf("finished simultaneous sends\n"); fflush(stdout);
+    pargv.option = opts;
   }
 
   if(pargv.option & TEST_PINGPONG) {
+    int opts = pargv.option;
+    pargv.option = TEST_PINGPONG;
     if(QMP_get_node_number()==0)
       QMP_printf("starting ping pong sends"); fflush(stdout);
     for(i=pargv.minsize; i<=pargv.maxsize; i*=pargv.facsize) {
@@ -970,9 +975,12 @@ main (int argc, char** argv)
     }
     if(QMP_get_node_number()==0)
       QMP_printf("finished ping pong sends\n"); fflush(stdout);
+    pargv.option = opts;
   }
 
   if(pargv.option & TEST_ONEWAY) {
+    int opts = pargv.option;
+    pargv.option = TEST_ONEWAY;
     if(QMP_get_node_number()==0)
       QMP_printf("starting one way sends"); fflush(stdout);
     for(i=pargv.minsize; i<=pargv.maxsize; i*=pargv.facsize) {
@@ -984,6 +992,7 @@ main (int argc, char** argv)
     }
     if(QMP_get_node_number()==0)
       QMP_printf("finished one way sends"); fflush(stdout);
+    pargv.option = opts;
   }
 
 
