@@ -84,6 +84,20 @@ QMP_wait(QMP_msghandle_t mh)
 }
 
 QMP_status_t
+QMP_get_hidden_comm(QMP_comm_t comm, void* hiddencomm)
+{
+  QMP_status_t err = QMP_SUCCESS;
+  ENTER;
+
+#ifdef QMP_GET_HIDDEN_COMM
+  err=QMP_GET_HIDDEN_COMM(comm,hiddencomm);
+#endif
+
+  LEAVE;
+  return err;
+}
+
+QMP_status_t
 QMP_wait_all(QMP_msghandle_t mh[], int num)
 {
   QMP_status_t err = QMP_SUCCESS;
@@ -446,6 +460,20 @@ QMP_xor_ulong (unsigned long *value)
   ENTER;
 
   err = QMP_comm_xor_ulong(QMP_comm_get_default(), value);
+
+  LEAVE;
+  return err;
+}
+
+QMP_status_t
+QMP_comm_alltoall (QMP_comm_t comm, char* recvbuffer, char* sendbuffer, int ncount)
+{
+  QMP_status_t err = QMP_SUCCESS;
+  ENTER;
+
+#ifdef QMP_COMM_ALLTOALL
+  err = QMP_COMM_ALLTOALL(comm, recvbuffer, sendbuffer, ncount);
+#endif
 
   LEAVE;
   return err;

@@ -318,6 +318,10 @@ extern int QMP_comm_get_color (QMP_comm_t comm);
  */
 extern int QMP_comm_get_key (QMP_comm_t comm);
 
+/**
+ * Gget the communicator behind the scenes
+ */
+extern QMP_status_t QMP_get_hidden_comm(QMP_comm_t comm, void* hiddencomm);
 
 /********************************
  *  Allocated machine routines  *
@@ -1017,6 +1021,11 @@ extern QMP_status_t       QMP_comm_min_double (QMP_comm_t comm, double* value);
 extern QMP_status_t       QMP_xor_ulong (unsigned long* value);
 
 extern QMP_status_t       QMP_comm_xor_ulong (QMP_comm_t comm, unsigned long* value);
+
+/**
+ * Transposition
+ */
+extern QMP_status_t       QMP_comm_alltoall(QMP_comm_t comm, char* recvbuffer, char* sendbuffer, int count);
 
 /**
  * Global binary reduction using a user provided function.
