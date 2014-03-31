@@ -82,11 +82,12 @@ QMP_wait_mpi(QMP_msghandle_t mh)
 }
 
 QMP_status_t 
-QMP_get_mpi_comm(QMP_comm_t comm, void* mpicm){
+QMP_get_mpi_comm(QMP_comm_t comm, void** mpicm){
   QMP_status_t status = QMP_SUCCESS;
 
-  int err=MPI_Comm_dup(comm->mpicomm, (MPI_Comm*)mpicm);  
-  if(err != MPI_SUCCESS) status = err;
+  //int err=MPI_Comm_dup(comm->mpicomm, (MPI_Comm*)mpicm);  
+  //if(err != MPI_SUCCESS) status = err;
+  *mpicm=(void*)&(comm->mpicomm);
 
   return status;
 }

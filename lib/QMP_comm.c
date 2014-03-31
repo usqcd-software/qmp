@@ -84,7 +84,7 @@ QMP_wait(QMP_msghandle_t mh)
 }
 
 QMP_status_t
-QMP_get_hidden_comm(QMP_comm_t comm, void* hiddencomm)
+QMP_get_hidden_comm(QMP_comm_t comm, void** hiddencomm)
 {
   QMP_status_t err = QMP_SUCCESS;
   ENTER;

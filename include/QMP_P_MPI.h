@@ -66,7 +66,7 @@ void QMP_abort_mpi (int error_code);
 QMP_status_t QMP_comm_split_mpi(QMP_comm_t comm, QMP_comm_t newcomm);
 
 #define QMP_GET_MPI_COMM QMP_get_mpi_comm
-QMP_status_t QMP_get_mpi_comm(QMP_comm_t comm, void* mpicomm);
+QMP_status_t QMP_get_mpi_comm(QMP_comm_t comm, void** mpicomm);
 
 #define QMP_COMM_FREE_MPI QMP_comm_free_mpi
 QMP_status_t QMP_comm_free_mpi(QMP_comm_t comm);

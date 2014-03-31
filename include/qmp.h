@@ -321,7 +321,7 @@ extern int QMP_comm_get_key (QMP_comm_t comm);
 /**
  * Gget the communicator behind the scenes
  */
-extern QMP_status_t QMP_get_hidden_comm(QMP_comm_t comm, void* hiddencomm);
+extern QMP_status_t QMP_get_hidden_comm(QMP_comm_t comm, void** hiddencomm);
 
 /********************************
  *  Allocated machine routines  *
