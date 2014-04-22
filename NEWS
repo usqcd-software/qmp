@@ -1,3 +1,9 @@
+4/22/2014 -- James Osborn
+
+	2.4.1
+	Added improved SPI code.
+	Allow MPI version to send message to self.
+
 7/05/2012 -- James Osborn
 
 	2.4.0-a6

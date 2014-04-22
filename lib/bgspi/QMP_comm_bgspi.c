@@ -101,12 +101,14 @@ QMP_declare_multiple_bgspi(QMP_msghandle_t mh)
 	      MPIX_Comm_rank2global(m->comm->mpicomm, m->dest_node, &grank);
 	      m->qspimsg = qspi_create_msg();
 	      qspi_set_send_multi(grank, base, size, nmsg, m->qspimsg);
+	      qspi_prepare(&m->qspimsg, 1);
 	      //printf("%i testing msg send to %i\n", m->srce_node, m->dest_node);
 	      //qspi_start(m->qspimsg);
 	      //qspi_wait(m->qspimsg);
 	      //printf("%i testing msg send to %i done\n", m->srce_node, m->dest_node);
 	      m->qspicts = qspi_create_msg();
 	      qspi_set_recv(grank, &m->clear_to_send, sizeof(m->clear_to_send), m->qspicts);
+	      qspi_prepare(&m->qspicts, 1);
 	      //printf("%i testing cts send to %i\n", m->srce_node, m->dest_node);
 	      //qspi_start(m->qspicts);
 	      //qspi_wait(m->qspicts);
@@ -117,12 +119,14 @@ QMP_declare_multiple_bgspi(QMP_msghandle_t mh)
 	      m->qspimsg = qspi_create_msg();
 	      //qspi_set_recv_multi(grank, base, size, nmsg, m->qspimsg);
 	      qspi_set_recv(grank, base[0], size[0], m->qspimsg);
+	      qspi_prepare(&m->qspimsg, 1);
 	      //printf("%i testing msg recv from %i\n", m->dest_node, m->srce_node);
 	      //qspi_start(m->qspimsg);
 	      //qspi_wait(m->qspimsg);
 	      //printf("%i testing msg recv from %i done\n", m->dest_node, m->srce_node);
 	      m->qspicts = qspi_create_msg();
 	      qspi_set_send(grank, &m->clear_to_send, sizeof(m->clear_to_send), m->qspicts);
+	      qspi_prepare(&m->qspicts, 1);
 	      //printf("%i testing cts recv from %i\n", m->dest_node, m->srce_node);
 	      //qspi_start(m->qspicts);
 	      //qspi_wait(m->qspicts);
@@ -178,6 +182,7 @@ QMP_start_bgspi(QMP_msghandle_t mh)
   //unsigned long long tmsgstart=0, tctsstart=0, tctswait=0, ttot=0, t0;
   //unsigned long long t0, ttot = GetTimeBase();
   if(mh->useSPI>0) { // useSPI is always multiple
+    //if(QMP_comm_get_default()->nodeid==0) printf("using SPI");
     int nleft = mh->num;
     // do recvs first
     //t0 = GetTimeBase();
@@ -296,6 +301,25 @@ QMP_wait_bgspi(QMP_msghandle_t mh)
     }
   } else {
     status = QMP_wait_mpi(mh);
+  }
+
+  return status;
+}
+
+
+QMP_status_t
+QMP_comm_broadcast_bgspi(QMP_comm_t comm, void *send_buf, size_t count)
+{
+  QMP_status_t status = QMP_SUCCESS;
+
+  // split into 64kB chinks to workaround MPI bug with SPI
+#define CHUNK (64*1024)
+  for(size_t start=0; start<count; start+=CHUNK) {
+    char *buf = ((char*)send_buf) + start;
+    size_t size = count - start;
+    if(size>CHUNK) size = CHUNK;
+    int err = MPI_Bcast(buf, size, MPI_BYTE, 0, comm->mpicomm);
+    if(err != MPI_SUCCESS) { status = err; break; }
   }
 
   return status;

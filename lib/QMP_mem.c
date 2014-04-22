@@ -335,7 +335,6 @@ declare_receive(QMP_comm_t comm, QMP_msgmem_t mm, int sourceNode, int axis, int 
   ENTER;
 
   QMP_assert(mm != NULL);
-  QMP_assert(sourceNode != QMP_comm_get_node_number(comm));
   QMP_assert(sourceNode >= 0);
   QMP_assert(sourceNode < QMP_comm_get_number_of_nodes(comm));
 
@@ -360,6 +359,9 @@ declare_receive(QMP_comm_t comm, QMP_msgmem_t mm, int sourceNode, int axis, int 
 
 #ifdef QMP_DECLARE_RECEIVE
     QMP_DECLARE_RECEIVE(mh);
+#else
+    // can't send to self in single-node mode
+    QMP_assert(sourceNode != QMP_comm_get_node_number(comm));
 #endif
   }
 
@@ -375,7 +377,6 @@ declare_send(QMP_comm_t comm, QMP_msgmem_t mm, int destNode, int axis, int dir, 
   ENTER;
 
   QMP_assert(mm != NULL);
-  QMP_assert(destNode != QMP_comm_get_node_number(comm));
   QMP_assert(destNode >= 0);
   QMP_assert(destNode < QMP_comm_get_number_of_nodes(comm));
 
@@ -400,6 +401,9 @@ declare_send(QMP_comm_t comm, QMP_msgmem_t mm, int destNode, int axis, int dir, 
 
 #ifdef QMP_DECLARE_SEND
     QMP_DECLARE_SEND(mh);
+#else
+    // can't send to self in single-node mode
+    QMP_assert(destNode != QMP_comm_get_node_number(comm));
 #endif
   }
 

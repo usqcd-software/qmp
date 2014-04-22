@@ -5,10 +5,11 @@
 #include <mpi.h>
 #include <mpix.h>
 
-#include <kernel/process.h>
 #include <kernel/location.h>
+#include <kernel/process.h>
 #include <kernel/MU.h>
 #include <mu/Addressing_inlines.h>
+#include <mu/Descriptor_inlines.h>
 #include <mu/GIBarrier.h>
 #include "qspi.h"
 
@@ -26,58 +27,67 @@ uint32_t Kernel_GetRank(void);
    cf. BGQ_MU_DESCRIPTOR_SIZE_IN_BYTES = 64  */
 #define FIFO_SIZE_LOCAL BGQ_MU_DESCRIPTOR_SIZE_IN_BYTES*8*1024
 
-/* maximum fifo number */
-#define FIFO_MAX 8
+/* number of fifos for a sub-group (hardware max number is 8) depend on c-mode*/
+#define TFIFO_SUB1 1
+#define TFIFO_SUB2 1
+#define TFIFO_SUB4 1
+#define TFIFO_SUB8 2
+#define TFIFO_SUB16 4
+#define TFIFO_SUB32 4
+#define TFIFO_SUB64 4
 
-#define NFIFOS1 8
-#define NFIFOS2 8
-#define NFIFOS4 8
-#define NFIFOS8 8
-#define NFIFOS16 8
-#define NFIFOS32 8
-#define NFIFOS64 4
+/* maximum number of subgroups */
+#define MAX_SUBGROUP 64
 
-#define QSPI_SEND 1
-#define QSPI_RECV 0
-//#define QSPI_SEND_MULTI 2
+/* maximum number of total fifos for all subgroups */
+#define FIFO_MAX  4*MAX_SUBGROUP
 
+/* flag for the send and receive */
+#define QSPI_UNDEF -1
+#define QSPI_SEND 0
+#define QSPI_RECV 1
+
+/* default Base address table ID */
 #define BAT_DEFAULT 0
-
 
 #define TRACE fprintf(stderr, "TRACE: %s:%i\n", __func__, __LINE__)
 #define CHECKRC(x) if(rc!=x) { printf("rc = %i at %s: %i\n", rc, __func__, __LINE__); exit(rc); }
 
-struct qspi_msg_t{
+/* communication message structure. 
+  uint32_t fifoID;                        fifo ID
+  uint32_t subgrpid;                      subgroup ID
+  int flag;                               QSPI_SEND or QSPI_RECV
+  uint64_t counter_offset;                physical address offset for counter
+  uint64_t recvbuf_offset;                physical address offset for receive buffer
+  int sender;                             sender rank ID
+  int receiver;                           receiver rank ID
+  size_t msg_size;                        message size in byte
+  MUHWI_Descriptor_t *desc;               pointer to the descriptors
+  int ndesc;                              number of descriptors
+  volatile int64_t counter;               counter
+
+  Kernel_MemoryRegion_t *sbuf_mem;        send buffer memory region
+  Kernel_MemoryRegion_t *counter_mem;     counter memory region
+  Kernel_MemoryRegion_t *rbuf_mem;        receive buffer memory region
+  int injed_desc;                         number of injected descriptors
+*/
+struct qspi_msg_t {
   uint32_t fifoID;
-  uint32_t subgrpid;
+  //  uint32_t subgrpid;
+  int subi;
   int flag; 
   uint64_t counter_offset;
   uint64_t recvbuf_offset;
   int sender;
   int receiver; 
-  size_t msg_size; 
+  size_t *msg_size; 
+  size_t recv_size;
   MUHWI_Descriptor_t *desc;
   int ndesc;
   volatile int64_t counter;
-
   Kernel_MemoryRegion_t *sbuf_mem;
   Kernel_MemoryRegion_t counter_mem;
   Kernel_MemoryRegion_t rbuf_mem;
-//  int msg_N;
   int injed_desc;
-};
-
-
-void qspi_set_descriptor(void *buf, size_t size, int destcoords[],qspi_msg_t msg);
-
-
-/* routines to get ranks and coords of nodes */
-//int nranks(void);
-//int myrank(void);
-//BG_CoordinateMapping_t *getrankmap(void);
-void rank2coords(int rank, int coords[]);
-void mycoords(int *coords);
-int islocal(int *coords);
-
-
-//void barrier(void);
+  void **buf;
+}; 

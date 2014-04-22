@@ -31,6 +31,8 @@
 #define QMP_IS_COMPLETE QMP_IS_COMPLETE_BGSPI
 #undef QMP_WAIT
 #define QMP_WAIT QMP_WAIT_BGSPI
+#undef QMP_COMM_BROADCAST
+#define QMP_COMM_BROADCAST QMP_COMM_BROADCAST_BGSPI
 
 #define QMP_CLEAR_TO_SEND QMP_CLEAR_TO_SEND_BGSPI
 
@@ -67,6 +69,9 @@ QMP_bool_t QMP_is_complete_bgspi(QMP_msghandle_t mh);
 
 #define QMP_WAIT_BGSPI QMP_wait_bgspi
 QMP_status_t QMP_wait_bgspi(QMP_msghandle_t mh);
+
+#define QMP_COMM_BROADCAST_BGSPI QMP_comm_broadcast_bgspi
+QMP_status_t QMP_comm_broadcast_bgspi(QMP_comm_t comm, void *send_buf, size_t count);
 
 
 #endif /* _QMP_P_BGSPI_H */
