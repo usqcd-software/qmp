@@ -52,13 +52,16 @@ main(int argc, char **argv)
 {
   int length[ND] = {4, 2, 4, 8};
   /* int phys_size[ND] = {1, 1, 1, 1}; */
-  int i,err;
-  int num;
+  int i;
   QMP_status_t status;
   QMP_thread_level_t req, prv;
 
   req = QMP_THREAD_SINGLE;
   status = QMP_init_msg_passing (&argc, &argv, req, &prv);
+  if (status != QMP_SUCCESS) {
+    QMP_printf ( "QMP_init failed\n");
+    return -1;
+  }
 
   fprintf(stderr, "lattice =");
   for(i=0; i< ND; ++i) fprintf(stderr, " %d", length[i]);
@@ -66,8 +69,11 @@ main(int argc, char **argv)
 
   /* Let the geometry arrange itself */
   fprintf(stderr,"Dynamical machine size\n");
-  err = QMP_layout_grid(length, ND);
-  num = QMP_get_number_of_nodes();
+  status = QMP_layout_grid(length, ND);
+  if (status != QMP_SUCCESS) {
+    QMP_printf ( "QMP_init failed\n");
+    return -1;
+  }
   {
     const int *s = QMP_get_subgrid_dimensions();
     fprintf(stderr, "subgrid =");
@@ -76,11 +82,13 @@ main(int argc, char **argv)
   }
 
 #if 0
+  int num;
+  num = QMP_get_number_of_nodes();
   /* Set the geometry manually */
   fprintf(stderr,"Fixed machine size\n");
   phys_size[ND-1] = num;
-  err = QMP_declare_logical_topology(phys_size, ND);
-  err = QMP_layout_grid(length, ND);
+  status = QMP_declare_logical_topology(phys_size, ND);
+  status = QMP_layout_grid(length, ND);
   {
     const int *s = QMP_get_subgrid_dimensions();
     fprintf(stderr, "subgrid =");

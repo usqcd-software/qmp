@@ -73,7 +73,7 @@ my_binary_func (void* inout, void* in)
   source = (float *)in;
   len = 10;
 
-  for (i = 0; i < 10; i++) 
+  for (i = 0; i < len; i++) 
     res[i] = res[i] + 2 * source[i];
 
 }
@@ -87,7 +87,6 @@ int main (int argc, char** argv)
 
   req = QMP_THREAD_SINGLE;
   status = QMP_init_msg_passing (&argc, &argv, req, &prv);
-
   if (status != QMP_SUCCESS) {
     QMP_printf ( "QMP_init failed\n");
     return -1;

@@ -109,7 +109,7 @@ int main (int argc, char** argv)
 					sizeof(int),
   			nr,
   			2*sizeof(int) );
- if (!sendmem) {
+  if (!sendmem) {
     QMP_fprintf (stderr, "send memory error : %s\n", 
 		 QMP_get_error_string(0));
     exit (1);
@@ -122,14 +122,14 @@ int main (int argc, char** argv)
     stride[i]=2*sizeof(int);
   }
   sendmem2 = QMP_declare_strided_array_msgmem( base,blksize,nblocks,stride,2);
- if (!sendmem2) {
+  if (!sendmem2) {
     QMP_fprintf (stderr, "send memory error : %s\n", 
 		 QMP_get_error_string(0));
     exit (1);
   }
   
-
   sendh = NULL;
+  sendh2 = NULL;
   if(nodes>1) {
     sendh = QMP_declare_send_to(sendmem, dest, 0);
     if(!sendh) {
@@ -165,17 +165,18 @@ int main (int argc, char** argv)
     stride[i]=sizeof(int);
   }
   recvmem2 = QMP_declare_strided_array_msgmem( base,blksize,nblocks,stride,2);
- if (!recvmem2) {
+  if (!recvmem2) {
     QMP_fprintf (stderr, "recv memory error : %s\n", 
 		 QMP_get_error_string(0));
     exit (1);
   }
-  
+
   for(i=0; i<ns; i++) {
     rvec[i] = 0;
   }
 
   recvh = NULL;
+  recvh2 = NULL;
   if(nodes>1) {
     recvh = QMP_declare_receive_from (recvmem, src, 0);
     if (!recvh) {

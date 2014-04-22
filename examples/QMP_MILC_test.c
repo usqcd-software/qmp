@@ -133,15 +133,15 @@ main (int argc, char** argv)
   /* If this is the root node, get dimension information from key board */
   if (QMP_is_primary_node()) {
     QMP_fprintf (stderr, "Enter memory size and number of loops to run\n");
-    scanf ("%d %d", &pargv.size, &pargv.loops);
+    if(scanf ("%d %d", &pargv.size, &pargv.loops)!=2)
+      QMP_abort_string (-1, "invalid input\n");
   }
-  
+
   if (QMP_broadcast (&pargv, sizeof(struct perf_argv)) != QMP_SUCCESS) 
     QMP_abort_string (1, "Cannot do broadcast, Quit\n");
 
   QMP_fprintf (stderr, "Memory size : %d number of loops : %d \n", 
 	       pargv.size, pargv.loops);
-
 
   num_nodes = QMP_get_number_of_nodes ();
   

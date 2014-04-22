@@ -533,12 +533,10 @@ test_simultaneous_send (int** smem,
   int nc, ndims;
   int nloops;
   int dsize;
-  QMP_bool_t sender;
 
   nc = pargv->num_channels;
   nloops = pargv->loops;
   dsize = pargv->size;
-  sender = pargv->sender;
   ndims = pargv->ndims;
 
   /* do a test for nloops */
@@ -847,7 +845,6 @@ main (int argc, char** argv)
 {
   int             i, nc;
   QMP_status_t      status;
-  int       rank;
   int       **smem, **rmem;
   QMP_msgmem_t    *recvmem;
   QMP_msghandle_t *recvh;
@@ -913,7 +910,6 @@ main (int argc, char** argv)
     exit (1);
   }
 
-  rank = QMP_get_node_number ();
   {
     int k=1;
     const int *lc = QMP_get_logical_coordinates();

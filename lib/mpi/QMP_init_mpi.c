@@ -13,7 +13,7 @@ QMP_init_machine_mpi (int* argc, char*** argv, QMP_thread_level_t required,
 {
 #if 1
 
-  int mpi_req, mpi_prv;
+  int mpi_req=-1, mpi_prv;
   switch ( required ) { 
   case QMP_THREAD_SINGLE :
     mpi_req = MPI_THREAD_SINGLE;
@@ -34,7 +34,7 @@ QMP_init_machine_mpi (int* argc, char*** argv, QMP_thread_level_t required,
 
   if (MPI_Init_thread(argc, argv, mpi_req, &mpi_prv) != MPI_SUCCESS) 
     QMP_abort_string (-1, "MPI_Init failed");
-  
+
   switch(mpi_prv) { 
   case MPI_THREAD_SINGLE:
     *provided = QMP_THREAD_SINGLE;

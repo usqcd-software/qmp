@@ -15,6 +15,10 @@ main(int argc, char **argv)
 
   req = QMP_THREAD_SINGLE;
   status = QMP_init_msg_passing(&argc, &argv, req, &prv);
+  if (status != QMP_SUCCESS) {
+    QMP_fprintf(stderr, "QMP_init failed\n");
+    return -1;
+  }
 
   n = QMP_get_number_of_nodes();
   rank = QMP_get_node_number();

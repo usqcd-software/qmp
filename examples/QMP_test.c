@@ -63,8 +63,7 @@
 int main (int argc, char** argv)
 {
   int i, j;
-  QMP_bool_t status, sender, verbose;
-  int  rank;
+  QMP_bool_t status, verbose;
   QMP_status_t err;
   int dims[4] = {1, 1, 1, 1};
   int ndims = 4;
@@ -119,12 +118,6 @@ int main (int argc, char** argv)
     QMP_fprintf (stderr, "Cannot declare logical grid\n");
   else
     QMP_fprintf (stderr, "Declare logical grid ok\n");
-
-  rank = QMP_get_node_number ();
-  if (rank == 0)
-    sender = QMP_TRUE;
-  else
-    sender = QMP_FALSE;
 
   for (i = 0; i < NUM_HANDLES; i++) {
     rmem[i] = QMP_allocate_memory (10234);
