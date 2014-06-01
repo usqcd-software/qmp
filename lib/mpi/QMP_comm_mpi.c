@@ -124,6 +124,23 @@ QMP_comm_sum_double_mpi(QMP_comm_t comm, double *value)
 
 
 QMP_status_t
+QMP_comm_sum_long_double_mpi(QMP_comm_t comm, long double *value)
+{
+  QMP_status_t status = QMP_SUCCESS;
+  ENTER;
+
+  long double dest;
+  int err = MPI_Allreduce((void *)value, (void *)&dest, 1,
+			  MPI_LONG_DOUBLE, MPI_SUM, comm->mpicomm);
+  if(err != MPI_SUCCESS) status = err;
+  else *value = dest;
+
+  LEAVE;
+  return status;
+}
+
+
+QMP_status_t
 QMP_comm_sum_float_array_mpi(QMP_comm_t comm, float value[], int count)
 {
   QMP_status_t status = QMP_SUCCESS;
@@ -154,6 +171,29 @@ QMP_comm_sum_double_array_mpi(QMP_comm_t comm, double value[], int count)
 
   double *dest;
   QMP_alloc(dest, double, count);
+  int err = MPI_Allreduce((void *)value, (void *)dest, count,
+			  MPI_DOUBLE, MPI_SUM, comm->mpicomm);
+  if(err != MPI_SUCCESS) status = err;
+  else {
+    int i;
+    for (i = 0; i < count; i++)
+      value[i] = dest[i];
+  }
+  QMP_free(dest);
+  
+  LEAVE;
+  return status;
+}
+
+
+QMP_status_t
+QMP_comm_sum_long_double_array_mpi(QMP_comm_t comm, long double value[], int count)
+{
+  QMP_status_t status = QMP_SUCCESS;
+  ENTER;
+
+  long double *dest;
+  QMP_alloc(dest, long double, count);
   int err = MPI_Allreduce((void *)value, (void *)dest, count,
 			  MPI_DOUBLE, MPI_SUM, comm->mpicomm);
   if(err != MPI_SUCCESS) status = err;

@@ -40,8 +40,10 @@
 #define QMP_COMM_BARRIER QMP_COMM_BARRIER_MPI
 #define QMP_COMM_BROADCAST QMP_COMM_BROADCAST_MPI
 #define QMP_COMM_SUM_DOUBLE QMP_COMM_SUM_DOUBLE_MPI
+#define QMP_COMM_SUM_LONG_DOUBLE QMP_COMM_SUM_LONG_DOUBLE_MPI
 #define QMP_COMM_SUM_FLOAT_ARRAY QMP_COMM_SUM_FLOAT_ARRAY_MPI
 #define QMP_COMM_SUM_DOUBLE_ARRAY QMP_COMM_SUM_DOUBLE_ARRAY_MPI
+#define QMP_COMM_SUM_LONG_DOUBLE_ARRAY QMP_COMM_SUM_LONG_DOUBLE_ARRAY_MPI
 #define QMP_COMM_MAX_DOUBLE QMP_COMM_MAX_DOUBLE_MPI
 #define QMP_COMM_MIN_DOUBLE QMP_COMM_MIN_DOUBLE_MPI
 #define QMP_COMM_XOR_ULONG QMP_COMM_XOR_ULONG_MPI
@@ -120,11 +122,17 @@ QMP_status_t QMP_comm_broadcast_mpi(QMP_comm_t comm, void *send_buf, size_t coun
 #define QMP_COMM_SUM_DOUBLE_MPI QMP_comm_sum_double_mpi
 QMP_status_t QMP_comm_sum_double_mpi(QMP_comm_t comm, double *value);
 
+#define QMP_COMM_SUM_LONG_DOUBLE_MPI QMP_comm_sum_long_double_mpi
+QMP_status_t QMP_comm_sum_long_double_mpi(QMP_comm_t comm, long double *value);
+
 #define QMP_COMM_SUM_FLOAT_ARRAY_MPI QMP_comm_sum_float_array_mpi
 QMP_status_t QMP_comm_sum_float_array_mpi(QMP_comm_t comm, float value[], int count);
 
 #define QMP_COMM_SUM_DOUBLE_ARRAY_MPI QMP_comm_sum_double_array_mpi
 QMP_status_t QMP_comm_sum_double_array_mpi(QMP_comm_t comm, double value[], int count);
+
+#define QMP_COMM_SUM_LONG_DOUBLE_ARRAY_MPI QMP_comm_sum_long_double_array_mpi
+QMP_status_t QMP_comm_sum_long_double_array_mpi(QMP_comm_t comm, long double value[], int count);
 
 #define QMP_COMM_MAX_DOUBLE_MPI QMP_comm_max_double_mpi
 QMP_status_t QMP_comm_max_double_mpi(QMP_comm_t comm, double *value);

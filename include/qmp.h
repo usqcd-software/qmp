@@ -948,6 +948,16 @@ extern QMP_status_t       QMP_sum_double (double *value);
 extern QMP_status_t       QMP_comm_sum_double (QMP_comm_t comm, double *value);
 
 /**
+ * Global in place sum of a long double.
+ * @param value a pointer to a long double.
+ *
+ * @return QMP_SUCCESS when a global sum is success. 
+ */
+extern QMP_status_t       QMP_sum_long_double (long double *value);
+
+extern QMP_status_t       QMP_comm_sum_long_double (QMP_comm_t comm, long double *value);
+
+/**
  * Global in place sum of a double. Intermediate values kept in extended
  * precision if possible.
  * @param value a pointer to a double.
@@ -982,6 +992,18 @@ extern QMP_status_t       QMP_sum_double_array (double value[], int length);
 
 extern QMP_status_t       QMP_comm_sum_double_array (QMP_comm_t comm,
 						     double value[], int length);
+
+/**
+ * Global in place sum of a long double array.
+ * @param value a pointer to a long double array.
+ * @param length size of the array.
+ *
+ * @return QMP_SUCCESS when the global sum is a success.
+ */
+extern QMP_status_t       QMP_sum_long_double_array (long double value[], int length);
+
+extern QMP_status_t       QMP_comm_sum_long_double_array (QMP_comm_t comm,
+							  long double value[], int length);
 
 /**
  * Get maximum value of all floats.

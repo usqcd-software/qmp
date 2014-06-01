@@ -1,8 +1,19 @@
+6/1/2014 -- Carleton DeTar
+ 
+        2.4.2
+        Restored QMP_sum_long_double, which was apparently lost.
+        Incremented minor version to make the distinction.
+
 4/22/2014 -- James Osborn
 
-	2.4.1
-	Added improved SPI code.
-	Allow MPI version to send message to self.
+        2.4.1
+        Added improved SPI code.
+        Allow MPI version to send message to self.
+
+6/25/2013 -- Carleton DeTar
+
+        2.4.1
+        Added QMP_sum_long_double
 
 7/05/2012 -- James Osborn
 

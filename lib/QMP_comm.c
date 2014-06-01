@@ -246,12 +246,41 @@ QMP_sum_double (double *value)
 }
 
 QMP_status_t
-QMP_comm_sum_double_extended (QMP_comm_t comm, double *value)
+QMP_comm_sum_long_double (QMP_comm_t comm, long double *value)
+{
+  QMP_status_t err = QMP_SUCCESS;
+  ENTER;
+
+#ifdef QMP_COMM_SUM_LONG_DOUBLE
+  err = QMP_COMM_SUM_LONG_DOUBLE(comm, value);
+#endif
+
+  LEAVE;
+  return err;
+}
+
+QMP_status_t
+QMP_sum_long_double (long double *value)
 {
   QMP_status_t err;
   ENTER;
 
-  err = QMP_comm_sum_double(comm, value);
+  err = QMP_comm_sum_long_double(QMP_comm_get_default(), value);
+
+  LEAVE;
+  return err;
+}
+
+QMP_status_t
+QMP_comm_sum_double_extended (QMP_comm_t comm, double *value)
+{
+  QMP_status_t err;
+  ENTER;
+  long double ld = *value;
+
+  err = QMP_comm_sum_long_double(comm, &ld);
+
+  *value = ld
 
   LEAVE;
   return err;
@@ -316,6 +345,32 @@ QMP_sum_double_array (double value[], int count)
   ENTER;
 
   err = QMP_comm_sum_double_array(QMP_comm_get_default(), value, count);
+
+  LEAVE;
+  return err;
+}
+
+QMP_status_t
+QMP_comm_sum_long_double_array (QMP_comm_t comm, long double value[], int count)
+{
+  QMP_status_t err = QMP_SUCCESS;
+  ENTER;
+
+#ifdef QMP_COMM_SUM_LONG_DOUBLE_ARRAY
+  err = QMP_COMM_SUM_LONG_DOUBLE_ARRAY(comm, value, count);
+#endif
+
+  LEAVE;
+  return err;
+}
+
+QMP_status_t
+QMP_sum_long_double_array (long double value[], int count)
+{
+  QMP_status_t err;
+  ENTER;
+
+  err = QMP_comm_sum_long_double_array(QMP_comm_get_default(), value, count);
 
   LEAVE;
   return err;

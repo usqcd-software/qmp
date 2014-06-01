@@ -183,6 +183,9 @@ QMP_status_t       QMP_init_msg_passing (int* argc, char*** argv,
  QMP_status_t       QMP_sum_double (double *value)
  __attribute__ ((weak, alias ("PQMP_sum_double")));
 
+ QMP_status_t       QMP_sum_long_double (long double *value)
+ __attribute__ ((weak, alias ("PQMP_sum_long_double")));
+
  QMP_status_t       QMP_sum_double_extended (double *value)
  __attribute__ ((weak, alias ("PQMP_sum_double_extended")));
 
@@ -191,6 +194,9 @@ QMP_status_t       QMP_init_msg_passing (int* argc, char*** argv,
 
  QMP_status_t       QMP_sum_double_array (double value[], int length)
  __attribute__ ((weak, alias ("PQMP_sum_double_array")));
+
+ QMP_status_t       QMP_sum_long_double_array (long double value[], int length)
+ __attribute__ ((weak, alias ("PQMP_sum_long_double_array")));
 
  QMP_status_t       QMP_max_float (float* value)
  __attribute__ ((weak, alias ("PQMP_max_float")));
@@ -294,6 +300,7 @@ QMP_status_t       QMP_init_msg_passing (int* argc, char*** argv,
 #define QMP_sum_int PQMP_sum_int
 #define QMP_sum_float PQMP_sum_float
 #define QMP_sum_double PQMP_sum_double
+#define QMP_sum_long_double PQMP_sum_long_double
 #define QMP_sum_double_extended PQMP_sum_double_extended
 #define QMP_sum_float_array PQMP_sum_float_array
 #define QMP_sum_double_array PQMP_sum_double_array
@@ -447,6 +454,8 @@ extern QMP_status_t       QMP_sum_int (int *value);
 extern QMP_status_t       QMP_sum_float (float *value);
 
 extern QMP_status_t       QMP_sum_double (double *value);
+
+extern QMP_status_t       QMP_sum_long_double (long double *value);
 
 extern QMP_status_t       QMP_sum_double_extended (double *value);
 
