@@ -79,7 +79,7 @@ subdir = .
 DIST_COMMON = INSTALL NEWS README AUTHORS ChangeLog \
 	$(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
-	$(top_srcdir)/config/mkinstalldirs COPYING config/compile \
+	$(top_srcdir)/config/mkinstalldirs COPYING TODO config/compile \
 	config/depcomp config/install-sh config/missing \
 	config/mkinstalldirs $(top_srcdir)/config/compile \
 	$(top_srcdir)/config/install-sh $(top_srcdir)/config/missing

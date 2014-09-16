@@ -141,12 +141,14 @@ am__objects_1 = QMP_comm.$(OBJEXT) QMP_error.$(OBJEXT) \
 	QMP_grid.$(OBJEXT) QMP_init.$(OBJEXT) QMP_machine.$(OBJEXT) \
 	QMP_mem.$(OBJEXT) QMP_split.$(OBJEXT) QMP_topology.$(OBJEXT) \
 	QMP_util.$(OBJEXT)
-am__objects_2 = QMP_comm_mpi.$(OBJEXT) QMP_error_mpi.$(OBJEXT) \
-	QMP_init_mpi.$(OBJEXT) QMP_mem_mpi.$(OBJEXT) \
-	QMP_split_mpi.$(OBJEXT) QMP_topology_mpi.$(OBJEXT)
+am__dirstamp = $(am__leading_dot)dirstamp
+am__objects_2 = mpi/QMP_comm_mpi.$(OBJEXT) mpi/QMP_error_mpi.$(OBJEXT) \
+	mpi/QMP_init_mpi.$(OBJEXT) mpi/QMP_mem_mpi.$(OBJEXT) \
+	mpi/QMP_split_mpi.$(OBJEXT) mpi/QMP_topology_mpi.$(OBJEXT)
 @QMP_MPI_TRUE@am__objects_3 = $(am__objects_2)
-am__objects_4 = QMP_comm_bgspi.$(OBJEXT) QMP_init_bgspi.$(OBJEXT) \
-	QMP_mem_bgspi.$(OBJEXT) qspi.$(OBJEXT)
+am__objects_4 = bgspi/QMP_comm_bgspi.$(OBJEXT) \
+	bgspi/QMP_init_bgspi.$(OBJEXT) bgspi/QMP_mem_bgspi.$(OBJEXT) \
+	bgspi/qspi.$(OBJEXT)
 @QMP_BGSPI_TRUE@am__objects_5 = $(am__objects_4)
 am_libqmp_a_OBJECTS = $(am__objects_1) $(am__objects_3) \
 	$(am__objects_5)
@@ -173,10 +175,6 @@ DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__depfiles_maybe = depfiles
 am__mv = mv -f
-AM_V_lt = $(am__v_lt_@AM_V@)
-am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
-am__v_lt_0 = --silent
-am__v_lt_1 = 
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 AM_V_CC = $(am__v_CC_@AM_V@)
@@ -408,6 +406,38 @@ uninstall-libLIBRARIES:
 
 clean-libLIBRARIES:
 	-test -z "$(lib_LIBRARIES)" || rm -f $(lib_LIBRARIES)
+mpi/$(am__dirstamp):
+	@$(MKDIR_P) mpi
+	@: > mpi/$(am__dirstamp)
+mpi/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) mpi/$(DEPDIR)
+	@: > mpi/$(DEPDIR)/$(am__dirstamp)
+mpi/QMP_comm_mpi.$(OBJEXT): mpi/$(am__dirstamp) \
+	mpi/$(DEPDIR)/$(am__dirstamp)
+mpi/QMP_error_mpi.$(OBJEXT): mpi/$(am__dirstamp) \
+	mpi/$(DEPDIR)/$(am__dirstamp)
+mpi/QMP_init_mpi.$(OBJEXT): mpi/$(am__dirstamp) \
+	mpi/$(DEPDIR)/$(am__dirstamp)
+mpi/QMP_mem_mpi.$(OBJEXT): mpi/$(am__dirstamp) \
+	mpi/$(DEPDIR)/$(am__dirstamp)
+mpi/QMP_split_mpi.$(OBJEXT): mpi/$(am__dirstamp) \
+	mpi/$(DEPDIR)/$(am__dirstamp)
+mpi/QMP_topology_mpi.$(OBJEXT): mpi/$(am__dirstamp) \
+	mpi/$(DEPDIR)/$(am__dirstamp)
+bgspi/$(am__dirstamp):
+	@$(MKDIR_P) bgspi
+	@: > bgspi/$(am__dirstamp)
+bgspi/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) bgspi/$(DEPDIR)
+	@: > bgspi/$(DEPDIR)/$(am__dirstamp)
+bgspi/QMP_comm_bgspi.$(OBJEXT): bgspi/$(am__dirstamp) \
+	bgspi/$(DEPDIR)/$(am__dirstamp)
+bgspi/QMP_init_bgspi.$(OBJEXT): bgspi/$(am__dirstamp) \
+	bgspi/$(DEPDIR)/$(am__dirstamp)
+bgspi/QMP_mem_bgspi.$(OBJEXT): bgspi/$(am__dirstamp) \
+	bgspi/$(DEPDIR)/$(am__dirstamp)
+bgspi/qspi.$(OBJEXT): bgspi/$(am__dirstamp) \
+	bgspi/$(DEPDIR)/$(am__dirstamp)
 
 libqmp.a: $(libqmp_a_OBJECTS) $(libqmp_a_DEPENDENCIES) $(EXTRA_libqmp_a_DEPENDENCIES) 
 	$(AM_V_at)-rm -f libqmp.a
@@ -416,183 +446,47 @@ libqmp.a: $(libqmp_a_OBJECTS) $(libqmp_a_DEPENDENCIES) $(EXTRA_libqmp_a_DEPENDEN
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
+	-rm -f bgspi/*.$(OBJEXT)
+	-rm -f mpi/*.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/QMP_comm.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/QMP_comm_bgspi.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/QMP_comm_mpi.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/QMP_error.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/QMP_error_mpi.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/QMP_grid.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/QMP_init.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/QMP_init_bgspi.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/QMP_init_mpi.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/QMP_machine.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/QMP_mem.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/QMP_mem_bgspi.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/QMP_mem_mpi.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/QMP_split.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/QMP_split_mpi.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/QMP_topology.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/QMP_topology_mpi.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/QMP_util.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/qspi.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@bgspi/$(DEPDIR)/QMP_comm_bgspi.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@bgspi/$(DEPDIR)/QMP_init_bgspi.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@bgspi/$(DEPDIR)/QMP_mem_bgspi.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@bgspi/$(DEPDIR)/qspi.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@mpi/$(DEPDIR)/QMP_comm_mpi.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@mpi/$(DEPDIR)/QMP_error_mpi.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@mpi/$(DEPDIR)/QMP_init_mpi.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@mpi/$(DEPDIR)/QMP_mem_mpi.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@mpi/$(DEPDIR)/QMP_split_mpi.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@mpi/$(DEPDIR)/QMP_topology_mpi.Po@am__quote@
 
 .c.o:
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ $<
 
 .c.obj:
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
-
-QMP_comm_mpi.o: mpi/QMP_comm_mpi.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT QMP_comm_mpi.o -MD -MP -MF $(DEPDIR)/QMP_comm_mpi.Tpo -c -o QMP_comm_mpi.o `test -f 'mpi/QMP_comm_mpi.c' || echo '$(srcdir)/'`mpi/QMP_comm_mpi.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/QMP_comm_mpi.Tpo $(DEPDIR)/QMP_comm_mpi.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mpi/QMP_comm_mpi.c' object='QMP_comm_mpi.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o QMP_comm_mpi.o `test -f 'mpi/QMP_comm_mpi.c' || echo '$(srcdir)/'`mpi/QMP_comm_mpi.c
-
-QMP_comm_mpi.obj: mpi/QMP_comm_mpi.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT QMP_comm_mpi.obj -MD -MP -MF $(DEPDIR)/QMP_comm_mpi.Tpo -c -o QMP_comm_mpi.obj `if test -f 'mpi/QMP_comm_mpi.c'; then $(CYGPATH_W) 'mpi/QMP_comm_mpi.c'; else $(CYGPATH_W) '$(srcdir)/mpi/QMP_comm_mpi.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/QMP_comm_mpi.Tpo $(DEPDIR)/QMP_comm_mpi.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mpi/QMP_comm_mpi.c' object='QMP_comm_mpi.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o QMP_comm_mpi.obj `if test -f 'mpi/QMP_comm_mpi.c'; then $(CYGPATH_W) 'mpi/QMP_comm_mpi.c'; else $(CYGPATH_W) '$(srcdir)/mpi/QMP_comm_mpi.c'; fi`
-
-QMP_error_mpi.o: mpi/QMP_error_mpi.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT QMP_error_mpi.o -MD -MP -MF $(DEPDIR)/QMP_error_mpi.Tpo -c -o QMP_error_mpi.o `test -f 'mpi/QMP_error_mpi.c' || echo '$(srcdir)/'`mpi/QMP_error_mpi.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/QMP_error_mpi.Tpo $(DEPDIR)/QMP_error_mpi.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mpi/QMP_error_mpi.c' object='QMP_error_mpi.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o QMP_error_mpi.o `test -f 'mpi/QMP_error_mpi.c' || echo '$(srcdir)/'`mpi/QMP_error_mpi.c
-
-QMP_error_mpi.obj: mpi/QMP_error_mpi.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT QMP_error_mpi.obj -MD -MP -MF $(DEPDIR)/QMP_error_mpi.Tpo -c -o QMP_error_mpi.obj `if test -f 'mpi/QMP_error_mpi.c'; then $(CYGPATH_W) 'mpi/QMP_error_mpi.c'; else $(CYGPATH_W) '$(srcdir)/mpi/QMP_error_mpi.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/QMP_error_mpi.Tpo $(DEPDIR)/QMP_error_mpi.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mpi/QMP_error_mpi.c' object='QMP_error_mpi.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o QMP_error_mpi.obj `if test -f 'mpi/QMP_error_mpi.c'; then $(CYGPATH_W) 'mpi/QMP_error_mpi.c'; else $(CYGPATH_W) '$(srcdir)/mpi/QMP_error_mpi.c'; fi`
-
-QMP_init_mpi.o: mpi/QMP_init_mpi.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT QMP_init_mpi.o -MD -MP -MF $(DEPDIR)/QMP_init_mpi.Tpo -c -o QMP_init_mpi.o `test -f 'mpi/QMP_init_mpi.c' || echo '$(srcdir)/'`mpi/QMP_init_mpi.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/QMP_init_mpi.Tpo $(DEPDIR)/QMP_init_mpi.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mpi/QMP_init_mpi.c' object='QMP_init_mpi.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o QMP_init_mpi.o `test -f 'mpi/QMP_init_mpi.c' || echo '$(srcdir)/'`mpi/QMP_init_mpi.c
-
-QMP_init_mpi.obj: mpi/QMP_init_mpi.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT QMP_init_mpi.obj -MD -MP -MF $(DEPDIR)/QMP_init_mpi.Tpo -c -o QMP_init_mpi.obj `if test -f 'mpi/QMP_init_mpi.c'; then $(CYGPATH_W) 'mpi/QMP_init_mpi.c'; else $(CYGPATH_W) '$(srcdir)/mpi/QMP_init_mpi.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/QMP_init_mpi.Tpo $(DEPDIR)/QMP_init_mpi.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mpi/QMP_init_mpi.c' object='QMP_init_mpi.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o QMP_init_mpi.obj `if test -f 'mpi/QMP_init_mpi.c'; then $(CYGPATH_W) 'mpi/QMP_init_mpi.c'; else $(CYGPATH_W) '$(srcdir)/mpi/QMP_init_mpi.c'; fi`
-
-QMP_mem_mpi.o: mpi/QMP_mem_mpi.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT QMP_mem_mpi.o -MD -MP -MF $(DEPDIR)/QMP_mem_mpi.Tpo -c -o QMP_mem_mpi.o `test -f 'mpi/QMP_mem_mpi.c' || echo '$(srcdir)/'`mpi/QMP_mem_mpi.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/QMP_mem_mpi.Tpo $(DEPDIR)/QMP_mem_mpi.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mpi/QMP_mem_mpi.c' object='QMP_mem_mpi.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o QMP_mem_mpi.o `test -f 'mpi/QMP_mem_mpi.c' || echo '$(srcdir)/'`mpi/QMP_mem_mpi.c
-
-QMP_mem_mpi.obj: mpi/QMP_mem_mpi.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT QMP_mem_mpi.obj -MD -MP -MF $(DEPDIR)/QMP_mem_mpi.Tpo -c -o QMP_mem_mpi.obj `if test -f 'mpi/QMP_mem_mpi.c'; then $(CYGPATH_W) 'mpi/QMP_mem_mpi.c'; else $(CYGPATH_W) '$(srcdir)/mpi/QMP_mem_mpi.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/QMP_mem_mpi.Tpo $(DEPDIR)/QMP_mem_mpi.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mpi/QMP_mem_mpi.c' object='QMP_mem_mpi.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o QMP_mem_mpi.obj `if test -f 'mpi/QMP_mem_mpi.c'; then $(CYGPATH_W) 'mpi/QMP_mem_mpi.c'; else $(CYGPATH_W) '$(srcdir)/mpi/QMP_mem_mpi.c'; fi`
-
-QMP_split_mpi.o: mpi/QMP_split_mpi.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT QMP_split_mpi.o -MD -MP -MF $(DEPDIR)/QMP_split_mpi.Tpo -c -o QMP_split_mpi.o `test -f 'mpi/QMP_split_mpi.c' || echo '$(srcdir)/'`mpi/QMP_split_mpi.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/QMP_split_mpi.Tpo $(DEPDIR)/QMP_split_mpi.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mpi/QMP_split_mpi.c' object='QMP_split_mpi.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o QMP_split_mpi.o `test -f 'mpi/QMP_split_mpi.c' || echo '$(srcdir)/'`mpi/QMP_split_mpi.c
-
-QMP_split_mpi.obj: mpi/QMP_split_mpi.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT QMP_split_mpi.obj -MD -MP -MF $(DEPDIR)/QMP_split_mpi.Tpo -c -o QMP_split_mpi.obj `if test -f 'mpi/QMP_split_mpi.c'; then $(CYGPATH_W) 'mpi/QMP_split_mpi.c'; else $(CYGPATH_W) '$(srcdir)/mpi/QMP_split_mpi.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/QMP_split_mpi.Tpo $(DEPDIR)/QMP_split_mpi.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mpi/QMP_split_mpi.c' object='QMP_split_mpi.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o QMP_split_mpi.obj `if test -f 'mpi/QMP_split_mpi.c'; then $(CYGPATH_W) 'mpi/QMP_split_mpi.c'; else $(CYGPATH_W) '$(srcdir)/mpi/QMP_split_mpi.c'; fi`
-
-QMP_topology_mpi.o: mpi/QMP_topology_mpi.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT QMP_topology_mpi.o -MD -MP -MF $(DEPDIR)/QMP_topology_mpi.Tpo -c -o QMP_topology_mpi.o `test -f 'mpi/QMP_topology_mpi.c' || echo '$(srcdir)/'`mpi/QMP_topology_mpi.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/QMP_topology_mpi.Tpo $(DEPDIR)/QMP_topology_mpi.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mpi/QMP_topology_mpi.c' object='QMP_topology_mpi.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o QMP_topology_mpi.o `test -f 'mpi/QMP_topology_mpi.c' || echo '$(srcdir)/'`mpi/QMP_topology_mpi.c
-
-QMP_topology_mpi.obj: mpi/QMP_topology_mpi.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT QMP_topology_mpi.obj -MD -MP -MF $(DEPDIR)/QMP_topology_mpi.Tpo -c -o QMP_topology_mpi.obj `if test -f 'mpi/QMP_topology_mpi.c'; then $(CYGPATH_W) 'mpi/QMP_topology_mpi.c'; else $(CYGPATH_W) '$(srcdir)/mpi/QMP_topology_mpi.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/QMP_topology_mpi.Tpo $(DEPDIR)/QMP_topology_mpi.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='mpi/QMP_topology_mpi.c' object='QMP_topology_mpi.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o QMP_topology_mpi.obj `if test -f 'mpi/QMP_topology_mpi.c'; then $(CYGPATH_W) 'mpi/QMP_topology_mpi.c'; else $(CYGPATH_W) '$(srcdir)/mpi/QMP_topology_mpi.c'; fi`
-
-QMP_comm_bgspi.o: bgspi/QMP_comm_bgspi.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT QMP_comm_bgspi.o -MD -MP -MF $(DEPDIR)/QMP_comm_bgspi.Tpo -c -o QMP_comm_bgspi.o `test -f 'bgspi/QMP_comm_bgspi.c' || echo '$(srcdir)/'`bgspi/QMP_comm_bgspi.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/QMP_comm_bgspi.Tpo $(DEPDIR)/QMP_comm_bgspi.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bgspi/QMP_comm_bgspi.c' object='QMP_comm_bgspi.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o QMP_comm_bgspi.o `test -f 'bgspi/QMP_comm_bgspi.c' || echo '$(srcdir)/'`bgspi/QMP_comm_bgspi.c
-
-QMP_comm_bgspi.obj: bgspi/QMP_comm_bgspi.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT QMP_comm_bgspi.obj -MD -MP -MF $(DEPDIR)/QMP_comm_bgspi.Tpo -c -o QMP_comm_bgspi.obj `if test -f 'bgspi/QMP_comm_bgspi.c'; then $(CYGPATH_W) 'bgspi/QMP_comm_bgspi.c'; else $(CYGPATH_W) '$(srcdir)/bgspi/QMP_comm_bgspi.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/QMP_comm_bgspi.Tpo $(DEPDIR)/QMP_comm_bgspi.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bgspi/QMP_comm_bgspi.c' object='QMP_comm_bgspi.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o QMP_comm_bgspi.obj `if test -f 'bgspi/QMP_comm_bgspi.c'; then $(CYGPATH_W) 'bgspi/QMP_comm_bgspi.c'; else $(CYGPATH_W) '$(srcdir)/bgspi/QMP_comm_bgspi.c'; fi`
-
-QMP_init_bgspi.o: bgspi/QMP_init_bgspi.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT QMP_init_bgspi.o -MD -MP -MF $(DEPDIR)/QMP_init_bgspi.Tpo -c -o QMP_init_bgspi.o `test -f 'bgspi/QMP_init_bgspi.c' || echo '$(srcdir)/'`bgspi/QMP_init_bgspi.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/QMP_init_bgspi.Tpo $(DEPDIR)/QMP_init_bgspi.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bgspi/QMP_init_bgspi.c' object='QMP_init_bgspi.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o QMP_init_bgspi.o `test -f 'bgspi/QMP_init_bgspi.c' || echo '$(srcdir)/'`bgspi/QMP_init_bgspi.c
-
-QMP_init_bgspi.obj: bgspi/QMP_init_bgspi.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT QMP_init_bgspi.obj -MD -MP -MF $(DEPDIR)/QMP_init_bgspi.Tpo -c -o QMP_init_bgspi.obj `if test -f 'bgspi/QMP_init_bgspi.c'; then $(CYGPATH_W) 'bgspi/QMP_init_bgspi.c'; else $(CYGPATH_W) '$(srcdir)/bgspi/QMP_init_bgspi.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/QMP_init_bgspi.Tpo $(DEPDIR)/QMP_init_bgspi.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bgspi/QMP_init_bgspi.c' object='QMP_init_bgspi.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o QMP_init_bgspi.obj `if test -f 'bgspi/QMP_init_bgspi.c'; then $(CYGPATH_W) 'bgspi/QMP_init_bgspi.c'; else $(CYGPATH_W) '$(srcdir)/bgspi/QMP_init_bgspi.c'; fi`
-
-QMP_mem_bgspi.o: bgspi/QMP_mem_bgspi.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT QMP_mem_bgspi.o -MD -MP -MF $(DEPDIR)/QMP_mem_bgspi.Tpo -c -o QMP_mem_bgspi.o `test -f 'bgspi/QMP_mem_bgspi.c' || echo '$(srcdir)/'`bgspi/QMP_mem_bgspi.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/QMP_mem_bgspi.Tpo $(DEPDIR)/QMP_mem_bgspi.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bgspi/QMP_mem_bgspi.c' object='QMP_mem_bgspi.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o QMP_mem_bgspi.o `test -f 'bgspi/QMP_mem_bgspi.c' || echo '$(srcdir)/'`bgspi/QMP_mem_bgspi.c
-
-QMP_mem_bgspi.obj: bgspi/QMP_mem_bgspi.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT QMP_mem_bgspi.obj -MD -MP -MF $(DEPDIR)/QMP_mem_bgspi.Tpo -c -o QMP_mem_bgspi.obj `if test -f 'bgspi/QMP_mem_bgspi.c'; then $(CYGPATH_W) 'bgspi/QMP_mem_bgspi.c'; else $(CYGPATH_W) '$(srcdir)/bgspi/QMP_mem_bgspi.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/QMP_mem_bgspi.Tpo $(DEPDIR)/QMP_mem_bgspi.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bgspi/QMP_mem_bgspi.c' object='QMP_mem_bgspi.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o QMP_mem_bgspi.obj `if test -f 'bgspi/QMP_mem_bgspi.c'; then $(CYGPATH_W) 'bgspi/QMP_mem_bgspi.c'; else $(CYGPATH_W) '$(srcdir)/bgspi/QMP_mem_bgspi.c'; fi`
-
-qspi.o: bgspi/qspi.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT qspi.o -MD -MP -MF $(DEPDIR)/qspi.Tpo -c -o qspi.o `test -f 'bgspi/qspi.c' || echo '$(srcdir)/'`bgspi/qspi.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/qspi.Tpo $(DEPDIR)/qspi.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bgspi/qspi.c' object='qspi.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o qspi.o `test -f 'bgspi/qspi.c' || echo '$(srcdir)/'`bgspi/qspi.c
-
-qspi.obj: bgspi/qspi.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT qspi.obj -MD -MP -MF $(DEPDIR)/qspi.Tpo -c -o qspi.obj `if test -f 'bgspi/qspi.c'; then $(CYGPATH_W) 'bgspi/qspi.c'; else $(CYGPATH_W) '$(srcdir)/bgspi/qspi.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/qspi.Tpo $(DEPDIR)/qspi.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bgspi/qspi.c' object='qspi.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o qspi.obj `if test -f 'bgspi/qspi.c'; then $(CYGPATH_W) 'bgspi/qspi.c'; else $(CYGPATH_W) '$(srcdir)/bgspi/qspi.c'; fi`
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -709,6 +603,10 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
+	-rm -f bgspi/$(DEPDIR)/$(am__dirstamp)
+	-rm -f bgspi/$(am__dirstamp)
+	-rm -f mpi/$(DEPDIR)/$(am__dirstamp)
+	-rm -f mpi/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -718,7 +616,7 @@ clean: clean-am
 clean-am: clean-generic clean-libLIBRARIES mostlyclean-am
 
 distclean: distclean-am
-	-rm -rf ./$(DEPDIR)
+	-rm -rf ./$(DEPDIR) bgspi/$(DEPDIR) mpi/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -764,7 +662,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-	-rm -rf ./$(DEPDIR)
+	-rm -rf ./$(DEPDIR) bgspi/$(DEPDIR) mpi/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

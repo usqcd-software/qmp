@@ -1,10 +1,10 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(qmp, 2.4.2, [detar at physics.utah.edu])
+AC_INIT(qmp, 2.5.0, [detar at physics.utah.edu])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_SRCDIR([lib/QMP_grid.c])
 AC_CONFIG_SRCDIR([examples/QMP_test.c])
 AC_CONFIG_HEADER([include/qmp_config.h])
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([subdir-objects])
 
 dnl automake manual, ch 6 says to use this when SUBDIRS is used
 AC_PROG_MAKE_SET
