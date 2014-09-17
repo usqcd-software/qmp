@@ -16,6 +16,7 @@ AC_PROG_CC(c99 cc gcc)
 AC_ISC_POSIX
 AC_PROG_RANLIB
 AC_CHECK_TOOL(AR, ar, [ar])
+AM_PROG_CC_C_O
 
 dnl George Fleming, 12/12/2002
 dnl

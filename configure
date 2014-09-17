@@ -3620,6 +3620,7 @@ fi
 
 
 
+
 # Check whether --with-qmp-comms-type was given.
 if test "${with_qmp_comms_type+set}" = set; then :
   withval=$with_qmp_comms_type; case "${with_qmp_comms_type}" in
