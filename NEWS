@@ -1,3 +1,9 @@
+9/16/2014 -- James Osborn
+
+        2.5.0
+	added subdir-objects automake option
+	merged mpiaccess branch
+
 6/1/2014 -- Carleton DeTar
  
         2.4.2
