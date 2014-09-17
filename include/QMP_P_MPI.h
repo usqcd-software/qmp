@@ -21,6 +21,7 @@
 #define QMP_FINALIZE_MSG_PASSING QMP_FINALIZE_MSG_PASSING_MPI
 #define QMP_ABORT QMP_ABORT_MPI
 #define QMP_COMM_SPLIT QMP_COMM_SPLIT_MPI
+#define QMP_GET_HIDDEN_COMM QMP_GET_MPI_COMM
 #define QMP_COMM_FREE QMP_COMM_FREE_MPI
 #define QMP_SET_TOPO QMP_SET_TOPO_MPI
 #define QMP_COMM_GET_LOGICAL_COORDINATES_FROM QMP_COMM_GET_LOGICAL_COORDINATES_FROM_MPI
@@ -47,6 +48,7 @@
 #define QMP_COMM_MAX_DOUBLE QMP_COMM_MAX_DOUBLE_MPI
 #define QMP_COMM_MIN_DOUBLE QMP_COMM_MIN_DOUBLE_MPI
 #define QMP_COMM_XOR_ULONG QMP_COMM_XOR_ULONG_MPI
+#define QMP_COMM_ALLTOALL QMP_COMM_ALLTOALL_MPI
 #define QMP_COMM_BINARY_REDUCTION QMP_COMM_BINARY_REDUCTION_MPI
 
 #define QMP_TIME MPI_Wtime
@@ -64,6 +66,9 @@ void QMP_abort_mpi (int error_code);
 
 #define QMP_COMM_SPLIT_MPI QMP_comm_split_mpi
 QMP_status_t QMP_comm_split_mpi(QMP_comm_t comm, QMP_comm_t newcomm);
+
+#define QMP_GET_MPI_COMM QMP_get_mpi_comm
+QMP_status_t QMP_get_mpi_comm(QMP_comm_t comm, void** mpicomm);
 
 #define QMP_COMM_FREE_MPI QMP_comm_free_mpi
 QMP_status_t QMP_comm_free_mpi(QMP_comm_t comm);
@@ -142,6 +147,9 @@ QMP_status_t QMP_comm_min_double_mpi(QMP_comm_t comm, double *value);
 
 #define QMP_COMM_XOR_ULONG_MPI QMP_comm_xor_ulong_mpi
 QMP_status_t QMP_comm_xor_ulong_mpi(QMP_comm_t comm, unsigned long *value);
+
+#define QMP_COMM_ALLTOALL_MPI QMP_comm_alltoall_mpi
+QMP_status_t QMP_comm_alltoall_mpi(QMP_comm_t comm, char* recvbuffer, char* sendbuffer, int count);
 
 #define QMP_COMM_BINARY_REDUCTION_MPI QMP_comm_binary_reduction_mpi
 QMP_status_t QMP_comm_binary_reduction_mpi(QMP_comm_t comm, void *lbuffer, size_t count, QMP_binary_func bfunc);
