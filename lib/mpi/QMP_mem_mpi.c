@@ -116,7 +116,7 @@ QMP_declare_receive_mpi(QMP_msghandle_t mh)
     if (mh->dir >0) tag ++;
     else        tag --;
   }
-  assert (tag>=0);
+  QMP_assert (tag>=0);
   if(mh->mm->type==MM_user_buf) {
     MPI_Recv_init(mh->base, mh->mm->nbytes,
 		  MPI_BYTE, mh->srce_node, tag,
@@ -139,7 +139,7 @@ QMP_declare_send_mpi(QMP_msghandle_t mh)
     if (mh->dir >0) tag --; /* should be reversed from receive tag */
     else        tag ++;
   }
-  assert (tag>=0);
+  QMP_assert (tag>=0);
   if(mh->mm->type==MM_user_buf) {
     MPI_Send_init(mh->base, mh->mm->nbytes,
 		  MPI_BYTE, mh->dest_node, tag,
