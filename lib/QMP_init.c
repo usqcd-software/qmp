@@ -175,12 +175,43 @@ get_int_array(int *len, const char *tag, int *argc, char ***argv)
   return a;
 }
 
+static void
+get_hue_file(char **filename, const char *tag, int *argc, char ***argv)
+{
+  int i, result;
+
+  *filename = NULL;
+  for (i = 0; i < *argc; i++) {
+    if (strcmp((*argv)[i], tag) == 0) {
+      *filename = (*argv)[i + 1];
+      remove_from_args(argc, argv, i, i+1);
+      result = access(*filename, R_OK);
+      if (QMP_get_node_number() == 0) {
+	if (result != 0)
+	  fprintf(stderr, "HUEFILE ERROR: %s doesn't exist!\n", *filename);
+      }
+      return;
+    }
+  }
+}
 
 static int
 get_color(void)
 {
   int c=0;
-  if(QMP_args->jobgeom) {
+  if (QMP_args->huefile) {
+    FILE *f = fopen(QMP_args->huefile, "r");
+    int i = 0;
+    int this_node = QMP_get_node_number();
+    char b[80];
+    while (fgets(b, sizeof (b) - 1, f) != NULL) {
+      if (i == this_node)
+	c = atoi(b);
+      i++;
+    }
+    fclose(f);
+    QMP_assert(QMP_get_number_of_nodes() <= i);
+  } else if(QMP_args->jobgeom) {
     if(QMP_comm_logical_topology_is_declared(QMP_allocated_comm)) {
       int i, ndim;
       const int *lc = QMP_comm_get_logical_coordinates(QMP_allocated_comm);
@@ -204,6 +235,38 @@ get_color(void)
   return c;
 }
 
+static void
+get_color_geom(int *geom, int *amap)
+{
+  if (QMP_args->huefile) {
+    int ndim = 4;
+    int ns[4], am[4]; /* must be equal to ndim, but we don't use dynamic arrays */
+    FILE *f = fopen(QMP_args->huefile, "r");
+    int b, i = 0, j;
+    int this_node = QMP_get_node_number();
+    while (fscanf(f, "%d %d%d%d%d %d%d%d%d",
+		  &b,
+		  ns + 0, ns + 1, ns + 2, ns + 3,
+		  am + 0, am + 1, am + 2, am + 3) == 9) {
+      if (i == this_node) {
+	for (j = 0; j < ndim; j++) {
+	  geom[j] = ns[j];
+	  amap[j] = am[j];
+	}
+      }
+      i++;
+    }
+    fclose(f);
+    QMP_assert(QMP_get_number_of_nodes() <= i);
+    for (i = 0; i < ndim; i++) {
+      QMP_assert(amap[i] >= 0);
+      QMP_assert(amap[i] < ndim);
+      for (j = 0; j < i; j++) {
+	QMP_assert(amap[j] != amap[i]);
+      }
+    }
+  }
+}
 
 /* Process QMP command line arguments */
 static void
@@ -215,6 +278,8 @@ process_args(int* argc, char*** argv)
   QMP_args->amap = get_int_array(&QMP_args->amaplen, "-qmp-alloc-map", argc, argv);
   QMP_args->lmap = get_int_array(&QMP_args->lmaplen, "-qmp-logic-map", argc, argv);
   QMP_args->jobgeom = get_int_array(&QMP_args->njobdim, "-qmp-job", argc, argv);
+  
+  get_hue_file(&QMP_args->huefile, "-color-file", argc, argv);
 
   QMP_assert(QMP_args->amaplen>=0);
   QMP_assert(QMP_args->lmaplen>=0);
@@ -227,7 +292,29 @@ process_args(int* argc, char*** argv)
   // set job communicator and topology (if any)
   int color = get_color();
   QMP_comm_split(QMP_allocated_comm, color, 0, &QMP_job_comm);
-  if(QMP_args->jobgeom && QMP_get_msg_passing_type()==QMP_MESH) {
+  if(QMP_args->huefile) {
+    int ndim=4;
+    int geom[ndim], amap[ndim];
+    get_color_geom(geom, amap);
+    QMP_comm_declare_logical_topology_map(QMP_job_comm, geom, ndim, amap, ndim);
+    // XXX
+      {printf("Split topolgy declared\n");
+	printf("Node %d : QMP logical topology declared = alloc %d, job %d, default %d, none %d\n",
+	       QMP_get_node_number(),QMP_comm_logical_topology_is_declared(QMP_allocated_comm),
+	       QMP_comm_logical_topology_is_declared(QMP_job_comm),
+	       QMP_comm_logical_topology_is_declared(QMP_default_comm),
+	       QMP_logical_topology_is_declared());
+	printf("Node %d : QMP logical topology node counts = alloc %d, job %d, default %d, none %d\n",
+	       QMP_get_node_number(),QMP_comm_get_number_of_nodes(QMP_allocated_comm),
+	       QMP_comm_get_number_of_nodes(QMP_job_comm),
+	       QMP_comm_get_number_of_nodes(QMP_default_comm));
+	printf("Node %d : QMP logical topology node number = alloc %d, job %d, default %d, none %d\n",
+	       QMP_get_node_number(),QMP_comm_get_node_number(QMP_allocated_comm),
+	       QMP_comm_get_node_number(QMP_job_comm),
+	       QMP_comm_get_node_number(QMP_default_comm));
+      }
+    // XXX
+  } else if(QMP_args->jobgeom && QMP_get_msg_passing_type()==QMP_MESH) {
     int i, ndim = QMP_args->njobdim;
     int geom[ndim];
     const int *ad = QMP_get_allocated_dimensions();
@@ -238,6 +325,9 @@ process_args(int* argc, char*** argv)
 
   // set default communicator
   QMP_comm_split(QMP_job_comm, 0, 0, &QMP_default_comm);
+
+  QMP_comm_set_allocated(QMP_comm_get_job());
+  QMP_comm_set_default(QMP_comm_get_job());
 
   LEAVE;
 }

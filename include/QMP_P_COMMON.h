@@ -36,8 +36,9 @@ typedef struct {
   int jobid;
   int njobdim;
   int *jobgeom;
+  char *huefile;
 } QMP_args_t;
-#define QMP_ARGS_INIT 0,NULL,0,NULL,0,NULL,0,0,0,NULL
+#define QMP_ARGS_INIT 0,NULL,0,NULL,0,NULL,0,0,0,NULL,NULL
 extern QMP_args_t *QMP_args;
 
 /**
