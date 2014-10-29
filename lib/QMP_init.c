@@ -297,23 +297,6 @@ process_args(int* argc, char*** argv)
     int geom[ndim], amap[ndim];
     get_color_geom(geom, amap);
     QMP_comm_declare_logical_topology_map(QMP_job_comm, geom, ndim, amap, ndim);
-    // XXX
-      {printf("Split topolgy declared\n");
-	printf("Node %d : QMP logical topology declared = alloc %d, job %d, default %d, none %d\n",
-	       QMP_get_node_number(),QMP_comm_logical_topology_is_declared(QMP_allocated_comm),
-	       QMP_comm_logical_topology_is_declared(QMP_job_comm),
-	       QMP_comm_logical_topology_is_declared(QMP_default_comm),
-	       QMP_logical_topology_is_declared());
-	printf("Node %d : QMP logical topology node counts = alloc %d, job %d, default %d, none %d\n",
-	       QMP_get_node_number(),QMP_comm_get_number_of_nodes(QMP_allocated_comm),
-	       QMP_comm_get_number_of_nodes(QMP_job_comm),
-	       QMP_comm_get_number_of_nodes(QMP_default_comm));
-	printf("Node %d : QMP logical topology node number = alloc %d, job %d, default %d, none %d\n",
-	       QMP_get_node_number(),QMP_comm_get_node_number(QMP_allocated_comm),
-	       QMP_comm_get_node_number(QMP_job_comm),
-	       QMP_comm_get_node_number(QMP_default_comm));
-      }
-    // XXX
   } else if(QMP_args->jobgeom && QMP_get_msg_passing_type()==QMP_MESH) {
     int i, ndim = QMP_args->njobdim;
     int geom[ndim];
@@ -323,11 +306,9 @@ process_args(int* argc, char*** argv)
 					  QMP_args->amap, QMP_args->amaplen);
   }
 
-  // set default communicator
+  // set default and allocated communicators
   QMP_comm_split(QMP_job_comm, 0, 0, &QMP_default_comm);
-
-  QMP_comm_set_allocated(QMP_comm_get_job());
-  QMP_comm_set_default(QMP_comm_get_job());
+  QMP_comm_split(QMP_job_comm, 0, 0, &QMP_allocated_comm);
 
   LEAVE;
 }
