@@ -329,14 +329,17 @@ QMP_free_msghandle (QMP_msghandle_t msgh)
 
 
 static QMP_msghandle_t
-declare_receive(QMP_comm_t comm, QMP_msgmem_t mm, int sourceNode, int axis, int dir, int priority)
+declare_receive(QMP_comm_t comm, QMP_msgmem_t mm, int sourceNode, int axis, int dir, int priority, int tag)
 {
   QMP_msghandle_t mh;
   ENTER;
 
   QMP_assert(mm != NULL);
-  QMP_assert(sourceNode >= 0);
-  QMP_assert(sourceNode < QMP_comm_get_number_of_nodes(comm));
+  if (sourceNode != -1) {
+    QMP_assert(sourceNode != QMP_comm_get_node_number(comm));
+    QMP_assert(sourceNode >= 0);
+    QMP_assert(sourceNode < QMP_comm_get_number_of_nodes(comm));
+  }
 
   mh = alloc_msghandle();
   if (mh) {
@@ -351,6 +354,11 @@ declare_receive(QMP_comm_t comm, QMP_msgmem_t mm, int sourceNode, int axis, int 
     mh->dir = dir;
     mh->priority = priority;
     mh->next = NULL;
+    if (sourceNode == -1) {
+        mh->multi = 1;
+    } else {
+        mh->multi = 0;
+    }
 
 #ifdef _QMP_DEBUG
     QMP_info ("node %d recv from %d of %d bytes\n",
@@ -358,7 +366,7 @@ declare_receive(QMP_comm_t comm, QMP_msgmem_t mm, int sourceNode, int axis, int 
 #endif
 
 #ifdef QMP_DECLARE_RECEIVE
-    QMP_DECLARE_RECEIVE(mh);
+    QMP_DECLARE_RECEIVE(mh, tag);
 #else
     // can't send to self in single-node mode
     QMP_assert(sourceNode != QMP_comm_get_node_number(comm));
@@ -371,7 +379,7 @@ declare_receive(QMP_comm_t comm, QMP_msgmem_t mm, int sourceNode, int axis, int 
 
 
 static QMP_msghandle_t
-declare_send(QMP_comm_t comm, QMP_msgmem_t mm, int destNode, int axis, int dir, int priority)
+declare_send(QMP_comm_t comm, QMP_msgmem_t mm, int destNode, int axis, int dir, int priority, int multi, int tag)
 {
   QMP_msghandle_t mh;
   ENTER;
@@ -393,6 +401,7 @@ declare_send(QMP_comm_t comm, QMP_msgmem_t mm, int destNode, int axis, int dir, 
     mh->dir = dir;
     mh->priority = priority;
     mh->next = NULL;
+    mh->multi = multi;
 
 #ifdef _QMP_DEBUG
     QMP_info ("node %d send to %d of %d bytes\n",
@@ -400,7 +409,7 @@ declare_send(QMP_comm_t comm, QMP_msgmem_t mm, int destNode, int axis, int dir, 
 #endif
 
 #ifdef QMP_DECLARE_SEND
-    QMP_DECLARE_SEND(mh);
+    QMP_DECLARE_SEND(mh, tag);
 #else
     // can't send to self in single-node mode
     QMP_assert(destNode != QMP_comm_get_node_number(comm));
@@ -419,7 +428,8 @@ QMP_comm_declare_receive_from (QMP_comm_t comm, QMP_msgmem_t mm, int sourceNode,
   QMP_msghandle_t mh;
   ENTER;
 
-  mh = declare_receive(comm, mm, sourceNode, -1, 0, priority);
+  QMP_assert(sourceNode >= 0);
+  mh = declare_receive(comm, mm, sourceNode, -1, 0, priority, 0);
 
   LEAVE;
   return mh;
@@ -431,7 +441,157 @@ QMP_declare_receive_from (QMP_msgmem_t mm, int sourceNode, int priority)
   QMP_msghandle_t mh;
   ENTER;
 
-  mh = declare_receive(QMP_comm_get_default(), mm, sourceNode, -1, 0, priority);
+  QMP_assert(sourceNode >= 0);
+  QMP_assert(sourceNode >= 0);
+  mh = declare_receive(QMP_comm_get_default(), mm, sourceNode, -1, 0, priority, 0);
+
+  LEAVE;
+  return mh;
+}
+
+QMP_msghandle_t
+QMP_comm_declare_multireceive (QMP_comm_t comm, QMP_msgmem_t mm, int priority)
+{
+  QMP_msghandle_t mh;
+  ENTER;
+
+  mh = declare_receive(comm, mm, -1, -1, 0, priority, 0);
+
+  LEAVE;
+  return mh;
+}
+
+QMP_msghandle_t
+QMP_declare_multireceive (QMP_msgmem_t mm, int priority)
+{
+  QMP_msghandle_t mh;
+  ENTER;
+
+  mh = declare_receive(QMP_comm_get_default(), mm, -1, -1, 0, priority, 0);
+
+  LEAVE;
+  return mh;
+}
+
+QMP_msghandle_t
+QMP_declare_tagged_send_to(QMP_msgmem_t mm, 
+                           int destNode,
+                           int priority,
+                           unsigned int tag)
+{
+  QMP_msghandle_t mh;
+  ENTER;
+
+  mh = declare_send(QMP_comm_get_default(), mm, destNode, -1, 0, priority, 0, tag);
+
+  LEAVE;
+  return mh;
+}
+
+QMP_msghandle_t
+QMP_comm_declare_tagged_send_to(QMP_comm_t comm,
+                                QMP_msgmem_t mm, 
+                                int destNode,
+                                int priority,
+                                unsigned int tag)
+{
+  QMP_msghandle_t mh;
+  ENTER;
+
+  mh = declare_send(comm, mm, destNode, -1, 0, priority, 0, tag);
+
+  LEAVE;
+  return mh;
+}
+
+QMP_msghandle_t
+QMP_declare_tagged_receive_from(QMP_msgmem_t mm, 
+                                int sourceNode,
+                                int priority,
+                                unsigned int tag)
+{
+  QMP_msghandle_t mh;
+  ENTER;
+
+  QMP_assert(sourceNode >= 0);
+  mh = declare_receive(QMP_comm_get_default(), mm, sourceNode, -1, 0, priority, tag);
+
+  LEAVE;
+  return mh;
+}
+
+QMP_msghandle_t
+QMP_comm_declare_tagged_receive_from(QMP_comm_t comm,
+                                     QMP_msgmem_t mm, 
+                                     int sourceNode,
+                                     int priority,
+                                     unsigned int tag)
+{
+  QMP_msghandle_t mh;
+  ENTER;
+
+  QMP_assert(sourceNode >= 0);
+  mh = declare_receive(comm, mm, sourceNode, -1, 0, priority, tag);
+
+  LEAVE;
+  return mh;
+}
+
+QMP_msghandle_t
+QMP_declare_tagged_multisend_to(QMP_msgmem_t mm,
+                                int destNode,
+                                int priority,
+                                unsigned int tag)
+{
+  QMP_msghandle_t mh;
+  ENTER;
+
+  mh = declare_send(QMP_comm_get_default(), mm, destNode, -1, 0, priority, 1, tag);
+
+  LEAVE;
+  return mh;
+}
+
+QMP_msghandle_t
+QMP_comm_declare_tagged_multisend_to(QMP_comm_t comm,
+                                     QMP_msgmem_t mm, 
+                                     int destNode,
+                                     int priority,
+                                     unsigned int tag)
+{
+  QMP_msghandle_t mh;
+  ENTER;
+
+  mh = declare_send(comm, mm, destNode, -1, 0, priority, 1, tag);
+
+  LEAVE;
+  return mh;
+}
+
+QMP_msghandle_t
+QMP_declare_tagged_multireceive(QMP_msgmem_t mm, 
+                                int priority,
+                                unsigned int tag)
+{
+  QMP_msghandle_t mh;
+  ENTER;
+
+  mh = declare_receive(QMP_comm_get_default(), mm, -1, -1, 0, priority, tag);
+
+  LEAVE;
+  return mh;
+}
+
+QMP_msghandle_t
+QMP_comm_declare_tagged_multireceive(QMP_comm_t comm,
+                                     QMP_msgmem_t mm, 
+                                     int priority,
+                                     unsigned int tag)
+{
+  QMP_msghandle_t mh;
+  ENTER;
+
+  mh = declare_receive(comm, mm, -1, -1, 0, priority, tag);
 
   LEAVE;
   return mh;
@@ -449,7 +609,8 @@ QMP_comm_declare_receive_relative(QMP_comm_t comm, QMP_msgmem_t mm, int dir, int
 
   int ii = (isign > 0) ? 1 : 0;
   int sourceNode = comm->topo->neigh[ii][dir];
-  mh = declare_receive(comm, mm, sourceNode, dir, isign, priority);
+  QMP_assert(sourceNode >= 0);
+  mh = declare_receive(comm, mm, sourceNode, dir, isign, priority, 0);
 
   LEAVE;
   return mh;
@@ -474,7 +635,33 @@ QMP_comm_declare_send_to (QMP_comm_t comm, QMP_msgmem_t mm, int destNode, int pr
   QMP_msghandle_t mh;
   ENTER;
 
-  mh = declare_send(comm, mm, destNode, -1, 0, priority);
+  mh = declare_send(QMP_comm_get_default(), mm, destNode, -1, 0, priority, 0, 0);
+
+  LEAVE;
+  return mh;
+}
+
+
+QMP_msghandle_t
+QMP_comm_declare_multisend_to (QMP_comm_t comm, QMP_msgmem_t mm, int destNode, int priority)
+{
+  QMP_msghandle_t mh;
+  ENTER;
+
+  mh = declare_send(comm, mm, destNode, -1, 0, priority, 1, 0);
+
+  LEAVE;
+  return mh;
+}
+
+
+QMP_msghandle_t
+QMP_declare_multisend_to (QMP_msgmem_t mm, int destNode, int priority)
+{
+  QMP_msghandle_t mh;
+  ENTER;
+
+  mh = declare_send(QMP_comm_get_default(), mm, destNode, -1, 0, priority, 1, 0);
 
   LEAVE;
   return mh;
@@ -487,7 +674,7 @@ QMP_declare_send_to (QMP_msgmem_t mm, int destNode, int priority)
   QMP_msghandle_t mh;
   ENTER;
 
-  mh = declare_send(QMP_comm_get_default(), mm, destNode, -1, 0, priority);
+  mh = declare_send(QMP_comm_get_default(), mm, destNode, -1, 0, priority, 0, 0);
 
   LEAVE;
   return mh;
@@ -506,7 +693,7 @@ QMP_comm_declare_send_relative (QMP_comm_t comm, QMP_msgmem_t mm, int dir, int i
 
   int ii = (isign > 0) ? 1 : 0;
   int destNode = comm->topo->neigh[ii][dir];
-  mh = declare_send(comm, mm, destNode, dir, isign, priority);
+  mh = declare_send(comm, mm, destNode, dir, isign, priority, 0, 0);
 
   LEAVE;
   return mh;

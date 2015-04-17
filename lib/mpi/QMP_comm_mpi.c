@@ -147,6 +147,28 @@ QMP_comm_sum_long_double_mpi(QMP_comm_t comm, long double *value)
 
 
 QMP_status_t
+QMP_comm_sum_int_array_mpi(QMP_comm_t comm, int value[], int count)
+{
+  QMP_status_t status = QMP_SUCCESS;
+  ENTER;
+
+  int *dest;
+  QMP_alloc(dest, int, count);
+  int err = MPI_Allreduce((void *)value, (void *)dest, count,
+                          MPI_INT, MPI_SUM, comm->mpicomm);
+  if(err != MPI_SUCCESS) status = err;
+  else {
+    int i;
+    for (i = 0; i < count; i++)
+      value[i] = dest[i];
+  }
+  QMP_free(dest);
+  
+  LEAVE;
+  return status;
+}
+
+QMP_status_t
 QMP_comm_sum_float_array_mpi(QMP_comm_t comm, float value[], int count)
 {
   QMP_status_t status = QMP_SUCCESS;

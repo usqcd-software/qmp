@@ -106,35 +106,59 @@ QMP_free_msghandle_mpi(QMP_msghandle_t mh)
   }
 }
 
+static int
+construct_tag(QMP_msghandle_t mh, unsigned int qmp_tag)
+{
+    if ((mh->comm->last_tag > 4) &&
+        (mh->comm->last_tag / 2 - 3 >= qmp_tag)) {
+        unsigned int tag = qmp_tag * 2 + 1;
+        if (mh->multi)
+            return tag + 1;
+        else
+            return tag;
+    }
+    QMP_abort_string(-1, "Not enough tags");
+    return 0; /* should never happen */
+}
 
 void
-QMP_declare_receive_mpi(QMP_msghandle_t mh)
+QMP_declare_receive_mpi(QMP_msghandle_t mh, int qmp_tag)
 {
+  int source;
+  int tag = construct_tag(mh, qmp_tag);
+
+  if (mh->multi) {
+      source = MPI_ANY_SOURCE;
+  } else {
+      source = mh->srce_node;
+  }
   if(mh->mm->type==MM_user_buf) {
     MPI_Recv_init(mh->base, mh->mm->nbytes,
-		  MPI_BYTE, mh->srce_node, TAG_CHANNEL,
+		  MPI_BYTE, source, tag,
 		  mh->comm->mpicomm, &mh->request);
   } else {
     MPI_Recv_init(mh->base, 1,
 		  mh->mm->mpi_type,
-		  mh->srce_node, TAG_CHANNEL,
+		  source, tag,
 		  mh->comm->mpicomm, &mh->request);
   }
 }
 
 
 void
-QMP_declare_send_mpi(QMP_msghandle_t mh)
+QMP_declare_send_mpi(QMP_msghandle_t mh, int qmp_tag)
 {
+  int tag = construct_tag(mh, qmp_tag);
+
   if(mh->mm->type==MM_user_buf) {
     MPI_Send_init(mh->base, mh->mm->nbytes,
-		  MPI_BYTE, mh->dest_node, TAG_CHANNEL,
+		  MPI_BYTE, mh->dest_node, tag,
 		  mh->comm->mpicomm, &mh->request);
   } else {
     MPI_Send_init(mh->base, 1,
 		  mh->mm->mpi_type,
 		  mh->dest_node,
-		  TAG_CHANNEL,
+		  tag,
 		  mh->comm->mpicomm,
 		  &mh->request);
   }
@@ -164,8 +188,8 @@ QMP_change_address_mpi(QMP_msghandle_t mh)
   }
   while(mh) {
     QMP_free_msghandle_mpi(mh);
-    if(mh->type==MH_send) QMP_declare_send_mpi(mh);
-    else QMP_declare_receive_mpi(mh);
+    if(mh->type==MH_send) QMP_declare_send_mpi(mh, mh->tag);
+    else QMP_declare_receive_mpi(mh, mh->tag);
     mh = mh->next;
   }
 }

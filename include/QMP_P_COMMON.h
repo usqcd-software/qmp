@@ -199,6 +199,7 @@ struct QMP_msghandle_struct {
   int          dest_node;
   int          srce_node;
   int          uses;
+  int          multi;
   int axis;
   int dir;
   int priority;

@@ -17,6 +17,7 @@ QMP_comm_split_mpi(QMP_comm_t comm, QMP_comm_t newcomm)
 
   newcomm->num_nodes = PAR_num_nodes;
   newcomm->nodeid = PAR_node_rank;
+  newcomm->last_tag = comm->last_tag;
 
   return status;
 }

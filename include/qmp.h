@@ -819,6 +819,126 @@ extern QMP_msghandle_t    QMP_comm_declare_receive_from(QMP_comm_t comm,
 							int rem_node_rank,
 							int priority);
 
+/**
+ * Declare an endpoint for message collective send channel operation
+ * using remote node's number.
+ *
+ * @param m a message memory handle.
+ * @param rem_node_rank logical node number of a remote node.
+ * @param priority priority of this communication.
+ *
+ * @return QMP_msghandle_t caller should check whether it is null.
+ */
+extern QMP_msghandle_t    QMP_declare_multisend_to(QMP_msgmem_t m, 
+                                                   int rem_node_rank,
+                                                   int priority);
+
+extern QMP_msghandle_t    QMP_comm_declare_multisend_to (QMP_comm_t comm,
+                                                         QMP_msgmem_t m, 
+                                                         int rem_node_rank,
+                                                         int priority);
+
+/**
+ * Declare an endpoint for message channel collective receiving operation
+ *  using remote node's number.
+ *
+ * @param m a message memory handle.
+ * @param priority priority of this communication.
+ *
+ * @return QMP_msghandle_t caller should check whether it is null.
+ */
+extern QMP_msghandle_t    QMP_declare_multireceive(QMP_msgmem_t m, 
+                                                   int priority);
+
+extern QMP_msghandle_t    QMP_comm_declare_multireceive(QMP_comm_t comm,
+                                                        QMP_msgmem_t m, 
+                                                        int priority);
+
+/**
+ * Declare an endpoint for tagged message send channel operation using remote
+ * node's number.
+ *
+ * @param m a message memory handle.
+ * @param rem_node_rank logical node number of a remote node.
+ * @param priority priority of this communication.
+ * @param tag a message tag
+ *
+ * @return QMP_msghandle_t caller should check whether it is null.
+ */
+extern QMP_msghandle_t    QMP_declare_tagged_send_to     (QMP_msgmem_t m, 
+                                                          int rem_node_rank,
+                                                          int priority,
+                                                          unsigned int tag);
+
+extern QMP_msghandle_t    QMP_comm_declare_tagged_send_to (QMP_comm_t comm,
+                                                           QMP_msgmem_t m, 
+                                                           int rem_node_rank,
+                                                           int priority,
+                                                           unsigned int tag);
+
+/**
+ * Declare an endpoint for tagged message channel receiving operation using remote
+ * node's number.
+ *
+ * @param m a message memory handle.
+ * @param rem_node_rank logical node number of a remote node.
+ * @param priority priority of this communication.
+ * @param tag a message tag
+ *
+ * @return QMP_msghandle_t caller should check whether it is null.
+ */
+extern QMP_msghandle_t    QMP_declare_tagged_receive_from(QMP_msgmem_t m, 
+                                                          int rem_node_rank,
+                                                          int priority,
+                                                          unsigned int tag);
+
+extern QMP_msghandle_t    QMP_comm_declare_tagged_receive_from(QMP_comm_t comm,
+                                                               QMP_msgmem_t m, 
+                                                               int rem_node_rank,
+                                                               int priority,
+                                                               unsigned int tag);
+
+/**
+ * Declare an endpoint for tagged message collective send channel operation
+ * using remote node's number.
+ *
+ * @param m a message memory handle.
+ * @param rem_node_rank logical node number of a remote node.
+ * @param priority priority of this communication.
+ * @param tag a message tag
+ *
+ * @return QMP_msghandle_t caller should check whether it is null.
+ */
+extern QMP_msghandle_t    QMP_declare_tagged_multisend_to(QMP_msgmem_t m, 
+                                                          int rem_node_rank,
+                                                          int priority,
+                                                          unsigned int tag);
+
+extern QMP_msghandle_t    QMP_comm_declare_tagged_multisend_to (QMP_comm_t comm,
+                                                                QMP_msgmem_t m, 
+                                                                int rem_node_rank,
+                                                                int priority,
+                                                                unsigned int tag);
+
+/**
+ * Declare an endpoint for tagged message channel collective receiving operation
+ *  using remote node's number.
+ *
+ * @param m a message memory handle.
+ * @param priority priority of this communication.
+ * @param tag a message tag
+ *
+ * @return QMP_msghandle_t caller should check whether it is null.
+ */
+extern QMP_msghandle_t    QMP_declare_tagged_multireceive(QMP_msgmem_t m, 
+                                                          int priority,
+                                                          unsigned int tag);
+
+extern QMP_msghandle_t    QMP_comm_declare_tagged_multireceive(QMP_comm_t comm,
+                                                               QMP_msgmem_t m, 
+                                                               int priority,
+                                                               unsigned int tag);
+
 extern QMP_status_t QMP_change_address(QMP_msghandle_t msg, void *addr);
 extern QMP_status_t QMP_change_address_multiple(QMP_msghandle_t msg, void *addr[], int naddr);
 
@@ -972,6 +1092,18 @@ extern QMP_status_t       QMP_sum_double_extended (double *value);
 
 extern QMP_status_t       QMP_comm_sum_double_extended (QMP_comm_t comm,
 							double *value);
+
+/**
+ * Global in place sum of an integer array.
+ * @param value a pointer to an integer array.
+ * @param length size of the array.
+ *
+ * @return QMP_SUCCESS when the global sum is a success.
+ */
+extern QMP_status_t       QMP_sum_int_array (int value[], int length);
+
+extern QMP_status_t       QMP_comm_sum_int_array (QMP_comm_t comm,
+                                                  int value[], int length);
 
 /**
  * Global in place sum of a float array.

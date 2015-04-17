@@ -3,17 +3,15 @@
 
 #include <mpi.h>
 
-#define TAG_CHANNEL  11
-
 // machine specific datatypes
 
 #define MM_TYPES MPI_Datatype mpi_type;
 
 #define MH_TYPES MH_TYPES_MPI
-#define MH_TYPES_MPI MPI_Request request, *request_array;
+#define MH_TYPES_MPI MPI_Request request, *request_array; unsigned int tag;
 
-#define COMM_TYPES MPI_Comm mpicomm;
-#define COMM_TYPES_INIT ,MPI_COMM_NULL
+#define COMM_TYPES MPI_Comm mpicomm; unsigned int last_tag;
+#define COMM_TYPES_INIT ,MPI_COMM_NULL, 0
 
 // machine specific routines
 
@@ -42,6 +40,7 @@
 #define QMP_COMM_BROADCAST QMP_COMM_BROADCAST_MPI
 #define QMP_COMM_SUM_DOUBLE QMP_COMM_SUM_DOUBLE_MPI
 #define QMP_COMM_SUM_LONG_DOUBLE QMP_COMM_SUM_LONG_DOUBLE_MPI
+#define QMP_COMM_SUM_INT_ARRAY QMP_COMM_SUM_INT_ARRAY_MPI
 #define QMP_COMM_SUM_FLOAT_ARRAY QMP_COMM_SUM_FLOAT_ARRAY_MPI
 #define QMP_COMM_SUM_DOUBLE_ARRAY QMP_COMM_SUM_DOUBLE_ARRAY_MPI
 #define QMP_COMM_SUM_LONG_DOUBLE_ARRAY QMP_COMM_SUM_LONG_DOUBLE_ARRAY_MPI
@@ -98,10 +97,10 @@ void QMP_alloc_msghandle_mpi(QMP_msghandle_t mh);
 void QMP_free_msghandle_mpi(QMP_msghandle_t mh);
 
 #define QMP_DECLARE_RECEIVE_MPI QMP_declare_receive_mpi
-void QMP_declare_receive_mpi(QMP_msghandle_t mh);
+void QMP_declare_receive_mpi(QMP_msghandle_t mh, int qmp_tag);
 
 #define QMP_DECLARE_SEND_MPI QMP_declare_send_mpi
-void QMP_declare_send_mpi(QMP_msghandle_t mh);
+void QMP_declare_send_mpi(QMP_msghandle_t mh, int qmp_tag);
 
 #define QMP_DECLARE_MULTIPLE_MPI QMP_declare_multiple_mpi
 void QMP_declare_multiple_mpi(QMP_msghandle_t mh);
@@ -129,6 +128,9 @@ QMP_status_t QMP_comm_sum_double_mpi(QMP_comm_t comm, double *value);
 
 #define QMP_COMM_SUM_LONG_DOUBLE_MPI QMP_comm_sum_long_double_mpi
 QMP_status_t QMP_comm_sum_long_double_mpi(QMP_comm_t comm, long double *value);
+
+#define QMP_COMM_SUM_INT_ARRAY_MPI QMP_comm_sum_int_array_mpi
+QMP_status_t QMP_comm_sum_int_array_mpi(QMP_comm_t comm, int value[], int count);
 
 #define QMP_COMM_SUM_FLOAT_ARRAY_MPI QMP_comm_sum_float_array_mpi
 QMP_status_t QMP_comm_sum_float_array_mpi(QMP_comm_t comm, float value[], int count);

@@ -80,6 +80,16 @@ QMP_init_machine_mpi (int* argc, char*** argv, QMP_thread_level_t required,
   QMP_alloc(QMP_machine->host, char, MPI_MAX_PROCESSOR_NAME);
   MPI_Get_processor_name(QMP_machine->host, &QMP_machine->hostlen);
 
+  void *tag_ub = NULL;
+  int flag = 0;
+  QMP_allocated_comm->last_tag = 0;
+  if ((MPI_Comm_get_attr(MPI_COMM_WORLD, MPI_TAG_UB, (void *)&tag_ub, &flag) == 0) && (tag_ub != NULL)) {
+      QMP_allocated_comm->last_tag = *(int *)tag_ub;
+  }
+  if (QMP_allocated_comm->last_tag == 0) {
+      QMP_abort_string(-1, "getting QMP_TAG_UB failed");
+  }
+
   return QMP_SUCCESS;
 }
 

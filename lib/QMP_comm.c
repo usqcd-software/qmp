@@ -313,6 +313,18 @@ QMP_sum_double_extended (double *value)
 }
 
 QMP_status_t
+QMP_sum_int_array (int value[], int count)
+{
+  QMP_status_t err;
+  ENTER;
+
+  err = QMP_comm_sum_int_array(QMP_comm_get_default(), value, count);
+
+  LEAVE;
+  return err;
+}
+
+QMP_status_t
 QMP_comm_sum_float_array (QMP_comm_t comm, float value[], int count)
 {
   QMP_status_t err = QMP_SUCCESS;
