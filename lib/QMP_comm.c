@@ -313,6 +313,20 @@ QMP_sum_double_extended (double *value)
 }
 
 QMP_status_t
+QMP_comm_sum_int_array (QMP_comm_t comm, int value[], int count)
+{
+  QMP_status_t err = QMP_SUCCESS;
+  ENTER;
+
+#ifdef QMP_COMM_SUM_INT_ARRAY
+  err = QMP_COMM_SUM_INT_ARRAY(comm, value, count);
+#endif
+
+  LEAVE;
+  return err;
+}
+
+QMP_status_t
 QMP_sum_int_array (int value[], int count)
 {
   QMP_status_t err;
