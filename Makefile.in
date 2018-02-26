@@ -290,7 +290,10 @@ top_srcdir = @top_srcdir@
 #                   examples (build examples)
 #
 SUBDIRS = include lib bin examples doc
-all: all-recursive
+all: version.h all-recursive
+
+version.h:
+	echo "`git log -n 1 --format=format:"#define GITHASH \\"%H:%d\\"%n" HEAD`" > $(srcdir)/include/version.h
 
 .SUFFIXES:
 am--refresh: Makefile
