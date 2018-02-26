@@ -9,6 +9,11 @@ DISTCHECK_CONFIGURE_FLAGS = @DISTCHECK_CONFIGURE_FLAGS@
 #
 # User explicitly has to make docs -- you may not want them
 #
+all: version.h all-recursive
+
+version.h:
+	echo "`git log -n 1 --format=format:"#define GITHASH \\"%H:%d\\"%n" HEAD`" > $(srcdir)/include/version.h
+
 doc:
 	cd doc && $(MAKE) doc
 
