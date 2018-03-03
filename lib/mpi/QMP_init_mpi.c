@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <stdarg.h>
+#include <assert.h>
 
 #include "QMP_P_COMMON.h"
 
@@ -39,6 +40,7 @@ QMP_init_machine_mpi (int* argc, char*** argv, QMP_thread_level_t required,
 	QMP_abort_string (-1, "MPI_Init failed");
     }else{
       MPI_Query_thread(&mpi_prv);
+      assert(mpi_prv==mpi_req);
     }
 
   switch(mpi_prv) { 
