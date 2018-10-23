@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(qmp, 2.5.0, [detar at physics.utah.edu])
+AC_INIT(qmp, 2.5.1, [detar at physics.utah.edu])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_SRCDIR([lib/QMP_grid.c])
 AC_CONFIG_SRCDIR([examples/QMP_test.c])
@@ -9,7 +9,7 @@ AM_INIT_AUTOMAKE([subdir-objects])
 dnl automake manual, ch 6 says to use this when SUBDIRS is used
 AC_PROG_MAKE_SET
 
-dnl Define these as defaults 
+dnl Define these as defaults
 dnl Needed below to check if compiler works
 
 AC_PROG_CC(c99 cc gcc)
@@ -59,7 +59,7 @@ AC_ARG_WITH( qmp-comms-libs,
 
 # If $QMP_COMMS_TYPE=MPI then perform the following link test
 
-case "${QMP_COMMS_TYPE}" in 
+case "${QMP_COMMS_TYPE}" in
 SINGLE)
   echo Building QMP for SINGLE node use
   ;;
