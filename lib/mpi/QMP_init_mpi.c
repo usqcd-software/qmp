@@ -93,7 +93,12 @@ QMP_init_machine_mpi (int* argc, char*** argv, QMP_thread_level_t required,
 void
 QMP_finalize_msg_passing_mpi (void)
 {
-  MPI_Finalize();
+  int flag;
+  MPI_Finalized(&flag);
+
+  if (!flag) {
+    MPI_Finalize();
+  }
 }
 
 
