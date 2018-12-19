@@ -32,8 +32,14 @@ QMP_init_machine_mpi (int* argc, char*** argv, QMP_thread_level_t required,
     break;
   }
 
-  if (MPI_Init_thread(argc, argv, mpi_req, &mpi_prv) != MPI_SUCCESS) 
-    QMP_abort_string (-1, "MPI_Init failed");
+  int flag;
+  MPI_Initialized(&flag); // needed to coexist with other libs apparently
+    if ( !flag ) {
+      if (MPI_Init_thread(argc, argv, mpi_req, &mpi_prv) != MPI_SUCCESS) 
+	QMP_abort_string (-1, "MPI_Init failed");
+    }else{
+      MPI_Query_thread(&mpi_prv);
+    }
 
   switch(mpi_prv) { 
   case MPI_THREAD_SINGLE:
@@ -87,7 +93,12 @@ QMP_init_machine_mpi (int* argc, char*** argv, QMP_thread_level_t required,
 void
 QMP_finalize_msg_passing_mpi (void)
 {
-  MPI_Finalize();
+  int flag;
+  MPI_Finalized(&flag);
+
+  if (!flag) {
+    MPI_Finalize();
+  }
 }
 
 

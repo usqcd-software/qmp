@@ -152,17 +152,9 @@ QMP_comm_sum_float_array_mpi(QMP_comm_t comm, float value[], int count)
   QMP_status_t status = QMP_SUCCESS;
   ENTER;
 
-  float *dest;
-  QMP_alloc(dest, float, count);
-  int err = MPI_Allreduce((void *)value, (void *)dest, count,
+  int err = MPI_Allreduce(MPI_IN_PLACE, (void *)value, count,
 			  MPI_FLOAT, MPI_SUM, comm->mpicomm);
   if(err != MPI_SUCCESS) status = err;
-  else {
-    int i;
-    for (i = 0; i < count; i++)
-      value[i] = dest[i];
-  }
-  QMP_free(dest);
   
   LEAVE;
   return status;
@@ -175,17 +167,9 @@ QMP_comm_sum_double_array_mpi(QMP_comm_t comm, double value[], int count)
   QMP_status_t status = QMP_SUCCESS;
   ENTER;
 
-  double *dest;
-  QMP_alloc(dest, double, count);
-  int err = MPI_Allreduce((void *)value, (void *)dest, count,
+  int err = MPI_Allreduce(MPI_IN_PLACE,(void *)value, count,
 			  MPI_DOUBLE, MPI_SUM, comm->mpicomm);
   if(err != MPI_SUCCESS) status = err;
-  else {
-    int i;
-    for (i = 0; i < count; i++)
-      value[i] = dest[i];
-  }
-  QMP_free(dest);
   
   LEAVE;
   return status;
