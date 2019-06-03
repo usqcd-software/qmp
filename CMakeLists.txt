@@ -1,8 +1,11 @@
 cmake_minimum_required(VERSION 3.11)
 project(QMP VERSION 2.5.1)
 
-# Boiler plate
+# Boiler plate -- install directories
 include(GNUInstallDirs)
+
+# Boiler plate -- CTest
+include(CTest)
 
 #Options
 # --enable-extra-debugging 
@@ -28,6 +31,9 @@ option(QMP_BGQ "Enable BlueGene/Q Personality to set native machine geometry" OF
 # --enable-bgspi
 option(QMP_BGSPI "Enable BlueGene SPI" OFF)
 
+# --enable-testing
+option(QMP_TESTING "Enable buidling of the examples" OFF)
+
 # Configuration file
 configure_file(include/qmp_config.h.cmake.in 
                       include/qmp_config.h)
@@ -40,12 +46,13 @@ set(QMP_COMMS_LIBS "" CACHE STRING "Any extra comms libs")
 # Use DMalloc
 option(QMP_USE_DMALLOC "Enable DMalloc" OFF)
 
+# Build Docs
+option(QMP_BUILD_DOCS "Enable Building docs with Doxygen" OFF)
 
                       
 
 
-#FIXME: Add doxygen
-# find_package(Doxygen)
+
 
 if(QMP_USE_DMALLOC)
   find_library(DMALLOC_LIBRARY dmalloc /usr/lib /usr/local/lib)
@@ -83,6 +90,10 @@ if(QMP_BGSPI)
 endif(QMP_BGSPI)
  
 
+if( NOT ${QMP_TESTING})
+ set(BUILD_TESTING OFF)
+endif()
+
 #install the  source headers                    
 install(DIRECTORY include DESTINATION . )
 
@@ -98,4 +109,10 @@ install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/bin/qmp-config DESTINATION bin)
 
 
 add_subdirectory(lib)            
-                   
+if( BUILD_TESTING ) 
+  add_subdirectory(examples)
+endif(BUILD_TESTING)
+
+if( QMP_BUILD_DOCS ) 
+  add_subdirectory(doc)
+endif()        
