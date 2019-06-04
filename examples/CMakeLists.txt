@@ -12,7 +12,8 @@ foreach(prog QMP_test
 
 add_executable(${prog} "${prog}.c"  )
 target_link_libraries(${prog} qmp m)
-set_target_properties(qmp PROPERTIES C_STANDARD 99)
-set_target_properties(qmp PROPERTIES C_EXTENSIONS OFF)
+set_target_properties(${prog} PROPERTIES C_STANDARD 99)
+set_target_properties(${prog} PROPERTIES C_EXTENSIONS OFF)
+install(TARGETS ${prog} DESTINATION examples )
 
 endforeach()
