@@ -33,8 +33,12 @@ endif( QMP_BGSPI)
 # define target
 add_library(qmp ${QMP_SRC})
 
+
+	
 set_target_properties(qmp PROPERTIES C_STANDARD 99)
 set_target_properties(qmp PROPERTIES C_EXTENSIONS OFF)
+
+
 # Configure the target
 # Includes from source
 target_include_directories(qmp PUBLIC
@@ -50,13 +54,3 @@ target_include_directories(qmp PUBLIC
 if( QMP_MPI )
   target_link_libraries(qmp PUBLIC MPI::MPI_C)
 endif(QMP_MPI) 
-
-install(TARGETS qmp EXPORT QMPConfig
-  ARCHIVE DESTINATION lib
-  LIBRARY  DESTINATION lib
-  RUNTIME DESTINATION lib)
-  
-
-
-install(EXPORT QMPConfig DESTINATION cmake)
-export(TARGETS qmp FILE QMPConfig.cmake )

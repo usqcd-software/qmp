@@ -94,17 +94,13 @@ if( NOT ${QMP_TESTING})
  set(BUILD_TESTING OFF)
 endif()
 
-#install the  source headers                    
-install(DIRECTORY include DESTINATION . )
 
  
 # Configuration file
 configure_file(include/qmp_config.h.cmake.in  include/qmp_config.h)
-#install the generated headers
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/qmp_config.h DESTINATION include)
-
 configure_file(bin/qmp-config.cmake.in  bin/qmp-config @ONLY)
-install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/bin/qmp-config DESTINATION bin)
+
+
 
 
 
@@ -116,3 +112,33 @@ endif(BUILD_TESTING)
 if( QMP_BUILD_DOCS ) 
   add_subdirectory(doc)
 endif()        
+
+# Installs the targers (The QMP Library)
+# into the 'QMPTargets' export pack
+
+
+install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/bin/qmp-config DESTINATION bin)
+
+install(TARGETS qmp EXPORT QMPTargets
+  ARCHIVE DESTINATION lib
+  LIBRARY  DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES DESTINATION include)
+
+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+	  
+
+# Install the QMPTargets  into the lib/cmake/QMP directory
+install(EXPORT QMPTargets NAMESPACE QMP:: DESTINATION lib/cmake/QMP)
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+    QMPVersion.cmake
+    VERSION ${PACKAGE_VERSION}
+    COMPATIBILITY AnyNewerVersion
+    )
+
+# Using this macro we can pass some path vars down...
+# But we are not doing this for now.
+configure_package_config_file(QMPConfig.cmake.in QMPConfig.cmake INSTALL_DESTINATION lib/cmake/QMP)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/QMPVersion.cmake ${CMAKE_CURRENT_BINARY_DIR}/QMPConfig.cmake DESTINATION lib/cmake/QMP)
