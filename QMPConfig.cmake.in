@@ -1,3 +1,5 @@
+@PACKAGE_INIT@
+
 # Boiler Plate Config file
 #
 #
@@ -8,7 +10,7 @@ set(QMP_MPI @QMP_MPI@)
 
 # If we are using MPI find the dependency
 if(QMP_MPI)
-  find_dependency(MPI::C REQUIRED)
+  find_dependency(MPI REQUIRED)
 endif()
 
 # Include the generated exported targets
