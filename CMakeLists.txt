@@ -142,3 +142,4 @@ write_basic_package_version_file(
 # But we are not doing this for now.
 configure_package_config_file(QMPConfig.cmake.in QMPConfig.cmake INSTALL_DESTINATION lib/cmake/QMP)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/QMPVersion.cmake ${CMAKE_CURRENT_BINARY_DIR}/QMPConfig.cmake DESTINATION lib/cmake/QMP)
+export(PACKAGE QMP)
