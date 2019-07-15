@@ -211,7 +211,7 @@ process_args(int* argc, char*** argv)
 {
   ENTER;
 
-
+#ifdef QMP_MPI
   int* nmpi = get_int_array(&QMP_args->geomlen, "-qmp-nmpi", argc, argv);
   if (nmpi)
     {
@@ -236,7 +236,7 @@ process_args(int* argc, char*** argv)
 	  exit(0);
 	}
     }
-    
+#endif    
 
   QMP_args->geom = get_int_array(&QMP_args->geomlen, "-qmp-geom", argc, argv);
   QMP_args->amap = get_int_array(&QMP_args->amaplen, "-qmp-alloc-map", argc, argv);
