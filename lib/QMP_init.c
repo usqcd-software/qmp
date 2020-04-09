@@ -212,6 +212,33 @@ process_args(int* argc, char*** argv)
 {
   ENTER;
 
+#ifdef QMP_MPI
+  int* nmpi = get_int_array(&QMP_args->geomlen, "-qmp-nmpi", argc, argv);
+  if (nmpi)
+    {
+      if (!QMP_allocated_comm->nodeid)
+	printf("nmpi = %d, reducing number of MPI processes being used accordingly\n",*nmpi);
+
+      int my_color = QMP_allocated_comm->nodeid < *nmpi ? 0 : 1;
+
+      MPI_Comm new_comm;
+      MPI_Comm_split( QMP_allocated_comm->mpicomm , my_color , QMP_allocated_comm->nodeid , &new_comm );
+
+      QMP_allocated_comm->mpicomm = new_comm;
+      QMP_allocated_comm->num_nodes = *nmpi;
+      
+      if (!QMP_allocated_comm->nodeid)
+	printf("MPI communicator replaced with new split communitator\n");
+
+      if (QMP_allocated_comm->nodeid >= *nmpi)
+	{
+	  printf("process %d exits now\n",QMP_allocated_comm->nodeid);
+	  MPI_Finalize();
+	  exit(0);
+	}
+    }
+#endif    
+
   QMP_args->geom = get_int_array(&QMP_args->geomlen, "-qmp-geom", argc, argv);
   QMP_args->amap = get_int_array(&QMP_args->amaplen, "-qmp-alloc-map", argc, argv);
   QMP_args->lmap = get_int_array(&QMP_args->lmaplen, "-qmp-logic-map", argc, argv);

@@ -37,7 +37,7 @@ QMP_declare_msgmem_mpi(QMP_msgmem_t mem)
 			    mem->mm.sa.stride[i], MPI_BYTE, &dt[i]);
       QMP_assert(err==MPI_SUCCESS);
     }
-    err = MPI_Type_struct(n, ones, disp, dt, &(mem->mpi_type));
+    err = MPI_Type_create_struct(n, ones, disp, dt, &(mem->mpi_type));
     QMP_assert(err==MPI_SUCCESS);
     err = MPI_Type_commit(&(mem->mpi_type));
     QMP_assert(err==MPI_SUCCESS);
@@ -110,14 +110,21 @@ QMP_free_msghandle_mpi(QMP_msghandle_t mh)
 void
 QMP_declare_receive_mpi(QMP_msghandle_t mh)
 {
+  int tag = TAG_CHANNEL;
+/* change MPI tags for relative send/receive in different directions, protecting against having only 2 nodes in 1 direction */
+  if (mh->axis >=0){
+    if (mh->dir >0) tag ++;
+    else        tag --;
+  }
+  QMP_assert (tag>=0);
   if(mh->mm->type==MM_user_buf) {
     MPI_Recv_init(mh->base, mh->mm->nbytes,
-		  MPI_BYTE, mh->srce_node, TAG_CHANNEL,
+		  MPI_BYTE, mh->srce_node, tag,
 		  mh->comm->mpicomm, &mh->request);
   } else {
     MPI_Recv_init(mh->base, 1,
 		  mh->mm->mpi_type,
-		  mh->srce_node, TAG_CHANNEL,
+		  mh->srce_node, tag,
 		  mh->comm->mpicomm, &mh->request);
   }
 }
@@ -126,15 +133,22 @@ QMP_declare_receive_mpi(QMP_msghandle_t mh)
 void
 QMP_declare_send_mpi(QMP_msghandle_t mh)
 {
+  int tag = TAG_CHANNEL;
+/* change MPI tags for relative send/receive in different directions, protecting against having only 2 nodes in 1 direction */
+  if (mh->axis >=0){
+    if (mh->dir >0) tag --; /* should be reversed from receive tag */
+    else        tag ++;
+  }
+  QMP_assert (tag>=0);
   if(mh->mm->type==MM_user_buf) {
     MPI_Send_init(mh->base, mh->mm->nbytes,
-		  MPI_BYTE, mh->dest_node, TAG_CHANNEL,
+		  MPI_BYTE, mh->dest_node, tag,
 		  mh->comm->mpicomm, &mh->request);
   } else {
     MPI_Send_init(mh->base, 1,
 		  mh->mm->mpi_type,
 		  mh->dest_node,
-		  TAG_CHANNEL,
+		  tag,
 		  mh->comm->mpicomm,
 		  &mh->request);
   }
