@@ -26,7 +26,7 @@
 #define PACKAGE_NAME "qmp"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "qmp 2.5.0"
+#define PACKAGE_STRING "qmp 2.5.2"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "qmp"
@@ -35,7 +35,7 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "2.5.0"
+#define PACKAGE_VERSION "2.5.2"
 
 /* build QMP to allow profiling */
 /* #undef QMP_BUILD_PROFILING */
@@ -44,7 +44,7 @@
 /* #undef QMP_BUILD_TIMING */
 
 /* Version number of package */
-#define VERSION "2.5.0"
+#define VERSION "2.5.2"
 
 /* Define if using the dmalloc debugging malloc package */
 /* #undef WITH_DMALLOC */

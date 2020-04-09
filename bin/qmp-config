@@ -14,7 +14,7 @@ prefix="/usr/local"
 exec_prefix="${prefix}"
 exec_prefix_set=no
 
-version="2.5.0"
+version="2.5.2"
 
 qmp_comms_type="MPI"
 qmp_cc="/usr/bin/mpicc"
