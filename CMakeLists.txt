@@ -1,8 +1,9 @@
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.17)
 project(QMP VERSION 2.5.1)
 
 # Boiler plate -- install directories
 include(GNUInstallDirs)
+set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 # Boiler plate -- CTest
 include(CTest)
@@ -32,7 +33,7 @@ option(QMP_BGQ "Enable BlueGene/Q Personality to set native machine geometry" OF
 option(QMP_BGSPI "Enable BlueGene SPI" OFF)
 
 # --enable-testing
-option(QMP_TESTING "Enable buidling of the examples" OFF)
+option(QMP_TESTING "Enable buidling of the examples" ON)
 
 # Configuration file
 configure_file(include/qmp_config.h.cmake.in 
@@ -52,11 +53,8 @@ option(QMP_BUILD_DOCS "Enable Building docs with Doxygen" OFF)
                       
 
 
-
-
 if(QMP_USE_DMALLOC)
-  find_library(DMALLOC_LIBRARY dmalloc /usr/lib /usr/local/lib)
-  find_path(DMALLOC_INCLUDE_DIR dmalloc.h PATHS /usr/include /usr/local/include)
+find_package(Dmalloc REQUIRED)
 endif(QMP_USE_DMALLOC)   
 
 
@@ -90,10 +88,6 @@ if(QMP_BGSPI)
 endif(QMP_BGSPI)
  
 
-if( NOT ${QMP_TESTING})
- set(BUILD_TESTING OFF)
-endif()
-
 
  
 # Configuration file
@@ -105,9 +99,9 @@ configure_file(bin/qmp-config.cmake.in  bin/qmp-config @ONLY)
 
 
 add_subdirectory(lib)            
-if( BUILD_TESTING ) 
+if( QMP_TESTING ) 
   add_subdirectory(examples)
-endif(BUILD_TESTING)
+endif()
 
 if( QMP_BUILD_DOCS ) 
   add_subdirectory(doc)
@@ -118,18 +112,11 @@ endif()
 
 
 install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/bin/qmp-config DESTINATION bin)
-
-install(TARGETS qmp EXPORT QMPTargets
-  ARCHIVE DESTINATION lib
-  LIBRARY  DESTINATION lib
-  RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include)
-
 install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 	  
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindDmalloc.cmake DESTINATION lib/cmake/QMP)
 
-# Install the QMPTargets  into the lib/cmake/QMP directory
-install(EXPORT QMPTargets DESTINATION lib/cmake/QMP)
+
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
@@ -140,5 +127,10 @@ write_basic_package_version_file(
 
 # Using this macro we can pass some path vars down...
 # But we are not doing this for now.
-configure_package_config_file(QMPConfig.cmake.in QMPConfig.cmake INSTALL_DESTINATION lib/cmake/QMP)
+set( cmakeModulesDir "lib/cmake/QMP" )
+configure_package_config_file(QMPConfig.cmake.in QMPConfig.cmake 
+	INSTALL_DESTINATION lib/cmake/QMP
+	PATH_VARS
+		cmakeModulesDir
+)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/QMPVersion.cmake ${CMAKE_CURRENT_BINARY_DIR}/QMPConfig.cmake DESTINATION lib/cmake/QMP)

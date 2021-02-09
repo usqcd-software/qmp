@@ -14,7 +14,7 @@
 #cmakedefine QMP_BUILD_TIMING
 
 /* Define if using the dmalloc debugging malloc package */
-#cmakedefine WITH_DMALLOC
+#cmakedefine WITH_DMALLOC @WITH_DMALLOC@
 
 /* enable extra debugging */
 #cmakedefine _QMP_DEBUG
