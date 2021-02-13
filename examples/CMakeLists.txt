@@ -11,7 +11,7 @@ foreach(prog QMP_test
                       QMP_show_geom)
 
 add_executable(${prog} "${prog}.c"  )
-target_link_libraries(${prog} qmp m)
+target_link_libraries(${prog} PUBLIC QMP::qmp m)
 set_target_properties(${prog} PROPERTIES C_STANDARD 99)
 set_target_properties(${prog} PROPERTIES C_EXTENSIONS OFF)
 install(TARGETS ${prog} DESTINATION examples )
