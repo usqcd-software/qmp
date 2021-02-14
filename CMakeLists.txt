@@ -112,7 +112,7 @@ endif()
 
 
 install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/bin/qmp-config DESTINATION bin)
-install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(DIRECTORY include DESTINATION .  )
 	  
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindDmalloc.cmake DESTINATION lib/cmake/QMP)
 
