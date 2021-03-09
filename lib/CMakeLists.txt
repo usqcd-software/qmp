@@ -34,7 +34,10 @@ endif()
 
 set_target_properties(qmp PROPERTIES C_STANDARD 99)
 set_target_properties(qmp PROPERTIES C_EXTENSIONS OFF)
-
+if( QMP_SANITIZER_OPTS )
+  target_compile_options(qmp PUBLIC ${QMP_SANITIZER_OPTS} )
+  target_link_options(qmp PUBLIC ${QMP_SANITIZER_OPTS} )
+endif()
 
 # Configure the target
 # Includes from source

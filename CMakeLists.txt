@@ -35,6 +35,9 @@ option(QMP_BGSPI "Enable BlueGene SPI" OFF)
 # --enable-testing
 option(QMP_TESTING "Enable buidling of the examples" ON)
 
+# Enable Address address and undefined behaviour sanitizers
+option(QMP_ENABLE_SANITIZERS "Enable Address and Undefined Behaviour Sanitizers" OFF)
+
 # Configuration file
 configure_file(include/qmp_config.h.cmake.in 
                       include/qmp_config.h)
@@ -86,16 +89,21 @@ endif(QMP_BGQ)
 if(QMP_BGSPI)
  set(HAVE_BGSPI 1)
 endif(QMP_BGSPI)
- 
 
-
+# Deal with Sanitizer
+if( QMP_ENABLE_SANITIZERS )
+  if( ( CMAKE_C_COMPILER_ID MATCHES "Clang" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 3.1)
+     OR ( CMAKE_C_COMPILER_ID MATCHES "Clang" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 4.8) )
+      message(STATUS "Setting Sanitizer options")
+      set(QMP_SANITIZER_OPTS "-fsanitize=address,undefined")
+  else()
+    message(STATUS "Don't know how to enable sanitizers for ${CMAKE_C_COMPILER}... Ignoring")
+  endif()
+endif()  	 
  
 # Configuration file
 configure_file(include/qmp_config.h.cmake.in  include/qmp_config.h)
 configure_file(bin/qmp-config.cmake.in  bin/qmp-config @ONLY)
-
-
-
 
 
 add_subdirectory(lib)            
