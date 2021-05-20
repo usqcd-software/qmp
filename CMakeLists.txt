@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.17)
-project(QMP VERSION 2.5.1)
+project(QMP VERSION 2.5.1 LANGUAGES C)
 
 # Boiler plate -- install directories
 include(GNUInstallDirs)
@@ -64,7 +64,8 @@ endif(QMP_USE_DMALLOC)
 set(QMP_COMMS_TYPE "single")
 
 if(QMP_MPI) 
-  find_package(MPI REQUIRED)
+   # Languages setting in PROJECT to C will require only C version of MPI
+   find_package(MPI REQUIRED)
    set(HAVE_MPI 1)
    set(QMP_COMMS_TYPE "MPI")
 endif(QMP_MPI)

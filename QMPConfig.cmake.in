@@ -21,7 +21,10 @@ set(QMP_USE_DMALLOC @QMP_USE_DMALLOC@)
 
 # Resolve dependencies if needed
 if( QMP_MPI )
-  find_dependency(MPI REQUIRED)
+  find_dependency(MPI)
+  if( NOT MPI_C_FOUND )
+    message(ERROR "Could not find MPI_C")
+  endif()
 endif()
 
 # Resolve dependencies if needed
