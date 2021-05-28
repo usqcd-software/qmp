@@ -64,6 +64,7 @@ get_rank(const int *x, int *l, int *p, int nd)
 QMP_status_t
 QMP_set_topo_mpi(QMP_comm_t comm)
 {
+  QMP_UNUSED_PARAM(comm);
   //remap_mpi((int *)dims, ndim);
   return QMP_SUCCESS;
 }
