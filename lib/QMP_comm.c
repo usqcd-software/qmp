@@ -207,6 +207,30 @@ QMP_sum_int (int *value)
   return err;
 }
 
+QMP_status_t 
+QMP_sum_uint64_t(uint64_t *value)
+{
+  QMP_status_t err;
+  ENTER;
+  err = QMP_comm_sum_uint64_t(QMP_comm_get_default(), value);
+  
+  LEAVE;
+  return err;
+}
+
+QMP_status_t
+QMP_comm_sum_uint64_t(QMP_comm_t comm, uint64_t *value)
+{
+  QMP_status_t err;
+  ENTER;
+#ifdef QMP_COMM_SUM_UINT64_T
+    err = QMP_COMM_SUM_UINT64_T(comm, value);
+#endif
+
+  LEAVE;
+  return err;
+}
+
 QMP_status_t
 QMP_comm_sum_float (QMP_comm_t comm, float *value)
 {

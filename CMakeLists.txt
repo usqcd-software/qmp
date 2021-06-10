@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.17)
-project(QMP VERSION 2.5.1 LANGUAGES C)
+project(QMP VERSION 2.5.3 LANGUAGES C)
 
 # Boiler plate -- install directories
 include(GNUInstallDirs)

@@ -90,7 +90,7 @@
 
 #include <stdio.h>
 #include <stddef.h>  /* needed for ptrdiff_t */
-
+#include <stdint.h>
 /**
  * Current version information in string form.
  * Provided by autoconf.
@@ -930,6 +930,18 @@ extern QMP_status_t       QMP_comm_broadcast (QMP_comm_t comm,
 extern QMP_status_t       QMP_sum_int (int *value);
 
 extern QMP_status_t       QMP_comm_sum_int (QMP_comm_t comm, int *value);
+
+/**
+ * Global in place sum of an explicit uint64_t
+ * @param value a pointer to a uint64_t
+ *
+ * @return QMP_SUCCESS when a global sum is success. 
+ */
+extern QMP_status_t       QMP_sum_uint64_t (uint64_t *value);
+
+
+extern QMP_status_t       QMP_comm_sum_uint64_t (QMP_comm_t comm, uint64_t *value);
+
 
 /**
  * Global in place sum of a float.

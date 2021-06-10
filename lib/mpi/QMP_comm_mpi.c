@@ -128,6 +128,21 @@ QMP_comm_sum_double_mpi(QMP_comm_t comm, double *value)
   return status;
 }
 
+QMP_status_t
+QMP_comm_sum_uint64_t_mpi(QMP_comm_t comm, uint64_t *value)
+{
+  QMP_status_t status = QMP_SUCCESS;
+  ENTER;
+
+  uint64_t dest;
+  int err = MPI_Allreduce((void *)value, (void *)&dest, 1,
+                          MPI_UINT64_T, MPI_SUM, comm->mpicomm);
+  if(err != MPI_SUCCESS) status = err;
+  else *value = dest;
+
+  LEAVE;
+  return status;
+}
 
 QMP_status_t
 QMP_comm_sum_long_double_mpi(QMP_comm_t comm, long double *value)
