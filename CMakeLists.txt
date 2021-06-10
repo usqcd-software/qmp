@@ -129,8 +129,8 @@ install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindDmalloc.cmake DESTINATION li
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
-    QMPVersion.cmake
-    VERSION ${PACKAGE_VERSION}
+    QMPConfigVersion.cmake
+    VERSION "${PACKAGE_VERSION}"
     COMPATIBILITY AnyNewerVersion
     )
 
@@ -142,4 +142,4 @@ configure_package_config_file(QMPConfig.cmake.in QMPConfig.cmake
 	PATH_VARS
 		cmakeModulesDir
 )
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/QMPVersion.cmake ${CMAKE_CURRENT_BINARY_DIR}/QMPConfig.cmake DESTINATION lib/cmake/QMP)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/QMPConfigVersion.cmake ${CMAKE_CURRENT_BINARY_DIR}/QMPConfig.cmake DESTINATION lib/cmake/QMP)
