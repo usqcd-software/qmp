@@ -94,8 +94,7 @@ endif(QMP_BGSPI)
 # Deal with Sanitizer
 if( QMP_ENABLE_SANITIZERS )
 			include(cmake/CheckSanitizeOpts.cmake)
-			check_sanitizer_options( "${QMP_ENABLE_SANITIZERS}" )
-      set(QMP_SANITIZER_OPTS ${SANITIZER_OPT_STRING} )
+			check_sanitizer_options( "${QMP_ENABLE_SANITIZERS}" QMP_SANITIZER_OPTS )
 			message(STATUS "QMP: Setting Sanitizer options: ${QMP_SANITIZER_OPTS}")
 endif()  	 
  
