@@ -93,13 +93,10 @@ endif(QMP_BGSPI)
 
 # Deal with Sanitizer
 if( QMP_ENABLE_SANITIZERS )
-  if( ( CMAKE_C_COMPILER_ID MATCHES "Clang" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 3.1)
-     OR ( CMAKE_C_COMPILER_ID MATCHES "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 4.8) )
-      message(STATUS "QMP: Setting Sanitizer options")
-      set(QMP_SANITIZER_OPTS "-fsanitize=address,undefined")
-  else()
-    message(STATUS "Don't know how to enable sanitizers for ${CMAKE_C_COMPILER}... Ignoring")
-  endif()
+			include(cmake/CheckSanitizeOpts.cmake)
+			check_sanitizer_options( "${QMP_ENABLE_SANITIZERS}" )
+      set(QMP_SANITIZER_OPTS ${SANITIZER_OPT_STRING} )
+			message(STATUS "QMP: Setting Sanitizer options: ${QMP_SANITIZER_OPTS}")
 endif()  	 
  
 # Configuration file
