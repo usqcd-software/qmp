@@ -49,8 +49,8 @@
 
 struct perf_argv
 {
-  int size;
-  int loops;
+  size_t size;
+  size_t loops;
 };
 
 #define SEND 0
@@ -111,15 +111,15 @@ get_field(char *buf, int size, int fromnode)
 int
 main (int argc, char** argv)
 {
-  int i, j, k;
+  size_t i, j, k;
   QMP_status_t status;
-  int num_nodes;
+  size_t num_nodes;
   struct perf_argv pargv;
   QMP_mem_t  *mem;
-  int   *value;
+  size_t   *value;
   double it, ft, bw;
   int dims[4];
-  int ndims = 4;
+  size_t ndims = 4;
   QMP_thread_level_t req, prv;
   
   req = QMP_THREAD_SINGLE;
@@ -133,7 +133,7 @@ main (int argc, char** argv)
   /* If this is the root node, get dimension information from key board */
   if (QMP_is_primary_node()) {
     QMP_fprintf (stderr, "Enter memory size and number of loops to run\n");
-    if(scanf ("%d %d", &pargv.size, &pargv.loops)!=2)
+    if(scanf ("%zu %zu", &pargv.size, &pargv.loops)!=2)
       QMP_abort_string (-1, "invalid input\n");
   }
 
@@ -166,7 +166,7 @@ main (int argc, char** argv)
   if (QMP_is_primary_node ()) {
     it = get_current_time ();
     for (i = 0; i < pargv.loops; i++) {
-      value = (int *)QMP_get_memory_pointer(mem);
+      value = (size_t *)QMP_get_memory_pointer(mem);
       for (k = 0; k < pargv.size/sizeof(int); k++)
 	value[k] = i;
       for (j = 1; j < num_nodes; j++)
@@ -180,7 +180,7 @@ main (int argc, char** argv)
   else {
     it = get_current_time ();
     for (i = 0; i < pargv.loops; i++) {
-      value = (int *)QMP_get_memory_pointer(mem);
+      value = (size_t *)QMP_get_memory_pointer(mem);
       get_field ((char *)value, pargv.size, 0);
       for (k = 0; k < pargv.size/sizeof(int); k++)
 	if (value[k] != i) 

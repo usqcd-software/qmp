@@ -1167,4 +1167,12 @@ extern int QMP_version_int(void);
 
 #endif
 
+/* 
+ * Mark parameters as unused: that are in the interface but not in the implementation.
+ * Thanks to StackOverflow: https://stackoverflow.com/questions/3599160/how-to-suppress-unused-parameter-warnings-in-c
+ */
+#ifndef QMP_UNUSED_PARAM
+#define QMP_UNUSED_PARAM(param) (void)(param)
+#endif
+
 #endif

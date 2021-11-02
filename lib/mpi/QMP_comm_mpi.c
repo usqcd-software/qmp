@@ -294,7 +294,10 @@ static int op_inited=0;
  */
 static void
 qmp_bfunc_mpi(void* in, void* inout, int* len, MPI_Datatype* type)
-{
+{ 
+  QMP_UNUSED_PARAM(len);
+  QMP_UNUSED_PARAM(type);
+
   qmp_user_bfunc(inout, in);
 }
 
