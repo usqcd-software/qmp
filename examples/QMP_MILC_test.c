@@ -111,7 +111,8 @@ get_field(char *buf, int size, int fromnode)
 int
 main (int argc, char** argv)
 {
-  int i, j, k;
+  int i, j;
+  size_t k;
   QMP_status_t status;
   int num_nodes;
   struct perf_argv pargv;
@@ -167,7 +168,7 @@ main (int argc, char** argv)
     it = get_current_time ();
     for (i = 0; i < pargv.loops; i++) {
       value = (int *)QMP_get_memory_pointer(mem);
-      for (k = 0; k < (int)(pargv.size/sizeof(int)); k++)
+      for (k = 0; k < pargv.size/sizeof(int); k++)
 	value[k] = i;
       for (j = 1; j < num_nodes; j++)
 	send_field ((char *)value, pargv.size, j);
@@ -182,7 +183,7 @@ main (int argc, char** argv)
     for (i = 0; i < pargv.loops; i++) {
       value = (int *)QMP_get_memory_pointer(mem);
       get_field ((char *)value, pargv.size, 0);
-      for (k = 0; k < (int)(pargv.size/sizeof(int)); k++)
+      for (k = 0; k < pargv.size/sizeof(int); k++)
 	if (value[k] != i) 
 	  QMP_fprintf (stderr, "Receiving error on loop %d\n", i);
     }
