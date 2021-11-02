@@ -1167,4 +1167,9 @@ extern int QMP_version_int(void);
 
 #endif
 
+/* Using a trick supplied by Stackoverflow:
+ * https://stackoverflow.com/questions/3599160/how-to-suppress-unused-parameter-warnings-in-c/12891181
+ * Thanks to several people who suggested it in that thread
+ */
+#define  _QMP_UNUSED_ARGUMENT(x) ((void)(x))
 #endif

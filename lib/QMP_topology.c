@@ -78,7 +78,10 @@ QMP_set_topo(QMP_comm_t comm, const int* dims, int ndim, const int *map, int nma
 
 static QMP_status_t
 QMP_set_topo_native(QMP_comm_t comm, const int *map, int nmap)
-{
+{ _QMP_UNUSED_ARGUMENT(comm);
+  _QMP_UNUSED_ARGUMENT(map);
+  _QMP_UNUSED_ARGUMENT(nmap);
+
   QMP_status_t status = QMP_SUCCESS;
   ENTER;
 #ifdef QMP_SET_TOPO_NATIVE

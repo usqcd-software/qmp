@@ -295,6 +295,8 @@ static int op_inited=0;
 static void
 qmp_bfunc_mpi(void* in, void* inout, int* len, MPI_Datatype* type)
 {
+ _QMP_UNUSED_ARGUMENT(len);
+ _QMP_UNUSED_ARGUMENT(type);
   qmp_user_bfunc(inout, in);
 }
 
