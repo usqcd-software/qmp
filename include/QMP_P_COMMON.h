@@ -72,7 +72,7 @@ typedef struct QMP_machine
 
   QMP_thread_level_t thread_level;
 } QMP_machine_t;
-#define QMP_MACHINE_INIT 0.0, 0, QMP_SWITCH, NULL, 0, QMP_FALSE, 0, 0, QMP_SUCCESS, QMP_THREAD_SINGLE
+#define QMP_MACHINE_INIT 0.0, 0, QMP_SWITCH, NULL, 0, QMP_FALSE, 0, 0, 0,0, QMP_SUCCESS, QMP_THREAD_SINGLE
 extern QMP_machine_t *QMP_machine;
 
 /*

@@ -28,6 +28,8 @@ QMP_allocate_memory (size_t nbytes)
 QMP_mem_t *
 QMP_allocate_aligned_memory (size_t nbytes, size_t alignment, int flags)
 {
+  _QMP_UNUSED_ARGUMENT(flags);
+
   QMP_mem_t *mem;
   ENTER;
 
@@ -116,7 +118,7 @@ QMP_declare_strided_msgmem (void* base,
   struct QMP_msgmem_struct *mem;
   ENTER;
 
-  if( stride == blksize || nblocks == 1 ) { /* Not really strided */
+  if( stride == (ptrdiff_t)blksize || nblocks == 1 ) { /* Not really strided */
     mem = QMP_declare_msgmem(base, blksize*nblocks);
   } else { /* Really strided */
     QMP_alloc(mem, struct QMP_msgmem_struct, 1);
