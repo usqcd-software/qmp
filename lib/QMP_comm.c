@@ -221,7 +221,7 @@ QMP_sum_uint64_t(uint64_t *value)
 QMP_status_t
 QMP_comm_sum_uint64_t(QMP_comm_t comm, uint64_t *value)
 {
-  QMP_status_t err;
+  QMP_status_t err = QMP_SUCCESS;
   ENTER;
 #ifdef QMP_COMM_SUM_UINT64_T
     err = QMP_COMM_SUM_UINT64_T(comm, value);
