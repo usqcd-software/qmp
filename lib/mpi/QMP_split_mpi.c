@@ -27,7 +27,7 @@ QMP_comm_free_mpi(QMP_comm_t comm)
   QMP_status_t status = QMP_SUCCESS;
 
   int err = MPI_Comm_free(&comm->mpicomm);
-  if(err!=MPI_SUCCESS) status = err;
+  if(err!=MPI_SUCCESS) status = (QMP_status_t)err;
 
   return status;
 }

@@ -10,7 +10,7 @@
 QMP_status_t
 QMP_start_mpi (QMP_msghandle_t mh)
 {
-  int err = QMP_SUCCESS;
+  QMP_status_t err = QMP_SUCCESS;
 
   if(mh->type==MH_multiple) {
     MPI_Startall(mh->num, mh->request_array);
@@ -56,7 +56,7 @@ QMP_is_complete_mpi (QMP_msghandle_t mh)
 QMP_status_t
 QMP_wait_mpi(QMP_msghandle_t mh)
 {
-  int status = QMP_SUCCESS;
+  QMP_status_t status = QMP_SUCCESS;
 
   int flag;
   if(mh->type==MH_multiple) {
@@ -76,7 +76,7 @@ QMP_wait_mpi(QMP_msghandle_t mh)
       QMP_FATAL("test unexpectedly failed");
     }
   }
-  if (flag != MPI_SUCCESS) status = flag;
+  if (flag != MPI_SUCCESS) status = (QMP_status_t)flag;
 
   return status;
 }
@@ -95,7 +95,7 @@ QMP_comm_barrier_mpi(QMP_comm_t comm)
   QMP_status_t status = QMP_SUCCESS;
 
   int err = MPI_Barrier(comm->mpicomm);
-  if(err != MPI_SUCCESS) status = err;
+  if(err != MPI_SUCCESS) status = (QMP_status_t)err;
 
   return status;
 }
@@ -106,7 +106,7 @@ QMP_comm_broadcast_mpi(QMP_comm_t comm, void *send_buf, size_t count)
   QMP_status_t status = QMP_SUCCESS;
 
   int err = MPI_Bcast(send_buf, count, MPI_BYTE, 0, comm->mpicomm);
-  if(err != MPI_SUCCESS) status = err;
+  if(err != MPI_SUCCESS) status = (QMP_status_t)err;
 
   return status;
 }
@@ -121,7 +121,7 @@ QMP_comm_sum_double_mpi(QMP_comm_t comm, double *value)
   double dest;
   int err = MPI_Allreduce((void *)value, (void *)&dest, 1,
 			  MPI_DOUBLE, MPI_SUM, comm->mpicomm);
-  if(err != MPI_SUCCESS) status = err;
+  if(err != MPI_SUCCESS) status = (QMP_status_t)err;
   else *value = dest;
 
   LEAVE;
@@ -137,7 +137,7 @@ QMP_comm_sum_uint64_t_mpi(QMP_comm_t comm, uint64_t *value)
   uint64_t dest;
   int err = MPI_Allreduce((void *)value, (void *)&dest, 1,
                           MPI_UINT64_T, MPI_SUM, comm->mpicomm);
-  if(err != MPI_SUCCESS) status = err;
+  if(err != MPI_SUCCESS) status = (QMP_status_t)err;
   else *value = dest;
 
   LEAVE;
@@ -153,7 +153,7 @@ QMP_comm_sum_long_double_mpi(QMP_comm_t comm, long double *value)
   long double dest;
   int err = MPI_Allreduce((void *)value, (void *)&dest, 1,
 			  MPI_LONG_DOUBLE, MPI_SUM, comm->mpicomm);
-  if(err != MPI_SUCCESS) status = err;
+  if(err != MPI_SUCCESS) status = (QMP_status_t)err;
   else *value = dest;
 
   LEAVE;
@@ -169,7 +169,7 @@ QMP_comm_sum_float_array_mpi(QMP_comm_t comm, float value[], int count)
 
   int err = MPI_Allreduce(MPI_IN_PLACE, (void *)value, count,
 			  MPI_FLOAT, MPI_SUM, comm->mpicomm);
-  if(err != MPI_SUCCESS) status = err;
+  if(err != MPI_SUCCESS) status = (QMP_status_t)err;
   
   LEAVE;
   return status;
@@ -184,7 +184,7 @@ QMP_comm_sum_double_array_mpi(QMP_comm_t comm, double value[], int count)
 
   int err = MPI_Allreduce(MPI_IN_PLACE,(void *)value, count,
 			  MPI_DOUBLE, MPI_SUM, comm->mpicomm);
-  if(err != MPI_SUCCESS) status = err;
+  if(err != MPI_SUCCESS) status = (QMP_status_t)err;
   
   LEAVE;
   return status;
@@ -201,7 +201,7 @@ QMP_comm_sum_long_double_array_mpi(QMP_comm_t comm, long double value[], int cou
   QMP_alloc(dest, long double, count);
   int err = MPI_Allreduce((void *)value, (void *)dest, count,
 			  MPI_DOUBLE, MPI_SUM, comm->mpicomm);
-  if(err != MPI_SUCCESS) status = err;
+  if(err != MPI_SUCCESS) status = (QMP_status_t)err;
   else {
     int i;
     for (i = 0; i < count; i++)
@@ -223,7 +223,7 @@ QMP_comm_max_double_mpi(QMP_comm_t comm, double *value)
   double dest;
   int err = MPI_Allreduce((void *)value, (void *)&dest, 1,
 			  MPI_DOUBLE, MPI_MAX, comm->mpicomm);
-  if(err != MPI_SUCCESS) status = err;
+  if(err != MPI_SUCCESS) status = (QMP_status_t)err;
   else *value = dest;
 
   LEAVE;
@@ -240,7 +240,7 @@ QMP_comm_min_double_mpi(QMP_comm_t comm, double *value)
   double dest;
   int err = MPI_Allreduce((void *)value, (void *)&dest, 1,
 			  MPI_DOUBLE, MPI_MIN, comm->mpicomm);
-  if(err != MPI_SUCCESS) status = err;
+  if(err != MPI_SUCCESS) status = (QMP_status_t)err;
   else *value = dest;
 
   LEAVE;
@@ -257,7 +257,7 @@ QMP_comm_xor_ulong_mpi(QMP_comm_t comm, unsigned long *value)
   unsigned long dest;
   int err = MPI_Allreduce((void *)value, (void *)&dest, 1,
 			  MPI_UNSIGNED_LONG, MPI_BXOR, comm->mpicomm);
-  if(err != MPI_SUCCESS) status = err;
+  if(err != MPI_SUCCESS) status = (QMP_status_t)err;
   else *value = dest;
 
   LEAVE;
@@ -274,7 +274,7 @@ QMP_comm_alltoall_mpi(QMP_comm_t comm, char* recvbuffer, char* sendbuffer, int c
   int err=MPI_Alltoall( (void*)sendbuffer, count, MPI_BYTE,
 			(void*)recvbuffer, count, MPI_BYTE,
 			comm->mpicomm);
-  if(err != MPI_SUCCESS) status = err;
+  if(err != MPI_SUCCESS) status = (QMP_status_t)err;
 
   LEAVE;
   return status;
@@ -311,9 +311,10 @@ QMP_comm_binary_reduction_mpi(QMP_comm_t comm, void *lbuffer, size_t count, QMP_
   /* set up user binary reduction pointer */
   qmp_user_bfunc = bfunc;
 
+  int err;
   if(!op_inited) {
-    status = MPI_Op_create(qmp_bfunc_mpi, 1, &bop);
-    if (status != MPI_SUCCESS) {
+    err = MPI_Op_create(qmp_bfunc_mpi, 1, &bop);
+    if (err != MPI_SUCCESS) {
       QMP_error ("Cannot create MPI operator for binary reduction.\n");
       goto leave;
     }
@@ -323,10 +324,9 @@ QMP_comm_binary_reduction_mpi(QMP_comm_t comm, void *lbuffer, size_t count, QMP_
   char *rbuffer;
   QMP_alloc(rbuffer, char, count);
 
-  int err =
-    MPI_Allreduce(lbuffer,rbuffer,count, MPI_BYTE, bop, comm->mpicomm);
+  err = MPI_Allreduce(lbuffer,rbuffer,count, MPI_BYTE, bop, comm->mpicomm);
 
-  if(err != MPI_SUCCESS) status = err;
+  if(err != MPI_SUCCESS) status = (QMP_status_t)err;
   else {
     memcpy (lbuffer, rbuffer, count);
     QMP_free(rbuffer);
@@ -335,6 +335,7 @@ QMP_comm_binary_reduction_mpi(QMP_comm_t comm, void *lbuffer, size_t count, QMP_
   /* signal end of the binary reduction session */
   qmp_user_bfunc = NULL;
 
+  return status;
  leave:
   LEAVE;
   return QMP_SUCCESS;
