@@ -6,6 +6,7 @@
 #include <ctype.h>
 #include <stdarg.h>
 
+#include "version.h"
 #include "QMP_P_COMMON.h"
 
 // static library data
@@ -306,6 +307,13 @@ QMP_init_msg_passing (int* argc, char*** argv, QMP_thread_level_t required,
 #endif
 
   QMP_barrier();
+
+#ifdef GITHASH
+  if(!QMP_get_node_number()) QMP_fprintf(stdout, "Current qmp git commit hash=%s\n", GITHASH);
+#else
+ if(!QMP_get_node_number()) QMP_fprintf(stdout, "Current qmp git commit hash is undefined.  Check makefile.\n", GITHASH);
+#endif
+#undef GITHASH
 
   LEAVE_INIT;
   return QMP_machine->err_code;

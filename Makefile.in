@@ -158,7 +158,7 @@ DIST_SUBDIRS = $(SUBDIRS)
 am__DIST_COMMON = $(srcdir)/Makefile.in $(top_srcdir)/config/compile \
 	$(top_srcdir)/config/install-sh $(top_srcdir)/config/missing \
 	$(top_srcdir)/config/mkinstalldirs AUTHORS COPYING ChangeLog \
-	INSTALL NEWS README TODO config/compile config/depcomp \
+	INSTALL NEWS README config/compile config/depcomp \
 	config/install-sh config/missing config/mkinstalldirs
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
@@ -301,7 +301,13 @@ top_srcdir = @top_srcdir@
 #                   examples (build examples)
 #
 SUBDIRS = include lib bin examples doc
-all: all-recursive
+
+#
+# User explicitly has to make docs -- you may not want them
+#
+BUILT_SOURCES = version.h
+all: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 
 .SUFFIXES:
 am--refresh: Makefile
@@ -633,11 +639,13 @@ distcleancheck: distclean
 	       $(distcleancheck_listfiles) ; \
 	       exit 1; } >&2
 check-am: all-am
-check: check-recursive
+check: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) check-recursive
 all-am: Makefile
 installdirs: installdirs-recursive
 installdirs-am:
-install: install-recursive
+install: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) install-recursive
 install-exec: install-exec-recursive
 install-data: install-data-recursive
 uninstall: uninstall-recursive
@@ -667,6 +675,7 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
+	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 clean: clean-recursive
 
 clean-am: clean-generic mostlyclean-am
@@ -736,7 +745,8 @@ ps-am:
 
 uninstall-am:
 
-.MAKE: $(am__recursive_targets) install-am install-strip
+.MAKE: $(am__recursive_targets) all check install install-am \
+	install-strip
 
 .PHONY: $(am__recursive_targets) CTAGS GTAGS TAGS all all-am \
 	am--refresh check check-am clean clean-cscope clean-generic \
@@ -756,9 +766,9 @@ uninstall-am:
 .PRECIOUS: Makefile
 
 
-#
-# User explicitly has to make docs -- you may not want them
-#
+version.h:
+	echo "`git log -n 1 --format=format:"#define GITHASH \\"%H:%d\\"%n" HEAD`" > $(srcdir)/include/version.h
+
 doc:
 	cd doc && $(MAKE) doc
 
