@@ -111,7 +111,8 @@ get_field(char *buf, int size, int fromnode)
 int
 main (int argc, char** argv)
 {
-  int i, j, k;
+  int i, j;
+  size_t k;
   QMP_status_t status;
   int num_nodes;
   struct perf_argv pargv;

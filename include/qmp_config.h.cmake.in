@@ -1,0 +1,26 @@
+/* compiling for BG/Q */
+#cmakedefine HAVE_BGQ
+
+/* compiling for SPI */
+#cmakedefine HAVE_BGSPI
+
+/* compiling for MPI */
+#cmakedefine HAVE_MPI
+
+/* build QMP to allow profiling */
+#cmakedefine QMP_BUILD_PROFILING
+
+/* build QMP with function timing */
+#cmakedefine QMP_BUILD_TIMING
+
+/* Define if using the dmalloc debugging malloc package */
+#cmakedefine WITH_DMALLOC @WITH_DMALLOC@
+
+/* enable extra debugging */
+#cmakedefine _QMP_DEBUG
+
+/* enable extra tracing */
+#cmakedefine _QMP_TRACE
+
+/* Version string */
+#define VERSION "@CMAKE_PROJECT_VERSION@"

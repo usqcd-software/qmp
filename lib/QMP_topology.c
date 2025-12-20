@@ -78,7 +78,10 @@ QMP_set_topo(QMP_comm_t comm, const int* dims, int ndim, const int *map, int nma
 
 static QMP_status_t
 QMP_set_topo_native(QMP_comm_t comm, const int *map, int nmap)
-{
+{ _QMP_UNUSED_ARGUMENT(comm);
+  _QMP_UNUSED_ARGUMENT(map);
+  _QMP_UNUSED_ARGUMENT(nmap);
+
   QMP_status_t status = QMP_SUCCESS;
   ENTER;
 #ifdef QMP_SET_TOPO_NATIVE
@@ -144,7 +147,7 @@ QMP_declare_logical_topology (const int* dims, int ndim)
 {
   QMP_status_t r;
   ENTER;
-  r = QMP_comm_declare_logical_topology_map (QMP_comm_get_default(), dims, ndim, NULL, 0);
+  r = QMP_comm_declare_logical_topology_map (QMP_comm_get_default(), dims, ndim, QMP_args->lmap, QMP_args->lmaplen);
   LEAVE;
   return r;
 }

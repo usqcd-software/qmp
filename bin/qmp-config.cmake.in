@@ -1,0 +1,174 @@
+#!/bin/sh
+
+# qmp-config
+#
+# George T. Fleming, 11 February 2003
+#
+# Tool for retrieving configuration information about the installed version
+# of QMP.
+#
+# This script was inspired by many similar scripts available in RedHat Linux,
+# including gnome-config, gtk-config and xmms-config.
+
+prefix="@CMAKE_INSTALL_PREFIX@"
+exec_prefix="@CMAKE_INSTALL_PREFIX@"
+exec_prefix_set=no
+
+version="@PROJECT_VERSION@"
+
+qmp_comms_type="@QMP_COMMS_TYPE@"
+qmp_cc="@CMAKE_C_COMPILER@"
+qmp_copts="@CMAKE_C_FLAGS@"
+qmp_cflags="-I@CMAKE_INSTALL_PREFIX@/include @QMP_COMMS_CFLAGS@ @CMAKE_C_COMPILER_FLAGS@"
+qmp_ldflags="-L@CMAKE_INSTALL_PREFIX@/lib @QMP_COMMS_LDFLAGS@"
+qmp_libs="-lqmp @QMP_COMMS_LIBS@"
+qmp_ranlib="@CMAKE_C_COMPILER_RANLIB@"
+qmp_ar="@CMAKE_C_COMPILER_AR@"
+
+usage()
+{
+  cat <<EOF
+Usage: qmp-config [OPTIONS]
+Options:
+  [--prefix[=DIR]]
+  [--exec-prefix[=DIR]]
+  [--version]
+  [--comms]
+  [--cc]
+  [--copts]
+  [--cflags]
+  [--ldflags]
+  [--libs]
+  [--ranlib]
+  [--ar]
+EOF
+  exit $1
+}
+
+if test $# -eq 0; then
+  usage 1 1>&2
+fi
+
+while test $# -gt 0; do
+  case "$1" in
+    -*=*) optarg=`echo "$1" | sed 's/[-_a-zA-Z0-9]*=//'` ;;
+    *)    optarg= ;;
+  esac
+
+  case $1 in
+    --prefix=*)
+      prefix=$optarg
+      if test $exec_prefix_set = no ; then
+        exec_prefix=$optarg
+      fi
+      ;;
+
+    --prefix)
+      echo_prefix=yes
+      ;;
+
+    --exec-prefix=*)
+      exec_prefix=$optarg
+      exec_prefix_set=yes
+      ;;
+
+    --exec-prefix)
+      echo_exec_prefix=yes
+      ;;
+
+    --version)
+      echo $version
+      ;;
+
+    --comms)
+      echo $qmp_comms_type
+      ;;
+
+    --cc)
+      echo $qmp_cc
+      ;;
+
+    --copts)
+      echo $qmp_copts
+      ;;
+
+    --cflags)
+      echo_cflags=yes
+      ;;
+
+    --ldflags)
+      echo_ldflags=yes
+      ;;
+
+    --libs)
+      echo_libs=yes
+      ;;
+    --ranlib)
+      echo $qmp_ranlib
+      ;;
+    --ar)
+      echo $qmp_ar
+      ;;
+    *)
+      usage 1 1>&2
+      ;;
+
+  esac
+  shift
+done
+
+if test "X${echo_prefix}X" = "XyesX" ; then
+  echo $prefix
+fi
+
+if test "X${echo_exec_prefix}X" = "XyesX" ; then
+  echo $exec_prefix
+fi
+
+if test "X${echo_cflags}X" = "XyesX" ; then
+  output_cflags=
+  for i in $qmp_cflags ; do
+    case $i in
+      -I/usr/include) ;;
+      -g) ;;
+      -O*) ;;
+      -W*) ;;
+      *)
+        case " $output_cflags " in
+          *\ $i\ *) ;;                             # already there, skip it
+          *) output_cflags="$output_cflags $i"     # add it to output
+        esac
+    esac
+  done
+  echo $output_cflags
+fi
+
+if test "X${echo_ldflags}X" = "XyesX" ; then
+  output_ldflags=
+  for i in $qmp_ldflags ; do
+    if test "X${i}X" != "X-I/usr/libX" ; then
+      case " $output_ldflags " in
+        *\ $i\ *) ;;                                # already here skip it
+        *) output_ldflags="$output_ldflags $i"     # add it to output
+      esac
+    fi
+  done
+  echo $output_ldflags
+fi
+
+# Straight out any possible duplicates, but be careful to
+# get `-lfoo -lbar -lbaz' for `-lfoo -lbaz -lbar -lbaz'
+
+if test "X${echo_libs}X" = "XyesX" ; then
+  rev_libs=
+  for i in $qmp_libs ; do
+    rev_libs="$i $rev_libs"
+  done
+  output_libs=
+  for i in $rev_libs ; do
+    case " $output_libs " in
+      *) output_libs="$i $output_libs" ;;  # add it to output in reverse order
+    esac
+  done
+  echo $output_libs
+fi

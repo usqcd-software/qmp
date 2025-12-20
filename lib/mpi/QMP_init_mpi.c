@@ -32,8 +32,14 @@ QMP_init_machine_mpi (int* argc, char*** argv, QMP_thread_level_t required,
     break;
   }
 
-  if (MPI_Init_thread(argc, argv, mpi_req, &mpi_prv) != MPI_SUCCESS) 
-    QMP_abort_string (-1, "MPI_Init failed");
+  int flag = 0;
+  MPI_Initialized(&flag); // needed to coexist with other libs apparently
+    if ( !flag ) {
+      if (MPI_Init_thread(argc, argv, mpi_req, &mpi_prv) != MPI_SUCCESS) 
+	QMP_abort_string (-1, "MPI_Init failed");
+    }else{
+      MPI_Query_thread(&mpi_prv);
+    }
 
   switch(mpi_prv) { 
   case MPI_THREAD_SINGLE:
@@ -81,7 +87,7 @@ QMP_init_machine_mpi (int* argc, char*** argv, QMP_thread_level_t required,
   MPI_Get_processor_name(QMP_machine->host, &QMP_machine->hostlen);
 
   void *tag_ub = NULL;
-  int flag = 0;
+  flag = 0;
   QMP_allocated_comm->last_tag = 0;
   if ((MPI_Comm_get_attr(MPI_COMM_WORLD, MPI_TAG_UB, (void *)&tag_ub, &flag) == 0) && (tag_ub != NULL)) {
       QMP_allocated_comm->last_tag = *(int *)tag_ub;
@@ -97,7 +103,12 @@ QMP_init_machine_mpi (int* argc, char*** argv, QMP_thread_level_t required,
 void
 QMP_finalize_msg_passing_mpi (void)
 {
-  MPI_Finalize();
+  int flag;
+  MPI_Finalized(&flag);
+
+  if (!flag) {
+    MPI_Finalize();
+  }
 }
 
 
