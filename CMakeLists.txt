@@ -7,6 +7,7 @@ set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 # Boiler plate -- CTest
 include(CTest)
+mark_as_advanced(BUILD_TESTING)
 
 #Options
 # --enable-extra-debugging 
@@ -33,7 +34,7 @@ option(QMP_BGQ "Enable BlueGene/Q Personality to set native machine geometry" OF
 option(QMP_BGSPI "Enable BlueGene SPI" OFF)
 
 # --enable-testing
-option(QMP_TESTING "Enable buidling of the examples" ON)
+option(QMP_BUILD_TESTS "Enable buidling of the examples" ON)
 
 # Enable Address address and undefined behaviour sanitizers
 option(QMP_ENABLE_SANITIZERS "Enable Address and Undefined Behaviour Sanitizers" OFF)
@@ -98,13 +99,26 @@ if( QMP_ENABLE_SANITIZERS )
 			message(STATUS "QMP: Setting Sanitizer options: ${QMP_SANITIZER_OPTS}")
 endif()  	 
  
+if(QMP_BUILD_TESTS)
+  set(BUILD_TESTING ON)
+endif()
+
+if(QMP_BUILD_SHARED_LIBS)
+  set(BUILD_SHARED_LIBS ON)
+endif()
+
 # Configuration file
 configure_file(include/qmp_config.h.cmake.in  include/qmp_config.h)
 configure_file(bin/qmp-config.cmake.in  bin/qmp-config @ONLY)
 
 
-add_subdirectory(lib)            
-if( QMP_TESTING ) 
+option(QMP_BUILD_SHARED_LIBS "Build shared library (in addition to or instead of static)" OFF)
+if(QMP_BUILD_SHARED_LIBS)
+  set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
+endif()
+
+add_subdirectory(lib)
+if( QMP_BUILD_TESTS ) 
   add_subdirectory(examples)
 endif()
 
